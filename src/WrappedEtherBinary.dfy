@@ -1,9 +1,15 @@
-include "evm-dafny/src/dafny/evm.dfy"
-include "evm-dafny/src/dafny/evms/berlin.dfy"
-import opened Int
+include "../evm-dafny/src/dafny/evm.dfy"
+include "../evm-dafny/src/dafny/evms/berlin.dfy"
+
+//import Int`{u8,u160}
 import opened Opcode
 import opened Memory
 import opened Bytecode
+
+type u8 = Int.u8
+type u160 = Int.u160
+type u256 = Int.u256
+const MAX_U256 : nat := Int.MAX_U256
 
 method external_call(sender: u160, st: EvmState.ExecutingState) returns (r:EvmState.TerminatedState)
 ensures r.RETURNS? ==> r.world.Exists(sender) {
@@ -30,7 +36,7 @@ requires st'.Operands() == 0
 	if st.PC() == 0xad { st := block_0_0x00ad(st); return st; }
 	st := Push1(st,0x00);
 	st := CallDataLoad(st);
-	st := Push29(st,0x0100000000000000000000000000000000000000000000000000000000);
+	st := PushN(st,29,0x0100000000000000000000000000000000000000000000000000000000);
 	st := Swap(st,1);
 	st := Div(st);
 	st := Push4(st,0xffffffff);
@@ -372,7 +378,7 @@ requires st'.Operands() == 1
 	st := Dup(st,1);
 	st := Dup(st,1);
 	st := CallDataLoad(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Swap(st,1);
 	st := Push1(st,0x20);
@@ -529,7 +535,7 @@ requires st'.Operands() == 1
 	st := Dup(st,1);
 	st := Dup(st,1);
 	st := CallDataLoad(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Swap(st,1);
 	st := Push1(st,0x20);
@@ -540,7 +546,7 @@ requires st'.Operands() == 1
 	st := Swap(st,1);
 	st := Dup(st,1);
 	st := CallDataLoad(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Swap(st,1);
 	st := Push1(st,0x20);
@@ -760,7 +766,7 @@ requires st'.Operands() == 1
 	st := Dup(st,1);
 	st := Dup(st,1);
 	st := CallDataLoad(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Swap(st,1);
 	st := Push1(st,0x20);
@@ -1039,7 +1045,7 @@ requires st'.Operands() == 1
 	st := Dup(st,1);
 	st := Dup(st,1);
 	st := CallDataLoad(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Swap(st,1);
 	st := Push1(st,0x20);
@@ -1158,7 +1164,7 @@ requires st'.Operands() == 1
 	st := Dup(st,1);
 	st := Dup(st,1);
 	st := CallDataLoad(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Swap(st,1);
 	st := Push1(st,0x20);
@@ -1169,7 +1175,7 @@ requires st'.Operands() == 1
 	st := Swap(st,1);
 	st := Dup(st,1);
 	st := CallDataLoad(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Swap(st,1);
 	st := Push1(st,0x20);
@@ -1230,9 +1236,9 @@ requires (st'.Peek(0) == 0xb4) || (st'.Peek(0) == 0x3cc) || (st'.Peek(0) == 0xb4
 	st := Push1(st,0x03);
 	st := Push1(st,0x00);
 	st := Caller(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Dup(st,2);
 	st := MStore(st);
@@ -1261,9 +1267,9 @@ requires (st'.Peek(0) == 0xb4) || (st'.Peek(0) == 0x3cc) || (st'.Peek(0) == 0xb4
 	st := SStore(st);
 	st := Pop(st);
 	st := Caller(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
-	st := Push32(st,0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c);
+	st := PushN(st,32,0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c);
 	st := CallValue(st);
 	st := Push1(st,0x40);
 	st := MLoad(st);
@@ -1284,7 +1290,7 @@ requires (st'.Peek(0) == 0xb4) || (st'.Peek(0) == 0x3cc) || (st'.Peek(0) == 0xb4
 	assert st.Peek(1) <= st.Peek(0);
 	st := Sub(st);
 	st := Swap(st,1);
-	st := Log2(st);
+	st := LogN(st,2);
 	assume st.IsJumpDest(0xb4);
 	assume st.IsJumpDest(0x3cc);
 	assume st.IsJumpDest(0xb4);
@@ -1505,9 +1511,9 @@ requires (st'.Peek(2) == 0x181)
 	st := Push1(st,0x04);
 	st := Push1(st,0x00);
 	st := Caller(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Dup(st,2);
 	st := MStore(st);
@@ -1524,9 +1530,9 @@ requires (st'.Peek(2) == 0x181)
 	st := Keccak256(st);
 	st := Push1(st,0x00);
 	st := Dup(st,6);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Dup(st,2);
 	st := MStore(st);
@@ -1546,12 +1552,12 @@ requires (st'.Peek(2) == 0x181)
 	st := SStore(st);
 	st := Pop(st);
 	st := Dup(st,3);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Caller(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
-	st := Push32(st,0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925);
+	st := PushN(st,32,0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925);
 	st := Dup(st,5);
 	st := Push1(st,0x40);
 	st := MLoad(st);
@@ -1572,7 +1578,7 @@ requires (st'.Peek(2) == 0x181)
 	assert st.Peek(1) <= st.Peek(0);
 	st := Sub(st);
 	st := Swap(st,1);
-	st := Log3(st);
+	st := LogN(st,3);
 	st := Push1(st,0x01);
 	st := Swap(st,1);
 	st := Pop(st);
@@ -1596,7 +1602,7 @@ requires (st'.Peek(0) == 0x1ae)
 	st := JumpDest(st);
 	st := Push1(st,0x00);
 	st := Address(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Balance(st);
 	st := Swap(st,1);
@@ -1621,9 +1627,9 @@ requires (st'.Peek(3) == 0x223) || (st'.Peek(3) == 0xbd5)
 	st := Push1(st,0x03);
 	st := Push1(st,0x00);
 	st := Dup(st,7);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Dup(st,2);
 	st := MStore(st);
@@ -1663,10 +1669,10 @@ requires (st'.Peek(4) == 0x223) || (st'.Peek(4) == 0xbd5)
 	var st := st';
 	st := JumpDest(st);
 	st := Caller(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Dup(st,5);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Eq(st);
 	st := IsZero(st);
@@ -1677,13 +1683,13 @@ requires (st'.Peek(4) == 0x223) || (st'.Peek(4) == 0xbd5)
 	st := JumpI(st);
 	if st.PC() == 0x7ae { st := block_0_0x07ae(st); return st; }
 	st := Pop(st);
-	st := Push32(st,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,32,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
 	st := Push1(st,0x04);
 	st := Push1(st,0x00);
 	st := Dup(st,7);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Dup(st,2);
 	st := MStore(st);
@@ -1700,9 +1706,9 @@ requires (st'.Peek(4) == 0x223) || (st'.Peek(4) == 0xbd5)
 	st := Keccak256(st);
 	st := Push1(st,0x00);
 	st := Caller(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Dup(st,2);
 	st := MStore(st);
@@ -1742,9 +1748,9 @@ requires (st'.Peek(5) == 0x223) || (st'.Peek(5) == 0xbd5)
 	st := Push1(st,0x04);
 	st := Push1(st,0x00);
 	st := Dup(st,7);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Dup(st,2);
 	st := MStore(st);
@@ -1761,9 +1767,9 @@ requires (st'.Peek(5) == 0x223) || (st'.Peek(5) == 0xbd5)
 	st := Keccak256(st);
 	st := Push1(st,0x00);
 	st := Caller(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Dup(st,2);
 	st := MStore(st);
@@ -1806,9 +1812,9 @@ requires (st'.Peek(4) == 0x223) || (st'.Peek(4) == 0xbd5)
 	st := Push1(st,0x04);
 	st := Push1(st,0x00);
 	st := Dup(st,7);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Dup(st,2);
 	st := MStore(st);
@@ -1825,9 +1831,9 @@ requires (st'.Peek(4) == 0x223) || (st'.Peek(4) == 0xbd5)
 	st := Keccak256(st);
 	st := Push1(st,0x00);
 	st := Caller(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Dup(st,2);
 	st := MStore(st);
@@ -1872,9 +1878,9 @@ requires (st'.Peek(4) == 0x223) || (st'.Peek(4) == 0xbd5)
 	st := Push1(st,0x03);
 	st := Push1(st,0x00);
 	st := Dup(st,7);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Dup(st,2);
 	st := MStore(st);
@@ -1906,9 +1912,9 @@ requires (st'.Peek(4) == 0x223) || (st'.Peek(4) == 0xbd5)
 	st := Push1(st,0x03);
 	st := Push1(st,0x00);
 	st := Dup(st,6);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Dup(st,2);
 	st := MStore(st);
@@ -1937,12 +1943,12 @@ requires (st'.Peek(4) == 0x223) || (st'.Peek(4) == 0xbd5)
 	st := SStore(st);
 	st := Pop(st);
 	st := Dup(st,3);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Dup(st,5);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
-	st := Push32(st,0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef);
+	st := PushN(st,32,0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef);
 	st := Dup(st,5);
 	st := Push1(st,0x40);
 	st := MLoad(st);
@@ -1963,7 +1969,7 @@ requires (st'.Peek(4) == 0x223) || (st'.Peek(4) == 0xbd5)
 	assert st.Peek(1) <= st.Peek(0);
 	st := Sub(st);
 	st := Swap(st,1);
-	st := Log3(st);
+	st := LogN(st,3);
 	st := Push1(st,0x01);
 	st := Swap(st,1);
 	st := Pop(st);
@@ -1994,9 +2000,9 @@ requires (st'.Peek(1) == 0x25e)
 	st := Push1(st,0x03);
 	st := Push1(st,0x00);
 	st := Caller(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Dup(st,2);
 	st := MStore(st);
@@ -2038,9 +2044,9 @@ requires (st'.Peek(1) == 0x25e)
 	st := Push1(st,0x03);
 	st := Push1(st,0x00);
 	st := Caller(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Dup(st,2);
 	st := MStore(st);
@@ -2069,7 +2075,7 @@ requires (st'.Peek(1) == 0x25e)
 	st := SStore(st);
 	st := Pop(st);
 	st := Caller(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
 	st := Push2(st,0x08fc);
 	st := Dup(st,3);
@@ -2124,9 +2130,9 @@ requires (st'.Peek(1) == 0x25e)
 	var st := st';
 	st := JumpDest(st);
 	st := Caller(st);
-	st := Push20(st,0xffffffffffffffffffffffffffffffffffffffff);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 	st := And(st);
-	st := Push32(st,0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65);
+	st := PushN(st,32,0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65);
 	st := Dup(st,3);
 	st := Push1(st,0x40);
 	st := MLoad(st);
@@ -2147,7 +2153,7 @@ requires (st'.Peek(1) == 0x25e)
 	assert st.Peek(1) <= st.Peek(0);
 	st := Sub(st);
 	st := Swap(st,1);
-	st := Log2(st);
+	st := LogN(st,2);
 	st := Pop(st);
 	assume st.IsJumpDest(0x25e);
 	st := Jump(st);
