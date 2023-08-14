@@ -1,0 +1,3 @@
+[submodule "evm-dafny"]
+	path = evm-dafny
+	url = git@github.com:Consensys/evm-dafny.git
