@@ -137,10 +137,11 @@ requires 0 <= st'.Operands() <= 1
 	st := Push2(st,0x043a);
 	assume st.IsJumpDest(0x43a);
 	st := Jump(st);
-	st := block_0_0x043a(st);
+	st := block_0_0x043a(st); // call deposit
 	return st;
 }
 
+// return from deposit()
 method block_0_0x00b4(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 requires st'.evm.code == Code.Create(BYTECODE_0)
 requires st'.WritesPermitted() && st'.PC() == 0x00b4
@@ -187,6 +188,201 @@ requires st'.Operands() == 1
 	assume st.IsJumpDest(0x4d7);
 	st := Jump(st);
 	st := block_0_0x04d7(st);
+	return st;
+}
+
+method {:verify false} block_0_0x04d7(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x04d7
+requires st'.Operands() == 2
+requires (st'.Peek(0) == 0xc7)
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Push1(st,0x00);
+	st := Dup(st,1);
+	st := SLoad(st);
+	st := Push1(st,0x01);
+	st := Dup(st,2);
+	st := Push1(st,0x01);
+	st := And(st);
+	st := IsZero(st);
+	st := Push2(st,0x0100);
+	assert (st.Peek(0) * st.Peek(1)) <= (MAX_U256 as u256);
+	st := Mul(st);
+	assert st.Peek(1) <= st.Peek(0);
+	st := Sub(st);
+	st := And(st);
+	st := Push1(st,0x02);
+	st := Swap(st,1);
+	st := Div(st);
+	st := Dup(st,1);
+	st := Push1(st,0x1f);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Push1(st,0x20);
+	st := Dup(st,1);
+	st := Swap(st,2);
+	st := Div(st);
+	assert (st.Peek(0) * st.Peek(1)) <= (MAX_U256 as u256);
+	st := Mul(st);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Push1(st,0x40);
+	st := MLoad(st);
+	st := Swap(st,1);
+	st := Dup(st,2);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Push1(st,0x40);
+	st := MStore(st);
+	st := Dup(st,1);
+	st := Swap(st,3);
+	st := Swap(st,2);
+	st := Swap(st,1);
+	st := Dup(st,2);
+	st := Dup(st,2);
+	st := MStore(st);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Dup(st,3);
+	st := Dup(st,1);
+	st := SLoad(st);
+	st := Push1(st,0x01);
+	st := Dup(st,2);
+	st := Push1(st,0x01);
+	st := And(st);
+	st := IsZero(st);
+	st := Push2(st,0x0100);
+	assert (st.Peek(0) * st.Peek(1)) <= (MAX_U256 as u256);
+	st := Mul(st);
+	assert st.Peek(1) <= st.Peek(0);
+	st := Sub(st);
+	st := And(st);
+	st := Push1(st,0x02);
+	st := Swap(st,1);
+	st := Div(st);
+	st := Dup(st,1);
+	st := IsZero(st);
+	st := Push2(st,0x056d);
+	assume st.IsJumpDest(0x56d);
+	st := JumpI(st);
+	if st.PC() == 0x56d { st := block_0_0x056d(st); return st; }
+	st := Dup(st,1);
+	st := Push1(st,0x1f);
+	st := Lt(st);
+	st := Push2(st,0x0542);
+	assume st.IsJumpDest(0x542);
+	st := JumpI(st);
+	if st.PC() == 0x542 { st := block_0_0x0542(st); return st; }
+	st := Push2(st,0x0100);
+	st := Dup(st,1);
+	st := Dup(st,4);
+	st := SLoad(st);
+	st := Div(st);
+	assert (st.Peek(0) * st.Peek(1)) <= (MAX_U256 as u256);
+	st := Mul(st);
+	st := Dup(st,4);
+	st := MStore(st);
+	st := Swap(st,2);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,2);
+	st := Push2(st,0x056d);
+	assume st.IsJumpDest(0x56d);
+	st := Jump(st);
+	st := block_0_0x056d(st);
+	return st;
+}
+
+method {:verify false} block_0_0x0542(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x0542
+requires st'.Operands() == 8
+requires (st'.Peek(1) == 0x0)
+requires (st'.Peek(4) == 0x0)
+requires (st'.Peek(6) == 0xc7)
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Dup(st,3);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,2);
+	st := Swap(st,1);
+	st := Push1(st,0x00);
+	st := MStore(st);
+	st := Push1(st,0x20);
+	st := Push1(st,0x00);
+	st := Keccak256(st);
+	st := Swap(st,1);
+	st := block_0_0x0550(st);
+	return st;
+}
+
+method {:verify false} block_0_0x0550(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x0550
+requires st'.Operands() == 8
+requires (st'.Peek(4) == 0x0)
+requires (st'.Peek(6) == 0xc7)
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Dup(st,2);
+	st := SLoad(st);
+	st := Dup(st,2);
+	st := MStore(st);
+	st := Swap(st,1);
+	st := Push1(st,0x01);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,1);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Dup(st,1);
+	st := Dup(st,4);
+	st := Gt(st);
+	st := Push2(st,0x0550);
+	assume st.IsJumpDest(0x550);
+	st := JumpI(st);
+	if st.PC() == 0x550 { st := block_0_0x0550(st); return st; }
+	st := Dup(st,3);
+	st := Swap(st,1);
+	assert st.Peek(1) <= st.Peek(0);
+	st := Sub(st);
+	st := Push1(st,0x1f);
+	st := And(st);
+	st := Dup(st,3);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,2);
+	st := block_0_0x056d(st);
+	return st;
+}
+
+method block_0_0x056d(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x056d
+requires st'.Operands() == 8
+requires (st'.Peek(4) == 0x0)
+requires (st'.Peek(6) == 0xc7)
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Pop(st);
+	st := Pop(st);
+	st := Pop(st);
+	st := Pop(st);
+	st := Pop(st);
+	st := Dup(st,2);
+	assume st.IsJumpDest(0xc7);
+	st := Jump(st);
+	st := block_0_0x00c7(st);
 	return st;
 }
 
@@ -417,6 +613,100 @@ requires st'.Operands() == 1
 	return st;
 }
 
+method {:verify false} block_0_0x0575(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x0575
+requires st'.Operands() == 4
+requires (st'.Peek(2) == 0x181)
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Push1(st,0x00);
+	st := Dup(st,2);
+	st := Push1(st,0x04);
+	st := Push1(st,0x00);
+	st := Caller(st);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
+	st := And(st);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
+	st := And(st);
+	st := Dup(st,2);
+	st := MStore(st);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,1);
+	st := Dup(st,2);
+	st := MStore(st);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Push1(st,0x00);
+	st := Keccak256(st);
+	st := Push1(st,0x00);
+	st := Dup(st,6);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
+	st := And(st);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
+	st := And(st);
+	st := Dup(st,2);
+	st := MStore(st);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,1);
+	st := Dup(st,2);
+	st := MStore(st);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Push1(st,0x00);
+	st := Keccak256(st);
+	st := Dup(st,2);
+	st := Swap(st,1);
+	st := SStore(st);
+	st := Pop(st);
+	st := Dup(st,3);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
+	st := And(st);
+	st := Caller(st);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
+	st := And(st);
+	st := PushN(st,32,0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925);
+	st := Dup(st,5);
+	st := Push1(st,0x40);
+	st := MLoad(st);
+	st := Dup(st,1);
+	st := Dup(st,3);
+	st := Dup(st,2);
+	st := MStore(st);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,2);
+	st := Pop(st);
+	st := Pop(st);
+	st := Push1(st,0x40);
+	st := MLoad(st);
+	st := Dup(st,1);
+	st := Swap(st,2);
+	assert st.Peek(1) <= st.Peek(0);
+	st := Sub(st);
+	st := Swap(st,1);
+	st := LogN(st,3);
+	st := Push1(st,0x01);
+	st := Swap(st,1);
+	st := Pop(st);
+	st := Swap(st,3);
+	st := Swap(st,2);
+	st := Pop(st);
+	st := Pop(st);
+	assume st.IsJumpDest(0x181);
+	st := Jump(st);
+	st := block_0_0x0181(st);
+	return st;
+}
+
 method {:verify false} block_0_0x0181(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 requires st'.evm.code == Code.Create(BYTECODE_0)
 requires st'.WritesPermitted() && st'.PC() == 0x0181
@@ -487,6 +777,28 @@ requires st'.Operands() == 1
 	assume st.IsJumpDest(0x667);
 	st := Jump(st);
 	st := block_0_0x0667(st);
+	return st;
+}
+
+method block_0_0x0667(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x0667
+requires st'.Operands() == 2
+requires (st'.Peek(0) == 0x1ae)
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Push1(st,0x00);
+	st := Address(st);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
+	st := And(st);
+	st := Balance(st);
+	st := Swap(st,1);
+	st := Pop(st);
+	st := Swap(st,1);
+	assume st.IsJumpDest(0x1ae);
+	st := Jump(st);
+	st := block_0_0x01ae(st);
 	return st;
 }
 
@@ -590,1074 +902,6 @@ requires st'.Operands() == 1
 	assume st.IsJumpDest(0x686);
 	st := Jump(st);
 	st := block_0_0x0686(st);
-	return st;
-}
-
-method {:verify false} block_0_0x0223(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x0223
-requires st'.Operands() == 2
-requires (st'.Peek(0) == 0x1)
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Push1(st,0x40);
-	st := MLoad(st);
-	st := Dup(st,1);
-	st := Dup(st,3);
-	st := IsZero(st);
-	st := IsZero(st);
-	st := IsZero(st);
-	st := IsZero(st);
-	st := Dup(st,2);
-	st := MStore(st);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,2);
-	st := Pop(st);
-	st := Pop(st);
-	st := Push1(st,0x40);
-	st := MLoad(st);
-	st := Dup(st,1);
-	st := Swap(st,2);
-	assert st.Peek(1) <= st.Peek(0);
-	st := Sub(st);
-	st := Swap(st,1);
-	st := Return(st);
-	return st;
-}
-
-// ============================================================================
-// withdraw(uint256)
-// ============================================================================
-
-method block_0_0x023d(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x023d
-requires st'.Operands() == 1
-{
-	var st := st';
-	st := JumpDest(st);
-	st := CallValue(st);
-	st := IsZero(st);
-	st := Push2(st,0x0248);
-	assume st.IsJumpDest(0x248);
-	st := JumpI(st);
-	if st.PC() == 0x248 { st := block_0_0x0248(st); return st; }
-	st := Push1(st,0x00);
-	st := Dup(st,1);
-	st := Revert(st);
-	return st;
-}
-
-method {:verify false} block_0_0x0248(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x0248
-requires st'.Operands() == 1
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Push2(st,0x025e);
-	st := Push1(st,0x04);
-	st := Dup(st,1);
-	st := Dup(st,1);
-	st := CallDataLoad(st);
-	st := Swap(st,1);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,1);
-	st := Swap(st,2);
-	st := Swap(st,1);
-	st := Pop(st);
-	st := Pop(st);
-	st := Push2(st,0x09d3);
-	assume st.IsJumpDest(0x9d3);
-	st := Jump(st);
-	st := block_0_0x09d3(st);
-	return st;
-}
-
-method block_0_0x025e(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x025e
-requires st'.Operands() == 1
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Stop(st);
-	return st;
-}
-
-// ============================================================================
-// decimals()
-// ============================================================================
-
-method block_0_0x0260(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x0260
-requires st'.Operands() == 1
-{
-	var st := st';
-	st := JumpDest(st);
-	st := CallValue(st);
-	st := IsZero(st);
-	st := Push2(st,0x026b);
-	assume st.IsJumpDest(0x26b);
-	st := JumpI(st);
-	if st.PC() == 0x26b { st := block_0_0x026b(st); return st; }
-	st := Push1(st,0x00);
-	st := Dup(st,1);
-	st := Revert(st);
-	return st;
-}
-
-method block_0_0x026b(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x026b
-requires st'.Operands() == 1
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Push2(st,0x0273);
-	st := Push2(st,0x0aff);
-	assume st.IsJumpDest(0xaff);
-	st := Jump(st);
-	st := block_0_0x0aff(st);
-	return st;
-}
-
-method {:verify false} block_0_0x0273(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x0273
-requires st'.Operands() == 3
-requires (st'.Peek(1) == 0x273)
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Push1(st,0x40);
-	st := MLoad(st);
-	st := Dup(st,1);
-	st := Dup(st,3);
-	st := Push1(st,0xff);
-	st := And(st);
-	st := Push1(st,0xff);
-	st := And(st);
-	st := Dup(st,2);
-	st := MStore(st);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,2);
-	st := Pop(st);
-	st := Pop(st);
-	st := Push1(st,0x40);
-	st := MLoad(st);
-	st := Dup(st,1);
-	st := Swap(st,2);
-	assert st.Peek(1) <= st.Peek(0);
-	st := Sub(st);
-	st := Swap(st,1);
-	st := Return(st);
-	return st;
-}
-
-// ============================================================================
-// balanceOf(address)
-// ============================================================================
-
-method block_0_0x028f(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x028f
-requires st'.Operands() == 1
-{
-	var st := st';
-	st := JumpDest(st);
-	st := CallValue(st);
-	st := IsZero(st);
-	st := Push2(st,0x029a);
-	assume st.IsJumpDest(0x29a);
-	st := JumpI(st);
-	if st.PC() == 0x29a { st := block_0_0x029a(st); return st; }
-	st := Push1(st,0x00);
-	st := Dup(st,1);
-	st := Revert(st);
-	return st;
-}
-
-method {:verify false} block_0_0x029a(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x029a
-requires st'.Operands() == 1
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Push2(st,0x02c6);
-	st := Push1(st,0x04);
-	st := Dup(st,1);
-	st := Dup(st,1);
-	st := CallDataLoad(st);
-	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-	st := And(st);
-	st := Swap(st,1);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,1);
-	st := Swap(st,2);
-	st := Swap(st,1);
-	st := Pop(st);
-	st := Pop(st);
-	st := Push2(st,0x0b12);
-	assume st.IsJumpDest(0xb12);
-	st := Jump(st);
-	st := block_0_0x0b12(st);
-	return st;
-}
-
-method {:verify false} block_0_0x02c6(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x02c6
-requires st'.Operands() == 3
-requires (st'.Peek(1) == 0x2c6)
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Push1(st,0x40);
-	st := MLoad(st);
-	st := Dup(st,1);
-	st := Dup(st,3);
-	st := Dup(st,2);
-	st := MStore(st);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,2);
-	st := Pop(st);
-	st := Pop(st);
-	st := Push1(st,0x40);
-	st := MLoad(st);
-	st := Dup(st,1);
-	st := Swap(st,2);
-	assert st.Peek(1) <= st.Peek(0);
-	st := Sub(st);
-	st := Swap(st,1);
-	st := Return(st);
-	return st;
-}
-
-// ============================================================================
-// symbol()
-// ============================================================================
-
-method block_0_0x02dc(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x02dc
-requires st'.Operands() == 1
-{
-	var st := st';
-	st := JumpDest(st);
-	st := CallValue(st);
-	st := IsZero(st);
-	st := Push2(st,0x02e7);
-	assume st.IsJumpDest(0x2e7);
-	st := JumpI(st);
-	if st.PC() == 0x2e7 { st := block_0_0x02e7(st); return st; }
-	st := Push1(st,0x00);
-	st := Dup(st,1);
-	st := Revert(st);
-	return st;
-}
-
-method block_0_0x02e7(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x02e7
-requires st'.Operands() == 1
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Push2(st,0x02ef);
-	st := Push2(st,0x0b2a);
-	assume st.IsJumpDest(0xb2a);
-	st := Jump(st);
-	st := block_0_0x0b2a(st);
-	return st;
-}
-
-method {:verify false} block_0_0x02ef(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x02ef
-requires st'.Operands() == 3
-requires (st'.Peek(1) == 0x2ef)
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Push1(st,0x40);
-	st := MLoad(st);
-	st := Dup(st,1);
-	st := Dup(st,1);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Dup(st,3);
-	st := Dup(st,2);
-	assert st.Peek(1) <= st.Peek(0);
-	st := Sub(st);
-	st := Dup(st,3);
-	st := MStore(st);
-	st := Dup(st,4);
-	st := Dup(st,2);
-	st := Dup(st,2);
-	st := MLoad(st);
-	st := Dup(st,2);
-	st := MStore(st);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,2);
-	st := Pop(st);
-	st := Dup(st,1);
-	st := MLoad(st);
-	st := Swap(st,1);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,1);
-	st := Dup(st,1);
-	st := Dup(st,4);
-	st := Dup(st,4);
-	st := Push1(st,0x00);
-	st := block_0_0x0314(st);
-	return st;
-}
-
-method {:verify false} block_0_0x0314(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x0314
-requires st'.Operands() == 12
-requires (st'.Peek(10) == 0x2ef)
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Dup(st,4);
-	st := Dup(st,2);
-	st := Lt(st);
-	st := IsZero(st);
-	st := Push2(st,0x032f);
-	assume st.IsJumpDest(0x32f);
-	st := JumpI(st);
-	if st.PC() == 0x32f { st := block_0_0x032f(st); return st; }
-	st := Dup(st,1);
-	st := Dup(st,3);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := MLoad(st);
-	st := Dup(st,2);
-	st := Dup(st,5);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := MStore(st);
-	st := Push1(st,0x20);
-	st := Dup(st,2);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,1);
-	st := Pop(st);
-	st := Push2(st,0x0314);
-	assume st.IsJumpDest(0x314);
-	st := Jump(st);
-	st := block_0_0x0314(st);
-	return st;
-}
-
-method {:verify false} block_0_0x032f(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x032f
-requires st'.Operands() == 12
-requires (st'.Peek(10) == 0x2ef)
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Pop(st);
-	st := Pop(st);
-	st := Pop(st);
-	st := Pop(st);
-	st := Swap(st,1);
-	st := Pop(st);
-	st := Swap(st,1);
-	st := Dup(st,2);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,1);
-	st := Push1(st,0x1f);
-	st := And(st);
-	st := Dup(st,1);
-	st := IsZero(st);
-	st := Push2(st,0x035c);
-	assume st.IsJumpDest(0x35c);
-	st := JumpI(st);
-	if st.PC() == 0x35c { st := block_0_0x035c(st); return st; }
-	st := Dup(st,1);
-	st := Dup(st,3);
-	assert st.Peek(1) <= st.Peek(0);
-	st := Sub(st);
-	st := Dup(st,1);
-	st := MLoad(st);
-	st := Push1(st,0x01);
-	st := Dup(st,4);
-	st := Push1(st,0x20);
-	assert st.Peek(1) <= st.Peek(0);
-	st := Sub(st);
-	st := Push2(st,0x0100);
-	st := Exp(st);
-	assert st.Peek(1) <= st.Peek(0);
-	st := Sub(st);
-	st := Not(st);
-	st := And(st);
-	st := Dup(st,2);
-	st := MStore(st);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,2);
-	st := Pop(st);
-	st := block_0_0x035c(st);
-	return st;
-}
-
-method {:verify false} block_0_0x035c(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x035c
-requires st'.Operands() == 7
-requires (st'.Peek(5) == 0x2ef)
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Pop(st);
-	st := Swap(st,3);
-	st := Pop(st);
-	st := Pop(st);
-	st := Pop(st);
-	st := Push1(st,0x40);
-	st := MLoad(st);
-	st := Dup(st,1);
-	st := Swap(st,2);
-	assert st.Peek(1) <= st.Peek(0);
-	st := Sub(st);
-	st := Swap(st,1);
-	st := Return(st);
-	return st;
-}
-
-// ============================================================================
-// transfer(address,uint256)
-// ============================================================================
-
-method block_0_0x036a(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x036a
-requires st'.Operands() == 1
-{
-	var st := st';
-	st := JumpDest(st);
-	st := CallValue(st);
-	st := IsZero(st);
-	st := Push2(st,0x0375);
-	assume st.IsJumpDest(0x375);
-	st := JumpI(st);
-	if st.PC() == 0x375 { st := block_0_0x0375(st); return st; }
-	st := Push1(st,0x00);
-	st := Dup(st,1);
-	st := Revert(st);
-	return st;
-}
-
-method {:verify false} block_0_0x0375(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x0375
-requires st'.Operands() == 1
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Push2(st,0x03aa);
-	st := Push1(st,0x04);
-	st := Dup(st,1);
-	st := Dup(st,1);
-	st := CallDataLoad(st);
-	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-	st := And(st);
-	st := Swap(st,1);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,1);
-	st := Swap(st,2);
-	st := Swap(st,1);
-	st := Dup(st,1);
-	st := CallDataLoad(st);
-	st := Swap(st,1);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,1);
-	st := Swap(st,2);
-	st := Swap(st,1);
-	st := Pop(st);
-	st := Pop(st);
-	st := Push2(st,0x0bc8);
-	assume st.IsJumpDest(0xbc8);
-	st := Jump(st);
-	st := block_0_0x0bc8(st);
-	return st;
-}
-
-method {:verify false} block_0_0x03aa(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x03aa
-requires st'.Operands() == 2
-requires (st'.Peek(0) == 0x1)
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Push1(st,0x40);
-	st := MLoad(st);
-	st := Dup(st,1);
-	st := Dup(st,3);
-	st := IsZero(st);
-	st := IsZero(st);
-	st := IsZero(st);
-	st := IsZero(st);
-	st := Dup(st,2);
-	st := MStore(st);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,2);
-	st := Pop(st);
-	st := Pop(st);
-	st := Push1(st,0x40);
-	st := MLoad(st);
-	st := Dup(st,1);
-	st := Swap(st,2);
-	assert st.Peek(1) <= st.Peek(0);
-	st := Sub(st);
-	st := Swap(st,1);
-	st := Return(st);
-	return st;
-}
-
-// ============================================================================
-// deposit()
-// ============================================================================
-
-method block_0_0x03c4(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x03c4
-requires st'.Operands() == 1
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Push2(st,0x03cc);
-	st := Push2(st,0x043a);
-	assume st.IsJumpDest(0x43a);
-	st := Jump(st);
-	st := block_0_0x043a(st);
-	return st;
-}
-
-method block_0_0x03cc(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x03cc
-requires st'.Operands() == 1
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Stop(st);
-	return st;
-}
-
-// ============================================================================
-// allowance(address,address)
-// ============================================================================
-
-method block_0_0x03ce(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x03ce
-requires st'.Operands() == 1
-{
-	var st := st';
-	st := JumpDest(st);
-	st := CallValue(st);
-	st := IsZero(st);
-	st := Push2(st,0x03d9);
-	assume st.IsJumpDest(0x3d9);
-	st := JumpI(st);
-	if st.PC() == 0x3d9 { st := block_0_0x03d9(st); return st; }
-	st := Push1(st,0x00);
-	st := Dup(st,1);
-	st := Revert(st);
-	return st;
-}
-
-method {:verify false} block_0_0x03d9(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x03d9
-requires st'.Operands() == 1
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Push2(st,0x0424);
-	st := Push1(st,0x04);
-	st := Dup(st,1);
-	st := Dup(st,1);
-	st := CallDataLoad(st);
-	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-	st := And(st);
-	st := Swap(st,1);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,1);
-	st := Swap(st,2);
-	st := Swap(st,1);
-	st := Dup(st,1);
-	st := CallDataLoad(st);
-	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-	st := And(st);
-	st := Swap(st,1);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,1);
-	st := Swap(st,2);
-	st := Swap(st,1);
-	st := Pop(st);
-	st := Pop(st);
-	st := Push2(st,0x0bdd);
-	assume st.IsJumpDest(0xbdd);
-	st := Jump(st);
-	st := block_0_0x0bdd(st);
-	return st;
-}
-
-method {:verify false} block_0_0x0424(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x0424
-requires st'.Operands() == 3
-requires (st'.Peek(1) == 0x424)
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Push1(st,0x40);
-	st := MLoad(st);
-	st := Dup(st,1);
-	st := Dup(st,3);
-	st := Dup(st,2);
-	st := MStore(st);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,2);
-	st := Pop(st);
-	st := Pop(st);
-	st := Push1(st,0x40);
-	st := MLoad(st);
-	st := Dup(st,1);
-	st := Swap(st,2);
-	assert st.Peek(1) <= st.Peek(0);
-	st := Sub(st);
-	st := Swap(st,1);
-	st := Return(st);
-	return st;
-}
-
-method {:verify false} block_0_0x043a(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x043a
-requires 1 <= st'.Operands() <= 2
-requires (st'.Peek(0) == 0xb4) || (st'.Peek(0) == 0x3cc) || (st'.Peek(0) == 0xb4)
-{
-	var st := st';
-	st := JumpDest(st);
-	st := CallValue(st);
-	st := Push1(st,0x03);
-	st := Push1(st,0x00);
-	st := Caller(st);
-	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-	st := And(st);
-	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-	st := And(st);
-	st := Dup(st,2);
-	st := MStore(st);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,1);
-	st := Dup(st,2);
-	st := MStore(st);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Push1(st,0x00);
-	st := Keccak256(st);
-	st := Push1(st,0x00);
-	st := Dup(st,3);
-	st := Dup(st,3);
-	st := SLoad(st);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,3);
-	st := Pop(st);
-	st := Pop(st);
-	st := Dup(st,2);
-	st := Swap(st,1);
-	st := SStore(st);
-	st := Pop(st);
-	st := Caller(st);
-	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-	st := And(st);
-	st := PushN(st,32,0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c);
-	st := CallValue(st);
-	st := Push1(st,0x40);
-	st := MLoad(st);
-	st := Dup(st,1);
-	st := Dup(st,3);
-	st := Dup(st,2);
-	st := MStore(st);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,2);
-	st := Pop(st);
-	st := Pop(st);
-	st := Push1(st,0x40);
-	st := MLoad(st);
-	st := Dup(st,1);
-	st := Swap(st,2);
-	assert st.Peek(1) <= st.Peek(0);
-	st := Sub(st);
-	st := Swap(st,1);
-	st := LogN(st,2);
-	assume st.IsJumpDest(0xb4);
-	assume st.IsJumpDest(0x3cc);
-	assume st.IsJumpDest(0xb4);
-	st := Jump(st);
-	match st.PC() {
-		case 0xb4 => { st := block_0_0x00b4(st); }
-		case 0x3cc => { st := block_0_0x03cc(st); }
-	}
-	return st;
-}
-
-method {:verify false} block_0_0x04d7(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x04d7
-requires st'.Operands() == 2
-requires (st'.Peek(0) == 0xc7)
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Push1(st,0x00);
-	st := Dup(st,1);
-	st := SLoad(st);
-	st := Push1(st,0x01);
-	st := Dup(st,2);
-	st := Push1(st,0x01);
-	st := And(st);
-	st := IsZero(st);
-	st := Push2(st,0x0100);
-	assert (st.Peek(0) * st.Peek(1)) <= (MAX_U256 as u256);
-	st := Mul(st);
-	assert st.Peek(1) <= st.Peek(0);
-	st := Sub(st);
-	st := And(st);
-	st := Push1(st,0x02);
-	st := Swap(st,1);
-	st := Div(st);
-	st := Dup(st,1);
-	st := Push1(st,0x1f);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Push1(st,0x20);
-	st := Dup(st,1);
-	st := Swap(st,2);
-	st := Div(st);
-	assert (st.Peek(0) * st.Peek(1)) <= (MAX_U256 as u256);
-	st := Mul(st);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Push1(st,0x40);
-	st := MLoad(st);
-	st := Swap(st,1);
-	st := Dup(st,2);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Push1(st,0x40);
-	st := MStore(st);
-	st := Dup(st,1);
-	st := Swap(st,3);
-	st := Swap(st,2);
-	st := Swap(st,1);
-	st := Dup(st,2);
-	st := Dup(st,2);
-	st := MStore(st);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Dup(st,3);
-	st := Dup(st,1);
-	st := SLoad(st);
-	st := Push1(st,0x01);
-	st := Dup(st,2);
-	st := Push1(st,0x01);
-	st := And(st);
-	st := IsZero(st);
-	st := Push2(st,0x0100);
-	assert (st.Peek(0) * st.Peek(1)) <= (MAX_U256 as u256);
-	st := Mul(st);
-	assert st.Peek(1) <= st.Peek(0);
-	st := Sub(st);
-	st := And(st);
-	st := Push1(st,0x02);
-	st := Swap(st,1);
-	st := Div(st);
-	st := Dup(st,1);
-	st := IsZero(st);
-	st := Push2(st,0x056d);
-	assume st.IsJumpDest(0x56d);
-	st := JumpI(st);
-	if st.PC() == 0x56d { st := block_0_0x056d(st); return st; }
-	st := Dup(st,1);
-	st := Push1(st,0x1f);
-	st := Lt(st);
-	st := Push2(st,0x0542);
-	assume st.IsJumpDest(0x542);
-	st := JumpI(st);
-	if st.PC() == 0x542 { st := block_0_0x0542(st); return st; }
-	st := Push2(st,0x0100);
-	st := Dup(st,1);
-	st := Dup(st,4);
-	st := SLoad(st);
-	st := Div(st);
-	assert (st.Peek(0) * st.Peek(1)) <= (MAX_U256 as u256);
-	st := Mul(st);
-	st := Dup(st,4);
-	st := MStore(st);
-	st := Swap(st,2);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,2);
-	st := Push2(st,0x056d);
-	assume st.IsJumpDest(0x56d);
-	st := Jump(st);
-	st := block_0_0x056d(st);
-	return st;
-}
-
-method {:verify false} block_0_0x0542(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x0542
-requires st'.Operands() == 8
-requires (st'.Peek(1) == 0x0)
-requires (st'.Peek(4) == 0x0)
-requires (st'.Peek(6) == 0xc7)
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Dup(st,3);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,2);
-	st := Swap(st,1);
-	st := Push1(st,0x00);
-	st := MStore(st);
-	st := Push1(st,0x20);
-	st := Push1(st,0x00);
-	st := Keccak256(st);
-	st := Swap(st,1);
-	st := block_0_0x0550(st);
-	return st;
-}
-
-method {:verify false} block_0_0x0550(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x0550
-requires st'.Operands() == 8
-requires (st'.Peek(4) == 0x0)
-requires (st'.Peek(6) == 0xc7)
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Dup(st,2);
-	st := SLoad(st);
-	st := Dup(st,2);
-	st := MStore(st);
-	st := Swap(st,1);
-	st := Push1(st,0x01);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,1);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Dup(st,1);
-	st := Dup(st,4);
-	st := Gt(st);
-	st := Push2(st,0x0550);
-	assume st.IsJumpDest(0x550);
-	st := JumpI(st);
-	if st.PC() == 0x550 { st := block_0_0x0550(st); return st; }
-	st := Dup(st,3);
-	st := Swap(st,1);
-	assert st.Peek(1) <= st.Peek(0);
-	st := Sub(st);
-	st := Push1(st,0x1f);
-	st := And(st);
-	st := Dup(st,3);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,2);
-	st := block_0_0x056d(st);
-	return st;
-}
-
-method block_0_0x056d(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x056d
-requires st'.Operands() == 8
-requires (st'.Peek(4) == 0x0)
-requires (st'.Peek(6) == 0xc7)
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Pop(st);
-	st := Pop(st);
-	st := Pop(st);
-	st := Pop(st);
-	st := Pop(st);
-	st := Dup(st,2);
-	assume st.IsJumpDest(0xc7);
-	st := Jump(st);
-	st := block_0_0x00c7(st);
-	return st;
-}
-
-method {:verify false} block_0_0x0575(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x0575
-requires st'.Operands() == 4
-requires (st'.Peek(2) == 0x181)
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Push1(st,0x00);
-	st := Dup(st,2);
-	st := Push1(st,0x04);
-	st := Push1(st,0x00);
-	st := Caller(st);
-	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-	st := And(st);
-	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-	st := And(st);
-	st := Dup(st,2);
-	st := MStore(st);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,1);
-	st := Dup(st,2);
-	st := MStore(st);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Push1(st,0x00);
-	st := Keccak256(st);
-	st := Push1(st,0x00);
-	st := Dup(st,6);
-	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-	st := And(st);
-	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-	st := And(st);
-	st := Dup(st,2);
-	st := MStore(st);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,1);
-	st := Dup(st,2);
-	st := MStore(st);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Push1(st,0x00);
-	st := Keccak256(st);
-	st := Dup(st,2);
-	st := Swap(st,1);
-	st := SStore(st);
-	st := Pop(st);
-	st := Dup(st,3);
-	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-	st := And(st);
-	st := Caller(st);
-	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-	st := And(st);
-	st := PushN(st,32,0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925);
-	st := Dup(st,5);
-	st := Push1(st,0x40);
-	st := MLoad(st);
-	st := Dup(st,1);
-	st := Dup(st,3);
-	st := Dup(st,2);
-	st := MStore(st);
-	st := Push1(st,0x20);
-	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-	st := Add(st);
-	st := Swap(st,2);
-	st := Pop(st);
-	st := Pop(st);
-	st := Push1(st,0x40);
-	st := MLoad(st);
-	st := Dup(st,1);
-	st := Swap(st,2);
-	assert st.Peek(1) <= st.Peek(0);
-	st := Sub(st);
-	st := Swap(st,1);
-	st := LogN(st,3);
-	st := Push1(st,0x01);
-	st := Swap(st,1);
-	st := Pop(st);
-	st := Swap(st,3);
-	st := Swap(st,2);
-	st := Pop(st);
-	st := Pop(st);
-	assume st.IsJumpDest(0x181);
-	st := Jump(st);
-	st := block_0_0x0181(st);
-	return st;
-}
-
-method block_0_0x0667(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-requires st'.evm.code == Code.Create(BYTECODE_0)
-requires st'.WritesPermitted() && st'.PC() == 0x0667
-requires st'.Operands() == 2
-requires (st'.Peek(0) == 0x1ae)
-{
-	var st := st';
-	st := JumpDest(st);
-	st := Push1(st,0x00);
-	st := Address(st);
-	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-	st := And(st);
-	st := Balance(st);
-	st := Swap(st,1);
-	st := Pop(st);
-	st := Swap(st,1);
-	assume st.IsJumpDest(0x1ae);
-	st := Jump(st);
-	st := block_0_0x01ae(st);
 	return st;
 }
 
@@ -2030,8 +1274,94 @@ requires (st'.Peek(4) == 0x223) || (st'.Peek(4) == 0xbd5)
 	st := Jump(st);
 	match st.PC() {
 		case 0x223 => { st := block_0_0x0223(st); }
-		case 0xbd5 => { st := block_0_0x0bd5(st); }
+		case 0xbd5 => { st := block_0_0x0bd5(st); } // ==> transfer
 	}
+	return st;
+}
+
+method {:verify false} block_0_0x0223(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x0223
+requires st'.Operands() == 2
+requires (st'.Peek(0) == 0x1)
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Push1(st,0x40);
+	st := MLoad(st);
+	st := Dup(st,1);
+	st := Dup(st,3);
+	st := IsZero(st);
+	st := IsZero(st);
+	st := IsZero(st);
+	st := IsZero(st);
+	st := Dup(st,2);
+	st := MStore(st);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,2);
+	st := Pop(st);
+	st := Pop(st);
+	st := Push1(st,0x40);
+	st := MLoad(st);
+	st := Dup(st,1);
+	st := Swap(st,2);
+	assert st.Peek(1) <= st.Peek(0);
+	st := Sub(st);
+	st := Swap(st,1);
+	st := Return(st);
+	return st;
+}
+
+// ============================================================================
+// withdraw(uint256)
+// ============================================================================
+
+method block_0_0x023d(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x023d
+requires st'.Operands() == 1
+{
+	var st := st';
+	st := JumpDest(st);
+	st := CallValue(st);
+	st := IsZero(st);
+	st := Push2(st,0x0248);
+	assume st.IsJumpDest(0x248);
+	st := JumpI(st);
+	if st.PC() == 0x248 { st := block_0_0x0248(st); return st; }
+	st := Push1(st,0x00);
+	st := Dup(st,1);
+	st := Revert(st);
+	return st;
+}
+
+method {:verify false} block_0_0x0248(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x0248
+requires st'.Operands() == 1
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Push2(st,0x025e);
+	st := Push1(st,0x04);
+	st := Dup(st,1);
+	st := Dup(st,1);
+	st := CallDataLoad(st);
+	st := Swap(st,1);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,1);
+	st := Swap(st,2);
+	st := Swap(st,1);
+	st := Pop(st);
+	st := Pop(st);
+	st := Push2(st,0x09d3);
+	assume st.IsJumpDest(0x9d3);
+	st := Jump(st);
+	st := block_0_0x09d3(st);
 	return st;
 }
 
@@ -2208,6 +1538,55 @@ requires (st'.Peek(1) == 0x25e)
 	return st;
 }
 
+method block_0_0x025e(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x025e
+requires st'.Operands() == 1
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Stop(st);
+	return st;
+}
+
+// ============================================================================
+// decimals()
+// ============================================================================
+
+method block_0_0x0260(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x0260
+requires st'.Operands() == 1
+{
+	var st := st';
+	st := JumpDest(st);
+	st := CallValue(st);
+	st := IsZero(st);
+	st := Push2(st,0x026b);
+	assume st.IsJumpDest(0x26b);
+	st := JumpI(st);
+	if st.PC() == 0x26b { st := block_0_0x026b(st); return st; }
+	st := Push1(st,0x00);
+	st := Dup(st,1);
+	st := Revert(st);
+	return st;
+}
+
+method block_0_0x026b(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x026b
+requires st'.Operands() == 1
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Push2(st,0x0273);
+	st := Push2(st,0x0aff);
+	assume st.IsJumpDest(0xaff);
+	st := Jump(st);
+	st := block_0_0x0aff(st);
+	return st;
+}
+
 method {:verify false} block_0_0x0aff(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 requires st'.evm.code == Code.Create(BYTECODE_0)
 requires st'.WritesPermitted() && st'.PC() == 0x0aff
@@ -2231,6 +1610,94 @@ requires (st'.Peek(0) == 0x273)
 	assume st.IsJumpDest(0x273);
 	st := Jump(st);
 	st := block_0_0x0273(st);
+	return st;
+}
+
+method {:verify false} block_0_0x0273(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x0273
+requires st'.Operands() == 3
+requires (st'.Peek(1) == 0x273)
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Push1(st,0x40);
+	st := MLoad(st);
+	st := Dup(st,1);
+	st := Dup(st,3);
+	st := Push1(st,0xff);
+	st := And(st);
+	st := Push1(st,0xff);
+	st := And(st);
+	st := Dup(st,2);
+	st := MStore(st);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,2);
+	st := Pop(st);
+	st := Pop(st);
+	st := Push1(st,0x40);
+	st := MLoad(st);
+	st := Dup(st,1);
+	st := Swap(st,2);
+	assert st.Peek(1) <= st.Peek(0);
+	st := Sub(st);
+	st := Swap(st,1);
+	st := Return(st);
+	return st;
+}
+
+// ============================================================================
+// balanceOf(address)
+// ============================================================================
+
+method block_0_0x028f(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x028f
+requires st'.Operands() == 1
+{
+	var st := st';
+	st := JumpDest(st);
+	st := CallValue(st);
+	st := IsZero(st);
+	st := Push2(st,0x029a);
+	assume st.IsJumpDest(0x29a);
+	st := JumpI(st);
+	if st.PC() == 0x29a { st := block_0_0x029a(st); return st; }
+	st := Push1(st,0x00);
+	st := Dup(st,1);
+	st := Revert(st);
+	return st;
+}
+
+method {:verify false} block_0_0x029a(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x029a
+requires st'.Operands() == 1
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Push2(st,0x02c6);
+	st := Push1(st,0x04);
+	st := Dup(st,1);
+	st := Dup(st,1);
+	st := CallDataLoad(st);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
+	st := And(st);
+	st := Swap(st,1);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,1);
+	st := Swap(st,2);
+	st := Swap(st,1);
+	st := Pop(st);
+	st := Pop(st);
+	st := Push2(st,0x0b12);
+	assume st.IsJumpDest(0xb12);
+	st := Jump(st);
+	st := block_0_0x0b12(st);
 	return st;
 }
 
@@ -2261,6 +1728,75 @@ requires (st'.Peek(1) == 0x2c6)
 	assume st.IsJumpDest(0x2c6);
 	st := Jump(st);
 	st := block_0_0x02c6(st);
+	return st;
+}
+
+method {:verify false} block_0_0x02c6(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x02c6
+requires st'.Operands() == 3
+requires (st'.Peek(1) == 0x2c6)
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Push1(st,0x40);
+	st := MLoad(st);
+	st := Dup(st,1);
+	st := Dup(st,3);
+	st := Dup(st,2);
+	st := MStore(st);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,2);
+	st := Pop(st);
+	st := Pop(st);
+	st := Push1(st,0x40);
+	st := MLoad(st);
+	st := Dup(st,1);
+	st := Swap(st,2);
+	assert st.Peek(1) <= st.Peek(0);
+	st := Sub(st);
+	st := Swap(st,1);
+	st := Return(st);
+	return st;
+}
+
+// ============================================================================
+// symbol()
+// ============================================================================
+
+method block_0_0x02dc(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x02dc
+requires st'.Operands() == 1
+{
+	var st := st';
+	st := JumpDest(st);
+	st := CallValue(st);
+	st := IsZero(st);
+	st := Push2(st,0x02e7);
+	assume st.IsJumpDest(0x2e7);
+	st := JumpI(st);
+	if st.PC() == 0x2e7 { st := block_0_0x02e7(st); return st; }
+	st := Push1(st,0x00);
+	st := Dup(st,1);
+	st := Revert(st);
+	return st;
+}
+
+method block_0_0x02e7(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x02e7
+requires st'.Operands() == 1
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Push2(st,0x02ef);
+	st := Push2(st,0x0b2a);
+	assume st.IsJumpDest(0xb2a);
+	st := Jump(st);
+	st := block_0_0x0b2a(st);
 	return st;
 }
 
@@ -2459,6 +1995,233 @@ requires (st'.Peek(6) == 0x2ef)
 	return st;
 }
 
+method {:verify false} block_0_0x02ef(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x02ef
+requires st'.Operands() == 3
+requires (st'.Peek(1) == 0x2ef)
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Push1(st,0x40);
+	st := MLoad(st);
+	st := Dup(st,1);
+	st := Dup(st,1);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Dup(st,3);
+	st := Dup(st,2);
+	assert st.Peek(1) <= st.Peek(0);
+	st := Sub(st);
+	st := Dup(st,3);
+	st := MStore(st);
+	st := Dup(st,4);
+	st := Dup(st,2);
+	st := Dup(st,2);
+	st := MLoad(st);
+	st := Dup(st,2);
+	st := MStore(st);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,2);
+	st := Pop(st);
+	st := Dup(st,1);
+	st := MLoad(st);
+	st := Swap(st,1);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,1);
+	st := Dup(st,1);
+	st := Dup(st,4);
+	st := Dup(st,4);
+	st := Push1(st,0x00);
+	st := block_0_0x0314(st);
+	return st;
+}
+
+method {:verify false} block_0_0x0314(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x0314
+requires st'.Operands() == 12
+requires (st'.Peek(10) == 0x2ef)
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Dup(st,4);
+	st := Dup(st,2);
+	st := Lt(st);
+	st := IsZero(st);
+	st := Push2(st,0x032f);
+	assume st.IsJumpDest(0x32f);
+	st := JumpI(st);
+	if st.PC() == 0x32f { st := block_0_0x032f(st); return st; }
+	st := Dup(st,1);
+	st := Dup(st,3);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := MLoad(st);
+	st := Dup(st,2);
+	st := Dup(st,5);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := MStore(st);
+	st := Push1(st,0x20);
+	st := Dup(st,2);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,1);
+	st := Pop(st);
+	st := Push2(st,0x0314);
+	assume st.IsJumpDest(0x314);
+	st := Jump(st);
+	st := block_0_0x0314(st);
+	return st;
+}
+
+method {:verify false} block_0_0x032f(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x032f
+requires st'.Operands() == 12
+requires (st'.Peek(10) == 0x2ef)
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Pop(st);
+	st := Pop(st);
+	st := Pop(st);
+	st := Pop(st);
+	st := Swap(st,1);
+	st := Pop(st);
+	st := Swap(st,1);
+	st := Dup(st,2);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,1);
+	st := Push1(st,0x1f);
+	st := And(st);
+	st := Dup(st,1);
+	st := IsZero(st);
+	st := Push2(st,0x035c);
+	assume st.IsJumpDest(0x35c);
+	st := JumpI(st);
+	if st.PC() == 0x35c { st := block_0_0x035c(st); return st; }
+	st := Dup(st,1);
+	st := Dup(st,3);
+	assert st.Peek(1) <= st.Peek(0);
+	st := Sub(st);
+	st := Dup(st,1);
+	st := MLoad(st);
+	st := Push1(st,0x01);
+	st := Dup(st,4);
+	st := Push1(st,0x20);
+	assert st.Peek(1) <= st.Peek(0);
+	st := Sub(st);
+	st := Push2(st,0x0100);
+	st := Exp(st);
+	assert st.Peek(1) <= st.Peek(0);
+	st := Sub(st);
+	st := Not(st);
+	st := And(st);
+	st := Dup(st,2);
+	st := MStore(st);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,2);
+	st := Pop(st);
+	st := block_0_0x035c(st);
+	return st;
+}
+
+method {:verify false} block_0_0x035c(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x035c
+requires st'.Operands() == 7
+requires (st'.Peek(5) == 0x2ef)
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Pop(st);
+	st := Swap(st,3);
+	st := Pop(st);
+	st := Pop(st);
+	st := Pop(st);
+	st := Push1(st,0x40);
+	st := MLoad(st);
+	st := Dup(st,1);
+	st := Swap(st,2);
+	assert st.Peek(1) <= st.Peek(0);
+	st := Sub(st);
+	st := Swap(st,1);
+	st := Return(st);
+	return st;
+}
+
+// ============================================================================
+// transfer(address,uint256)
+// ============================================================================
+
+method block_0_0x036a(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x036a
+requires st'.Operands() == 1
+{
+	var st := st';
+	st := JumpDest(st);
+	st := CallValue(st);
+	st := IsZero(st);
+	st := Push2(st,0x0375);
+	assume st.IsJumpDest(0x375);
+	st := JumpI(st);
+	if st.PC() == 0x375 { st := block_0_0x0375(st); return st; }
+	st := Push1(st,0x00);
+	st := Dup(st,1);
+	st := Revert(st);
+	return st;
+}
+
+method {:verify false} block_0_0x0375(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x0375
+requires st'.Operands() == 1
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Push2(st,0x03aa);
+	st := Push1(st,0x04);
+	st := Dup(st,1);
+	st := Dup(st,1);
+	st := CallDataLoad(st);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
+	st := And(st);
+	st := Swap(st,1);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,1);
+	st := Swap(st,2);
+	st := Swap(st,1);
+	st := Dup(st,1);
+	st := CallDataLoad(st);
+	st := Swap(st,1);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,1);
+	st := Swap(st,2);
+	st := Swap(st,1);
+	st := Pop(st);
+	st := Pop(st);
+	st := Push2(st,0x0bc8);
+	assume st.IsJumpDest(0xbc8);
+	st := Jump(st);
+	st := block_0_0x0bc8(st);
+	return st;
+}
+
 method block_0_0x0bc8(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 requires st'.evm.code == Code.Create(BYTECODE_0)
 requires st'.WritesPermitted() && st'.PC() == 0x0bc8
@@ -2475,10 +2238,11 @@ requires (st'.Peek(2) == 0x3aa)
 	st := Push2(st,0x0686);
 	assume st.IsJumpDest(0x686);
 	st := Jump(st);
-	st := block_0_0x0686(st);
+	st := block_0_0x0686(st); // call transferFrom()
 	return st;
 }
 
+// return from transferFrom()
 method block_0_0x0bd5(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 requires st'.evm.code == Code.Create(BYTECODE_0)
 requires st'.WritesPermitted() && st'.PC() == 0x0bd5
@@ -2498,6 +2262,213 @@ requires (st'.Peek(4) == 0x3aa)
 	assume st.IsJumpDest(0x3aa);
 	st := Jump(st);
 	st := block_0_0x03aa(st);
+	return st;
+}
+
+method {:verify false} block_0_0x03aa(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x03aa
+requires st'.Operands() == 2
+requires (st'.Peek(0) == 0x1)
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Push1(st,0x40);
+	st := MLoad(st);
+	st := Dup(st,1);
+	st := Dup(st,3);
+	st := IsZero(st);
+	st := IsZero(st);
+	st := IsZero(st);
+	st := IsZero(st);
+	st := Dup(st,2);
+	st := MStore(st);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,2);
+	st := Pop(st);
+	st := Pop(st);
+	st := Push1(st,0x40);
+	st := MLoad(st);
+	st := Dup(st,1);
+	st := Swap(st,2);
+	assert st.Peek(1) <= st.Peek(0);
+	st := Sub(st);
+	st := Swap(st,1);
+	st := Return(st);
+	return st;
+}
+
+// ============================================================================
+// deposit()
+// ============================================================================
+
+method block_0_0x03c4(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x03c4
+requires st'.Operands() == 1
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Push2(st,0x03cc);
+	st := Push2(st,0x043a);
+	assume st.IsJumpDest(0x43a);
+	st := Jump(st);
+	st := block_0_0x043a(st);
+	return st;
+}
+
+method {:verify false} block_0_0x043a(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x043a
+requires 1 <= st'.Operands() <= 2
+requires (st'.Peek(0) == 0xb4) || (st'.Peek(0) == 0x3cc) || (st'.Peek(0) == 0xb4)
+{
+	var st := st';
+	st := JumpDest(st);
+	st := CallValue(st);
+	st := Push1(st,0x03);
+	st := Push1(st,0x00);
+	st := Caller(st);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
+	st := And(st);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
+	st := And(st);
+	st := Dup(st,2);
+	st := MStore(st);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,1);
+	st := Dup(st,2);
+	st := MStore(st);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Push1(st,0x00);
+	st := Keccak256(st);
+	st := Push1(st,0x00);
+	st := Dup(st,3);
+	st := Dup(st,3);
+	st := SLoad(st);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,3);
+	st := Pop(st);
+	st := Pop(st);
+	st := Dup(st,2);
+	st := Swap(st,1);
+	st := SStore(st);
+	st := Pop(st);
+	st := Caller(st);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
+	st := And(st);
+	st := PushN(st,32,0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c);
+	st := CallValue(st);
+	st := Push1(st,0x40);
+	st := MLoad(st);
+	st := Dup(st,1);
+	st := Dup(st,3);
+	st := Dup(st,2);
+	st := MStore(st);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,2);
+	st := Pop(st);
+	st := Pop(st);
+	st := Push1(st,0x40);
+	st := MLoad(st);
+	st := Dup(st,1);
+	st := Swap(st,2);
+	assert st.Peek(1) <= st.Peek(0);
+	st := Sub(st);
+	st := Swap(st,1);
+	st := LogN(st,2);
+	assume st.IsJumpDest(0xb4);
+	assume st.IsJumpDest(0x3cc);
+	assume st.IsJumpDest(0xb4);
+	st := Jump(st);
+	match st.PC() {
+		case 0xb4 => { st := block_0_0x00b4(st); } // => fallback()
+		case 0x3cc => { st := block_0_0x03cc(st); }
+	}
+	return st;
+}
+
+method block_0_0x03cc(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x03cc
+requires st'.Operands() == 1
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Stop(st);
+	return st;
+}
+
+// ============================================================================
+// allowance(address,address)
+// ============================================================================
+
+method block_0_0x03ce(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x03ce
+requires st'.Operands() == 1
+{
+	var st := st';
+	st := JumpDest(st);
+	st := CallValue(st);
+	st := IsZero(st);
+	st := Push2(st,0x03d9);
+	assume st.IsJumpDest(0x3d9);
+	st := JumpI(st);
+	if st.PC() == 0x3d9 { st := block_0_0x03d9(st); return st; }
+	st := Push1(st,0x00);
+	st := Dup(st,1);
+	st := Revert(st);
+	return st;
+}
+
+method {:verify false} block_0_0x03d9(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x03d9
+requires st'.Operands() == 1
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Push2(st,0x0424);
+	st := Push1(st,0x04);
+	st := Dup(st,1);
+	st := Dup(st,1);
+	st := CallDataLoad(st);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
+	st := And(st);
+	st := Swap(st,1);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,1);
+	st := Swap(st,2);
+	st := Swap(st,1);
+	st := Dup(st,1);
+	st := CallDataLoad(st);
+	st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
+	st := And(st);
+	st := Swap(st,1);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,1);
+	st := Swap(st,2);
+	st := Swap(st,1);
+	st := Pop(st);
+	st := Pop(st);
+	st := Push2(st,0x0bdd);
+	assume st.IsJumpDest(0xbdd);
+	st := Jump(st);
+	st := block_0_0x0bdd(st);
 	return st;
 }
 
@@ -2540,4 +2511,39 @@ requires (st'.Peek(2) == 0x424)
 	return st;
 }
 
+method {:verify false} block_0_0x0424(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+requires st'.evm.code == Code.Create(BYTECODE_0)
+requires st'.WritesPermitted() && st'.PC() == 0x0424
+requires st'.Operands() == 3
+requires (st'.Peek(1) == 0x424)
+{
+	var st := st';
+	st := JumpDest(st);
+	st := Push1(st,0x40);
+	st := MLoad(st);
+	st := Dup(st,1);
+	st := Dup(st,3);
+	st := Dup(st,2);
+	st := MStore(st);
+	st := Push1(st,0x20);
+	assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+	st := Add(st);
+	st := Swap(st,2);
+	st := Pop(st);
+	st := Pop(st);
+	st := Push1(st,0x40);
+	st := MLoad(st);
+	st := Dup(st,1);
+	st := Swap(st,2);
+	assert st.Peek(1) <= st.Peek(0);
+	st := Sub(st);
+	st := Swap(st,1);
+	st := Return(st);
+	return st;
+}
+
+// NOTE: What are these trailing bytes?  It maybe deadcode (since this contract
+// was deployed in 2017).  Recall bug identified by Dedaub in 2022:
+// https://github.com/ethereum/solidity/issues/13680
+//
 // 0x00a165627a7a72305820deb4c2ccab3c2fdca32ab3f46728389c2fe2c165d5fafa07661e4e004f6c344a0029
