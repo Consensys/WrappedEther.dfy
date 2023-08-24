@@ -93,33 +93,53 @@ module BalanceOf {
         return st;
     }
 
-    method {:verify false} block_0_0x02c6(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+    method block_0_0x02c6(st': EvmState.ExecutingState) returns (st'': EvmState.TerminatedState)
     requires st'.evm.code == Code.Create(BYTECODE_0)
     requires st'.WritesPermitted() && st'.PC() == 0x02c6
     requires st'.Operands() == 3
     requires (st'.Peek(1) == 0x2c6)
+    requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x80 // added by djp
+    //
+    ensures st''.RETURNS?
     {
         var st := st';
         st := JumpDest(st);
         st := Push1(st,0x40);
+        // 0x40 val
         st := MLoad(st);
+        // fp val
         st := Dup(st,1);
+        // fp fp val
         st := Dup(st,3);
+        // val fp fp val
         st := Dup(st,2);
+        // fp val fp fp val
         st := MStore(st);
+        // fp fp val | mem[fp] = val
         st := Push1(st,0x20);
+        // 0x20 fp fp val | mem[fp] = val
         assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
         st := Add(st);
+        // (fp+0x20) fp val | mem[fp] = val
         st := Swap(st,2);
+        // val fp (fp+0x20) | mem[fp] = val
         st := Pop(st);
+        // fp (fp+0x20) | mem[fp] = val
         st := Pop(st);
+        // (fp+0x20) | mem[fp] = val
         st := Push1(st,0x40);
+        // 0x40 (fp+0x20) | mem[fp] = val
         st := MLoad(st);
+        // fp (fp+0x20) | mem[fp] = val
         st := Dup(st,1);
+        // fp fp (fp+0x20) | mem[fp] = val
         st := Swap(st,2);
+        // (fp+0x20) fp fp | mem[fp] = val
         assert st.Peek(1) <= st.Peek(0);
         st := Sub(st);
+        // 0x20 fp | mem[fp] = val
         st := Swap(st,1);
+        // fp 0x20 | mem[fp] = val
         st := Return(st);
         return st;
     }
