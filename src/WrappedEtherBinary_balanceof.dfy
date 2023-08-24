@@ -14,10 +14,11 @@ module BalanceOf {
     // balanceOf(address)
     // ============================================================================
 
-    method block_0_0x028f(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+    method block_0_0x028f(st': EvmState.ExecutingState) returns (st'': EvmState.TerminatedState)
     requires st'.evm.code == Code.Create(BYTECODE_0)
     requires st'.WritesPermitted() && st'.PC() == 0x028f
     requires st'.Operands() == 1
+    requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x80 // added by djp
     {
         var st := st';
         st := JumpDest(st);
@@ -33,10 +34,13 @@ module BalanceOf {
         return st;
     }
 
-    method {:verify false} block_0_0x029a(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+    method block_0_0x029a(st': EvmState.ExecutingState) returns (st'': EvmState.TerminatedState)
     requires st'.evm.code == Code.Create(BYTECODE_0)
     requires st'.WritesPermitted() && st'.PC() == 0x029a
     requires st'.Operands() == 1
+    requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x80 // added by djp
+    //
+    ensures st''.RETURNS?
     {
         var st := st';
         st := JumpDest(st);
@@ -63,11 +67,14 @@ module BalanceOf {
         return st;
     }
 
-    method {:verify false} block_0_0x0b12(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+    method block_0_0x0b12(st': EvmState.ExecutingState) returns (st'': EvmState.TerminatedState)
     requires st'.evm.code == Code.Create(BYTECODE_0)
     requires st'.WritesPermitted() && st'.PC() == 0x0b12
     requires st'.Operands() == 3
     requires (st'.Peek(1) == 0x2c6)
+    requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x80 // added by djp
+    //
+    ensures st''.RETURNS?
     {
         var st := st';
         st := JumpDest(st);
