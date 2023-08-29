@@ -50,7 +50,7 @@ module BalanceOf {
         st := Dup(st,1);
         st := CallDataLoad(st);
         st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-        st := And(st);
+        st := AndAddress(st);
         st := Swap(st,1);
         st := Push1(st,0x20);
         assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);

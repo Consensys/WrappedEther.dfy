@@ -86,7 +86,7 @@ module Decimals {
         // sto[0x2] 0x273
         st := Push1(st,0xff);
         // 0xff sto[0x2] 0x273
-        st := And(st);
+        st := AndU8(st);
         // (sto[0x2]&0xff) 0x273
         st := Dup(st,2);
         // 0x273 (sto[0x2]&0xff) 0x273
@@ -121,11 +121,11 @@ module Decimals {
         // val fp fp val
         st := Push1(st,0xff);
         // 0xff val fp fp val
-        st := And(st);
+        st := AndU8(st);
         // (val&0xff) fp fp val
         st := Push1(st,0xff);
         // 0xff (val&0xff) fp fp val
-        st := And(st);
+        st := AndU8(st);
         // (val&0xff) fp fp val
         assert st.Peek(1) == st.Peek(2) == 0x80;
         assert st.Peek(3) == val;
