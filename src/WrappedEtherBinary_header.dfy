@@ -12,6 +12,32 @@ module Header {
     type u256 = Int.u256
     const MAX_U256 : nat := Int.MAX_U256
 
+    /**
+     * Provides an alternative implementation of Bytecode.And specialised to the
+     * particular case of converting an arbitrary u256 into a u8 (i.e. coercing
+     * into a byte).
+     */
+    function AndU8(st: EvmState.ExecutingState): (st': EvmState.State)
+    requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U8 as u256) {
+        var rhs := st.Peek(1);
+        var res := rhs % (Int.MAX_U8 as u256);
+        st.Pop(2).Push(res).Next()
+    }
+
+    /**
+     * Provides an alternative implementation of Bytecode.And specialised to the
+     * particular case of converting an arbitrary u256 into a u160 (i.e. to
+     * represent a contract address).  This is a common operation, and the
+     * semantics in the DafnyEVM uses bitvectors to implement this operation
+     * (which are quite expensive).
+     */
+    function AndU160(st: EvmState.ExecutingState): (st': EvmState.State)
+    requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U160 as u256) {
+        var rhs := st.Peek(1);
+        var res := rhs % (Int.MAX_U160 as u256);
+        st.Pop(2).Push(res).Next()
+    }
+
     method external_call(sender: u160, st: EvmState.ExecutingState) returns (r:EvmState.TerminatedState)
     ensures r.RETURNS? ==> r.world.Exists(sender) {
 	    return EvmState.ERROR(EvmState.INSUFFICIENT_GAS); // dummy
