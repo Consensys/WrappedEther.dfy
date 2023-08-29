@@ -67,7 +67,7 @@ module TotalSupply {
         st := Push1(st,0x00);
         st := Address(st);
         st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-        st := And(st);
+        st := AndU160(st);
         st := Balance(st);
         st := Swap(st,1);
         st := Pop(st);

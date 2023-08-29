@@ -62,7 +62,7 @@ module Symbol {
         st := Push1(st,0x01);
         st := Dup(st,2);
         st := Push1(st,0x01);
-        st := And(st);
+        st := AndU1(st);
         st := IsZero(st);
         st := Push2(st,0x0100);
         assert (st.Peek(0) * st.Peek(1)) <= (MAX_U256 as u256);
@@ -110,7 +110,7 @@ module Symbol {
         st := Push1(st,0x01);
         st := Dup(st,2);
         st := Push1(st,0x01);
-        st := And(st);
+        st := AndU1(st);
         st := IsZero(st);
         st := Push2(st,0x0100);
         assert (st.Peek(0) * st.Peek(1)) <= (MAX_U256 as u256);
@@ -213,7 +213,7 @@ module Symbol {
         assert st.Peek(1) <= st.Peek(0);
         st := Sub(st);
         st := Push1(st,0x1f);
-        st := And(st);
+        st := AndU5(st);
         st := Dup(st,3);
         assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
         st := Add(st);
@@ -349,7 +349,7 @@ module Symbol {
         st := Add(st);
         st := Swap(st,1);
         st := Push1(st,0x1f);
-        st := And(st);
+        st := AndU5(st);
         st := Dup(st,1);
         st := IsZero(st);
         st := Push2(st,0x035c);

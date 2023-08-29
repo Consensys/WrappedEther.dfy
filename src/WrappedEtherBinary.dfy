@@ -52,7 +52,7 @@ module Main {
         st := Swap(st,1);
         st := Div(st);
         st := Push4(st,0xffffffff);
-        st := And(st);
+        st := AndU32(st);
         st := Dup(st,1);
         st := Push4(st,0x06fdde03); // name()
         st := Eq(st);

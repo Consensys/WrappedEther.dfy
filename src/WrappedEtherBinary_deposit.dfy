@@ -73,9 +73,9 @@ module Deposit {
         st := Push1(st,0x00);
         st := Caller(st);
         st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-        st := And(st);
+        st := AndU160(st);
         st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-        st := And(st);
+        st := AndU160(st);
         st := Dup(st,2);
         st := MStore(st);
         st := Push1(st,0x20);
