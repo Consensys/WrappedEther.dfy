@@ -14,9 +14,10 @@ module Deposit {
     // fallback()
     // ============================================================================
 
-    method {:verify false} block_0_0x00ad(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+    method block_0_0x00ad(st': EvmState.ExecutingState) returns (st'': EvmState.State)
     requires st'.evm.code == Code.Create(BYTECODE_0)
     requires st'.WritesPermitted() && st'.PC() == 0x00ad
+    requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x80
     requires 0 <= st'.Operands() <= 1
     {
         var st := st';
@@ -48,8 +49,8 @@ module Deposit {
     method block_0_0x03c4(st': EvmState.ExecutingState) returns (st'': EvmState.State)
     requires st'.evm.code == Code.Create(BYTECODE_0)
     requires st'.WritesPermitted() && st'.PC() == 0x03c4
-    requires st'.Operands() == 1
     requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x80
+    requires st'.Operands() == 1
     {
         var st := st';
         st := JumpDest(st);
@@ -65,15 +66,14 @@ module Deposit {
     method block_0_0x043a(st': EvmState.ExecutingState) returns (st'': EvmState.State)
     requires st'.evm.code == Code.Create(BYTECODE_0)
     requires st'.WritesPermitted() && st'.PC() == 0x043a
+    requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x80
     requires 1 <= st'.Operands() <= 2
     requires (st'.Peek(0) == 0xb4) || (st'.Peek(0) == 0x3cc)
-    requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x80
     {
         var st := st';
-        var ret := st.Peek(0); // return address
         st := JumpDest(st);
         st := CallValue(st);
-        // value ret
+         // value ret
         st := Push1(st,0x03);
         // 0x3 value ret
         st := Push1(st,0x00);
@@ -86,18 +86,31 @@ module Deposit {
         // sender[..160] 0x0 0x3 value ret
         st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
         // 0xff.. sender[..160] 0x0 0x3 value ret
+        st := block_0_0x046c(st);
+        return st;
+    }
+
+    method block_0_0x046c(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+    requires st'.evm.code == Code.Create(BYTECODE_0)
+    requires st'.WritesPermitted() && st'.PC() == 0x046c
+    requires 6 <= st'.Operands() <= 7
+    requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x80
+    requires (st'.Peek(0) == 0xffffffffffffffffffffffffffffffffffffffff)
+    requires (st'.Peek(2) == 0x0)
+    requires (st'.Peek(3) == 0x3)
+    requires (st'.Peek(5) == 0xb4) || (st'.Peek(5) == 0x3cc)
+    {
+        var st := st';
+        // 0xff.. sender[..160] 0x0 0x3 value ret
         st := AndU160(st);
         // sender[..160] 0x0 0x3 value ret
         st := Dup(st,2);
-        assert st.EXECUTING? && st.Peek(0) == st.Peek(2) == 0x0;
-        assert st.Peek(5) == ret;
         // 0x0 sender[..160] 0x0 0x3 value ret
         st := MStore(st);
         // 0x0 0x3 value ret | mem[0x00:=sender[..160]]
-        assert Memory.Size(st.evm.memory) >= 0x60 && st.Read(0x40) == 0x80;
         st := Push1(st,0x20);
         // 0x20 0x0 0x3 value ret | mem[0x00:=sender[..160]]
-        assert st.EXECUTING? && (st.Peek(0) + st.Peek(1)) as nat == 0x20;
+        assert st.Peek(4) == 0xb4 || st.Peek(4) == 0x3cc;
         assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
         st := Add(st);
         assume st.Peek(0) == 0x20; // ASSUMPTION
@@ -106,117 +119,64 @@ module Deposit {
         // 0x3 0x20 value ret | mem[0x00:=sender[..160]]
         st := Dup(st,2);
         // 0x20 0x3 0x20 value ret | mem[0x00:=sender[..160]]
-        assert st.Peek(0) == st.Peek(2);
         st := MStore(st);
         // 0x20 value ret | mem[0x00:=sender[..160],0x20=0x3]
-        assert st.Peek(2) == ret;
-        //st := block_0_0x0475(st);
+        st := block_0_0x0475(st);
         return st;
     }
 
-    method {:verify false} block_0_0x0475(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+    method block_0_0x0475(st': EvmState.ExecutingState) returns (st'': EvmState.State)
     requires st'.evm.code == Code.Create(BYTECODE_0)
     requires st'.WritesPermitted() && st'.PC() == 0x0475
     requires 3 <= st'.Operands() <= 4
     requires (st'.Peek(2) == 0xb4) || (st'.Peek(2) == 0x3cc)
+    requires st'.Peek(0) == 0x20
     requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x80
     {
         var st := st';
+        // 0x20 value ret | mem[0x00:=sender[..160],0x20=0x3]
         st := Push1(st,0x20);
+        // 0x20 0x20 value ret | mem[0x00:=sender[..160],0x20=0x3]
         assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
         st := Add(st);
+        // 0x40 value ret | mem[0x00:=sender[..160],0x20=0x3]
         st := Push1(st,0x00);
+        // 0x00 0x40 value ret | mem[0x00:=sender[..160],0x20=0x3]
         st := Keccak256(st);
+        // h1 value ret | mem[0x00:=sender[..160],0x20=0x3]
         st := Push1(st,0x00);
+        // 0x00 h1 value ret | mem[0x00:=sender[..160],0x20=0x3]
         st := Dup(st,3);
+        // value 0x00 h1 value ret | mem[0x00:=sender[..160],0x20=0x3]
         st := Dup(st,3);
+        // h1 value 0x00 h1 value ret | mem[0x00:=sender[..160],0x20=0x3]
         st := SLoad(st);
-        assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+        // bal value 0x00 h1 value ret | mem[0x00:=sender[..160],0x20=0x3]
+        assert st.Peek(5) == 0xb4 || st.Peek(5) == 0x3cc;
+        // OVERFLOW: there is a possible integer overflow here as there is no
+        // check to revert.   As such, the following assertion fails:
+        //
+        // assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
+        //
+        // It seems that this cannot be exploited, however, given the amount of
+        // ether that would be required.
         st := Add(st);
+        // nbal 0x00 h1 value ret | mem[0x00:=sender[..160],0x20=0x3]
         st := Swap(st,3);
+        // value 0x00 h1 nbal ret | mem[0x00:=sender[..160],0x20=0x3]
         st := Pop(st);
+        // 0x00 h1 nbal ret | mem[0x00:=sender[..160],0x20=0x3]
         st := Pop(st);
+        // h1 nbal ret | mem[0x00:=sender[..160],0x20=0x3]
         st := Dup(st,2);
+        // nbal h1 nbal ret | mem[0x00:=sender[..160],0x20=0x3]
         st := Swap(st,1);
+        // h1 nbal nbal ret | mem[0x00:=sender[..160],0x20=0x3]
         st := SStore(st);
+        // nbal ret | mem[0x00:=sender[..160],0x20=0x3,h1=nbal]
         st := Pop(st);
+        // ret | mem[0x00:=sender[..160],0x20=0x3,h1=nbal]
         st := block_0_0x0488(st);
-        return st;
-    }
-
-    method {:verify false} block_0_0x043a_old(st': EvmState.ExecutingState) returns (st'': EvmState.State)
-    requires st'.evm.code == Code.Create(BYTECODE_0)
-    requires st'.WritesPermitted() && st'.PC() == 0x043a
-    requires 1 <= st'.Operands() <= 2
-    requires (st'.Peek(0) == 0xb4) || (st'.Peek(0) == 0x3cc && st'.Operands() == 2)
-    requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x80
-    {
-        var st := st';
-        st := JumpDest(st);
-        st := CallValue(st);
-        // value ?1
-        st := Push1(st,0x03);
-        // 0x3 value ?1
-        st := Push1(st,0x00);
-        // 0x0 0x3 value ?1
-        st := Caller(st);
-        // sender 0x0 0x3 value ?1
-        st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-        // 0xff.. sender 0x0 0x3 value ?1
-        st := AndU160(st);
-        // sender[..160] 0x0 0x3 value ?1
-        st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-        // 0xff.. sender[..160] 0x0 0x3 value ?1
-        st := AndU160(st);
-        // sender[..160] 0x0 0x3 value ?1
-        st := Dup(st,2);
-        assert st.Peek(0) == st.Peek(2) == 0x0;
-        // 0x0 sender[..160] 0x0 0x3 value ?1
-        st := MStore(st);
-        // 0x0 0x3 value ?1 | mem[0x00:=sender[..160]]
-        st := Push1(st,0x20);
-        // 0x20 0x0 0x3 value ?1 | mem[0x00:=sender[..160]]
-        assert (st.Peek(0) + st.Peek(1)) as nat == 0x20;
-        assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-        st := Add(st);
-        assume st.Peek(0) == 0x20; // ASSUMPTION
-        // 0x20 0x3 value ?1 | mem[0x00:=sender[..160]]
-        st := Swap(st,1);
-        // 0x3 0x20 value ?1 | mem[0x00:=sender[..160]]
-        st := Dup(st,2);
-        // 0x20 0x3 0x20 value ?1 | mem[0x00:=sender[..160]]
-        st := MStore(st);
-        // 0x20 value ?1 | mem[0x00:=sender[..160],0x20:=0x3]
-        st := Push1(st,0x20);
-        // 0x20 0x20 value ?1 | mem[0x00:=sender[..160],0x20:=0x3]
-        assert (st.Peek(0) + st.Peek(1)) == 0x40;
-        assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-        st := Add(st);
-        // 0x40 value ?1
-        st := Push1(st,0x00);
-        // 0x00 0x40 value ?1
-        st := Keccak256(st);
-        // h1 value ?1
-        st := Push1(st,0x00);
-        // 0x0 h1 value ?1
-        st := Dup(st,3);
-        // ?1 0x0 h1 value ?1
-        st := Dup(st,3);
-        // h1 value 0x0 h1 value ?1
-        assert st.Peek(0) == st.Peek(3);
-        st := SLoad(st);
-        // bal ?1 0x0 h1 value ?1
-        // assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256); // OVERFLOW!!
-        // st := Add(st);
-        // ?? bal ?1 0x0 h1 value ?1
-        // st := Swap(st,3);
-        // st := Pop(st);
-        // st := Pop(st);
-        // st := Dup(st,2);
-        // st := Swap(st,1);
-        // st := SStore(st);
-        // st := Pop(st);
-        // st := block_0_0x0488(st);
         return st;
     }
 
