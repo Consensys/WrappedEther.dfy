@@ -74,9 +74,9 @@ module Withdraw {
         st := Push1(st,0x00);
         st := Caller(st);
         st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-        st := And(st);
+        st := AndU160(st);
         st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-        st := And(st);
+        st := AndU160(st);
         st := Dup(st,2);
         st := MStore(st);
         st := Push1(st,0x20);
@@ -118,9 +118,9 @@ module Withdraw {
         st := Push1(st,0x00);
         st := Caller(st);
         st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-        st := And(st);
+        st := AndU160(st);
         st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-        st := And(st);
+        st := AndU160(st);
         st := Dup(st,2);
         st := MStore(st);
         st := Push1(st,0x20);
@@ -149,7 +149,7 @@ module Withdraw {
         st := Pop(st);
         st := Caller(st);
         st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-        st := And(st);
+        st := AndU160(st);
         st := Push2(st,0x08fc);
         st := Dup(st,3);
         st := Swap(st,1);
@@ -204,7 +204,7 @@ module Withdraw {
         st := JumpDest(st);
         st := Caller(st);
         st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-        st := And(st);
+        st := AndU160(st);
         st := PushN(st,32,0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65);
         st := Dup(st,3);
         st := Push1(st,0x40);

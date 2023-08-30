@@ -46,7 +46,7 @@ module Approve {
         st := Dup(st,1);
         st := CallDataLoad(st);
         st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-        st := And(st);
+        st := AndU160(st);
         st := Swap(st,1);
         st := Push1(st,0x20);
         assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
@@ -86,9 +86,9 @@ module Approve {
         st := Push1(st,0x00);
         st := Caller(st);
         st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-        st := And(st);
+        st := AndU160(st);
         st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-        st := And(st);
+        st := AndU160(st);
         st := Dup(st,2);
         st := MStore(st);
         st := Push1(st,0x20);
@@ -105,9 +105,9 @@ module Approve {
         st := Push1(st,0x00);
         st := Dup(st,6);
         st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-        st := And(st);
+        st := AndU160(st);
         st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-        st := And(st);
+        st := AndU160(st);
         st := Dup(st,2);
         st := MStore(st);
         st := Push1(st,0x20);
@@ -127,10 +127,10 @@ module Approve {
         st := Pop(st);
         st := Dup(st,3);
         st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-        st := And(st);
+        st := AndU160(st);
         st := Caller(st);
         st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-        st := And(st);
+        st := AndU160(st);
         st := PushN(st,32,0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925);
         st := Dup(st,5);
         st := Push1(st,0x40);

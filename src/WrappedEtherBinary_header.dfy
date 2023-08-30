@@ -14,13 +14,48 @@ module Header {
 
     /**
      * Provides an alternative implementation of Bytecode.And specialised to the
+     * particular case of converting an arbitrary u256 into a u1 (i.e. coercing
+     * into a bool).
+     */
+    function AndU1(st: EvmState.ExecutingState): (st': EvmState.State)
+    requires st.Operands() >= 2 && st.Peek(0) == 1 {
+        var rhs := st.Peek(1);
+        var res := rhs % 2;
+        st.Pop(2).Push(res).Next()
+    }
+
+    /**
+     * Provides an alternative implementation of Bytecode.And specialised to the
+     * particular case of converting an arbitrary u256 into a u5.
+     */
+    function AndU5(st: EvmState.ExecutingState): (st': EvmState.State)
+    requires st.Operands() >= 2 && st.Peek(0) == 0x1f {
+        var rhs := st.Peek(1);
+        var res := rhs % 32;
+        st.Pop(2).Push(res).Next()
+    }
+
+    /**
+     * Provides an alternative implementation of Bytecode.And specialised to the
      * particular case of converting an arbitrary u256 into a u8 (i.e. coercing
      * into a byte).
      */
     function AndU8(st: EvmState.ExecutingState): (st': EvmState.State)
     requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U8 as u256) {
         var rhs := st.Peek(1);
-        var res := rhs % (Int.MAX_U8 as u256);
+        var res := rhs % (Int.TWO_8 as u256);
+        st.Pop(2).Push(res).Next()
+    }
+
+    /**
+     * Provides an alternative implementation of Bytecode.And specialised to the
+     * particular case of converting an arbitrary u256 into a u32 (i.e.
+     * stripping out a 4byte function signature for dispatch).
+     */
+    function AndU32(st: EvmState.ExecutingState): (st': EvmState.State)
+    requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U32 as u256) {
+        var rhs := st.Peek(1);
+        var res := rhs % (Int.TWO_32 as u256);
         st.Pop(2).Push(res).Next()
     }
 
@@ -34,7 +69,7 @@ module Header {
     function AndU160(st: EvmState.ExecutingState): (st': EvmState.State)
     requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U160 as u256) {
         var rhs := st.Peek(1);
-        var res := rhs % (Int.MAX_U160 as u256);
+        var res := rhs % (Int.TWO_160 as u256);
         st.Pop(2).Push(res).Next()
     }
 
