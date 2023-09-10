@@ -1,6 +1,6 @@
 module Mapping {
     datatype mapping<S,T> = Map(data:map<S,T>, default: T) {
-        function method Get(from: S) : (r:T)
+        function Get(from: S) : (r:T)
         ensures from in data.Keys || r == default {
             if from in data.Keys
             then
@@ -9,15 +9,15 @@ module Mapping {
                 default
         }
 
-        function method Contains(from: S) : bool {
+        function Contains(from: S) : bool {
             from in this.data.Keys
         }
 
-        function method Keys() : set<S> { this.data.Keys }
+        function Keys() : set<S> { this.data.Keys }
 
-        function method Items() : set<(S,T)> { this.data.Items }
+        function Items() : set<(S,T)> { this.data.Items }
 
-        function method Set(from: S, item: T) : (r:mapping<S,T>)
+        function Set(from: S, item: T) : (r:mapping<S,T>)
         ensures from in data.Keys ==> (data.Keys == r.data.Keys)
         ensures forall i :: i in data.Keys ==> i in r.data.Keys
         ensures forall i :: i in r.data.Keys ==> (i == from || i in data.Keys)
@@ -40,17 +40,17 @@ module Mapping {
     //         forall i, j :: (i in this.data && j in this.data && i != j) ==> this.data[i] != this.data[j]
     //     }
 
-    //     function method Keys() : set<S>
+    //     function Keys() : set<S>
     //     reads this`data {
     //         this.data.Keys
     //     }
 
-    //     function method Values() : set<T>
+    //     function Values() : set<T>
     //     reads this`data {
     //         this.data.Values
     //     }
 
-    //     function method Get(from: S) : T
+    //     function Get(from: S) : T
     //     reads this {
     //         if from in this.data
     //         then

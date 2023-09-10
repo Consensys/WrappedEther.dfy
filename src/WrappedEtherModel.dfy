@@ -78,7 +78,7 @@ class Contract {
     requires src in balanceOf.Keys() && dst in balanceOf.Keys()
     requires msg.value == 0 // not payable
     // No change in overall balance
-    ensures r != Revert ==> sum(old(this.balanceOf.Items())) == sum(this.balanceOf.Items());
+    ensures r != Revert ==> sum(old(this.balanceOf.Items())) == sum(this.balanceOf.Items())
     {
         // NOTE: the following is a default assumption about the amount of value
         // that a user can accumulate.  It is safe because wad is bounded by
