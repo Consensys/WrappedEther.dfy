@@ -1,5 +1,4 @@
 include "../evm-dafny/src/dafny/evm.dfy"
-include "../evm-dafny/src/dafny/evms/berlin.dfy"
 
 module Header {
     import opened Int
