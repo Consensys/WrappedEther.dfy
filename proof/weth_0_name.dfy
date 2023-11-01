@@ -13,7 +13,7 @@ module name {
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x00b9
 	// Free memory pointer
-	requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x60
+	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 1
 	{
@@ -43,7 +43,7 @@ module name {
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x00c4
 	// Free memory pointer
-	requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x60
+	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 1
 	{
@@ -61,13 +61,17 @@ module name {
 		return st;
 	}
 
-	method block_0_0x00cc(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x00cc(n: nat, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x00cc
+	// Free memory pointer
+	requires st'.MemSize() >= 0x80 && 0x80 <= st'.Read(0x40) < 0xffff
 	// Stack height(s)
 	requires st'.Operands() == 3
 	// Static stack items
 	requires (st'.Peek(0) == 0x60 && st'.Peek(1) == 0xcc)
+	// Termination	
+	requires var x := st'.Read(0x60); x as nat == n * 0x20
 	{
 		var st := st';
 		// ||0x60,0xcc,_|
@@ -76,216 +80,265 @@ module name {
 		st := Push1(st,0x40);
 		// ||0x40,0x60,0xcc,_|
 		st := MLoad(st);
-		// ||_,0x60,0xcc,_|
+		// ||fp,0x60,0xcc,_|
 		st := Dup(st,1);
-		// ||_,_,0x60,0xcc,_|
+		// ||fp,fp,0x60,0xcc,_|
 		st := Dup(st,1);
-		// ||_,_,_,0x60,0xcc,_|
+		// ||fp,fp,fp,0x60,0xcc,_|
 		st := Push1(st,0x20);
-		// ||0x20,_,_,_,0x60,0xcc,_|
+		// ||0x20,fp,fp,fp,0x60,0xcc,_|
 		st := Add(st);
-		// ||_,_,_,0x60,0xcc,_|
+		// ||fp+0x20,fp,fp,0x60,0xcc,_|
 		st := Dup(st,3);
-		st := block_0_0x00d6(st);
+		// ||fp,fp+020,fp,fp,0x60,0xcc,_|
+		st := block_0_0x00d6(n,st); 
 		return st;
 	}
 
-	method block_0_0x00d6(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x00d6(n: nat, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x00d6
 	// Stack height(s)
 	requires st'.Operands() == 7
+	// Free memory pointer
+	requires st'.MemSize() >= 0x80 && 0x80 <= st'.Read(0x40) < 0xffff
+	requires st'.Read(0x40) == st'.Peek(0)
 	// Static stack items
 	requires (st'.Peek(4) == 0x60 && st'.Peek(5) == 0xcc)
+	requires (st'.Peek(0) == st'.Peek(2) == st'.Peek(3))	
+	requires var p := st'.Peek(0); p >= 0x80
+	requires var q := st'.Peek(1); var p := st'.Peek(0); q > p && q - p == 0x20
+	// Termination	
+	requires var x := st'.Read(0x60); x as nat == n * 0x20
 	{
 		var st := st';
-		// ||_,_,_,_,0x60,0xcc,_|
+		// ||p,q,p,p,0x60,0xcc,_|
 		st := Dup(st,2);
-		// ||_,_,_,_,_,0x60,0xcc,_|
+		// ||q,p,q,p,p,0x60,0xcc,_|
 		st := Sub(st);
-		// ||_,_,_,_,0x60,0xcc,_|
+		// ||0x20,q,p,p,0x60,0xcc,_|
 		st := Dup(st,3);
-		// ||_,_,_,_,_,0x60,0xcc,_|
+		// ||p,0x20,q,p,p,0x60,0xcc,_|
 		st := MStore(st);
-		// ||_,_,_,0x60,0xcc,_|
+		assert st.Read(0x60) == st'.Read(0x60);
+		// ||q,p,p,0x60,0xcc,_|
 		st := Dup(st,4);
-		// ||0x60,_,_,_,0x60,0xcc,_|
+		// ||0x60,q,p,p,0x60,0xcc,_|
 		st := Dup(st,2);
-		// ||_,0x60,_,_,_,0x60,0xcc,_|
+		// ||q,0x60,q,p,p,0x60,0xcc,_|
 		st := Dup(st,2);
-		// ||0x60,_,0x60,_,_,_,0x60,0xcc,_|
+		// ||0x60,q,0x60,q,p,p,0x60,0xcc,_|
 		st := MLoad(st);
-		st := block_0_0x00de(st);
+		// ||x,q,0x60,p,_,_,0x60,0xcc,_|				
+		st := block_0_0x00de(n,st);
 		return st;
 	}
 
-	method block_0_0x00de(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x00de(n: nat, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x00de
+	// Free memory pointer
+	requires st'.MemSize() >= 0x80 && 0x80 <= st'.Read(0x40) < 0xffff
 	// Stack height(s)
 	requires st'.Operands() == 9
 	// Static stack items
 	requires (st'.Peek(2) == 0x60 && st'.Peek(6) == 0x60 && st'.Peek(7) == 0xcc)
+	// Termination	
+	requires var p := st'.Peek(1); p >= 0x80
+	requires var x := st'.Peek(0); x as nat == n * 0x20
+	requires st'.Peek(0) == st'.Read(0x60) 
 	{
 		var st := st';
-		// ||_,_,0x60,_,_,_,0x60,0xcc,_|
+		// ||x,p,0x60,_,_,_,0x60,0xcc,_|
 		st := Dup(st,2);
-		// ||_,_,_,0x60,_,_,_,0x60,0xcc,_|
+		// ||p,x,p,0x60,_,_,_,0x60,0xcc,_|
 		st := MStore(st);
-		// ||_,0x60,_,_,_,0x60,0xcc,_|
+		// ||p,0x60,_,_,_,0x60,0xcc,_|
 		st := Push1(st,0x20);
-		// ||0x20,_,0x60,_,_,_,0x60,0xcc,_|
+		// ||0x20,p,0x60,_,_,_,0x60,0xcc,_|
 		st := Add(st);
-		// ||_,0x60,_,_,_,0x60,0xcc,_|
+		assert st.Read(0x60) == st'.Read(0x60);
+		// ||p+0x20,0x60,_,_,_,0x60,0xcc,_|
 		st := Swap(st,2);
-		// ||_,0x60,_,_,_,0x60,0xcc,_|
+		// ||_,0x60,p+0x20,_,_,0x60,0xcc,_|
 		st := Pop(st);
-		// ||0x60,_,_,_,0x60,0xcc,_|
+		// ||0x60,p+0x20,_,_,0x60,0xcc,_|
 		st := Dup(st,1);
-		// ||0x60,0x60,_,_,_,0x60,0xcc,_|
+		// ||0x60,0x60,p+0x20,_,_,0x60,0xcc,_|
 		st := MLoad(st);
-		st := block_0_0x00e7(st);
+		// ||x,0x60,p+0x20,_,_,0x60,0xcc,_|
+		assert st.Peek(0) == st.Read(0x60);
+		st := block_0_0x00e7(n,st);
 		return st;
 	}
 
-	method block_0_0x00e7(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x00e7(n: nat, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x00e7
+	// Free memory pointer
+	requires st'.MemSize() >= 0x80 && 0x80 <= st'.Read(0x40) < 0xffff
 	// Stack height(s)
 	requires st'.Operands() == 8
 	// Static stack items
 	requires (st'.Peek(1) == 0x60 && st'.Peek(5) == 0x60 && st'.Peek(6) == 0xcc)
+	// Termination
+	requires var x := st'.Peek(0); x as nat == n * 0x20
 	{
 		var st := st';
-		// ||_,0x60,_,_,_,0x60,0xcc,_|
+		// ||x,0x60,_,_,_,0x60,0xcc,_|
 		st := Swap(st,1);
-		// ||0x60,_,_,_,_,0x60,0xcc,_|
+		// ||0x60,x,_,_,_,0x60,0xcc,_|
 		st := Push1(st,0x20);
-		// ||0x20,0x60,_,_,_,_,0x60,0xcc,_|
+		// ||0x20,0x60,x,_,_,_,0x60,0xcc,_|
 		st := Add(st);
-		// ||0x80,_,_,_,_,0x60,0xcc,_|
+		// ||0x80,x,_,_,_,0x60,0xcc,_|
 		st := Swap(st,1);
-		// ||_,0x80,_,_,_,0x60,0xcc,_|
+		// ||x,0x80,_,_,_,0x60,0xcc,_|
+		assert st.Peek(0) == st'.Peek(0);
 		st := Dup(st,1);
-		// ||_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||x,x,0x80,_,_,_,0x60,0xcc,_|
 		st := Dup(st,4);
-		// ||_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Dup(st,4);
-		// ||0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Push1(st,0x00);
-		st := block_0_0x00f1(st);
+		// ||0x00,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		assert st.Peek(3) == st'.Peek(0);
+		st := block_0_0x00f1(0,n,st);
 		return st;
 	}
 
-	method block_0_0x00f1(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x00f1(i: nat, n: nat, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x00f1
 	// Stack height(s)
 	requires st'.Operands() == 12
 	// Static stack items
-	requires (st'.Peek(1) == 0x80 && st'.Peek(5) == 0x80 && st'.Peek(9) == 0x60 && st'.Peek(10) == 0xcc)
+	requires (st'.Peek(1) == 0x80 && st'.Peek(5) == 0x80 && st'.Peek(9) == 0x60 && st'.Peek(10) == 0xcc)	
+	// Termination
+	requires var x := st'.Peek(3); x as nat == n * 0x20
+	requires var y := st'.Peek(0); y as nat == i * 0x20
+	requires i <= n	
+	decreases n - i,2
 	{
 		var st := st';
-		// ||0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||0x00,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := JumpDest(st);
-		// ||0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||0x00,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Dup(st,4);
-		// ||_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||_,_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||x,0x00,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||x,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Dup(st,2);
-		// ||0x00,_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||_,_,_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		st := Lt(st);
-		// ||_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||_,_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||0x00,x,0x00,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||y,x,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		assert st.Peek(12) == 0xcc;
+		st := Lt(st); // y < x
+		// ||_,0x00,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||_,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := IsZero(st);
-		// ||_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||_,_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||_,0x00,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||_,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Push2(st,0x010c);
-		// ||0x10c,_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||0x10c,_,_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||0x10c,_,0x00,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||0x10c,_,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		assume st.IsJumpDest(0x10c);
 		st := JumpI(st);
-		if st.PC() == 0x10c { st := block_0_0x010c(st); return st;}
-		// ||0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		if st.PC() == 0x10c { st := block_0_0x010c(st); return st;} // if y >= x
+		// ||0x00,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Dup(st,1);
-		st := block_0_0x00fb(st);
+		// ||0x00,0x00,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||y,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		assert st'.Peek(0) == st.Peek(1) && st'.Peek(3) == st.Peek(4);
+		st := block_0_0x00fb(i,n,st);
 		return st;
 	}
 
-	method block_0_0x00fb(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x00fb(i: nat, n: nat, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x00fb
 	// Stack height(s)
 	requires st'.Operands() == 13
 	// Static stack items
 	requires (st'.Peek(2) == 0x80 && st'.Peek(6) == 0x80 && st'.Peek(10) == 0x60 && st'.Peek(11) == 0xcc)
+	// Termination
+	requires var x := st'.Peek(4); x as nat == n * 0x20
+	requires var y := st'.Peek(1); y as nat == i * 0x20
+	requires i < n	
+	decreases n - i,1
 	{
 		var st := st';
 		// ||0x00,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||_,_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||_,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Dup(st,3);
 		// ||0x80,0x00,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||0x80,_,_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||0x80,y,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Add(st);
 		// ||0x80,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||_,_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||y+0x80,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := MLoad(st);
 		// ||_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||_,_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||_,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Dup(st,2);
+		assert st'.Peek(1) == st.Peek(2) && st'.Peek(4) == st.Peek(5);
+		assert st.Peek(3) == st.Peek(7) == 0x80;
+		assert st.Peek(11) == 0x60;
+		assert st.Peek(12) == 0xcc;
 		// ||0x00,_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||_,_,_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||y,_,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Dup(st,5);
 		// ||_,0x00,_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||_,_,_,_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||_,y,_,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Add(st);
 		// ||_,_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||_,_,_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||_,_,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := MStore(st);
 		// ||0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Push1(st,0x20);
-		st := block_0_0x0104(st);
+		// ||0x20,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		st := block_0_0x0104(i,n,st);
 		return st;
 	}
 
-	method block_0_0x0104(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0104(i: nat, n: nat, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0104
 	// Stack height(s)
 	requires st'.Operands() == 13
 	// Static stack items
 	requires (st'.Peek(0) == 0x20 && st'.Peek(2) == 0x80 && st'.Peek(6) == 0x80 && st'.Peek(10) == 0x60 && st'.Peek(11) == 0xcc)
+	// Termination
+	requires var x := st'.Peek(4); x as nat == n * 0x20
+	requires var y := st'.Peek(1); y as nat == i * 0x20
+	requires i < n
+	decreases n - i,0
 	{
 		var st := st';
 		// ||0x20,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||0x20,_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||0x20,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Dup(st,2);
 		// ||0x00,0x20,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||_,0x20,_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||y,0x20,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		// Havoc 0
 		// ||_,0x20,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||_,0x20,_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||y,0x20,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Add(st);
 		// ||_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||_,_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// Havoc 0
-		// ||_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||_,_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||y+0x20,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Swap(st,1);
 		// ||0x00,_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||_,_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||y,y+0x20,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Pop(st);
-		// ||_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||y+0x20,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Push2(st,0x00f1);
-		// ||0xf1,_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||0xf1,_,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		assume st.IsJumpDest(0xf1);
 		st := Jump(st);
-		st := block_0_0x00f1(st);
+		// ||_,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		st := block_0_0x00f1(i+1,n,st);
 		return st;
 	}
 
@@ -307,6 +360,7 @@ module name {
 		// ||0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Pop(st);
 		// ||_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		assert st.Operands() == 10;
 		st := Pop(st);
 		// ||_,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Pop(st);
@@ -338,7 +392,7 @@ module name {
 		// ||_,_,_,_,0x60,0xcc,_|
 		st := Push1(st,0x1f);
 		// ||0x1f,_,_,_,_,0x60,0xcc,_|
-		st := And(st);
+		st := AndU5(st);
 		// ||_,_,_,_,0x60,0xcc,_|
 		st := Dup(st,1);
 		// ||_,_,_,_,_,0x60,0xcc,_|
@@ -396,6 +450,7 @@ module name {
 		// ||_,0x01,_,_,_,_,_,_,0x60,0xcc,_|
 		st := Push2(st,0x0100);
 		// ||0x100,_,0x01,_,_,_,_,_,_,0x60,0xcc,_|
+		assert st.Peek(9) == 0x60 && st.Peek(10) == 0xcc;
 		st := Exp(st);
 		// ||_,0x01,_,_,_,_,_,_,0x60,0xcc,_|
 		st := Sub(st);
@@ -488,7 +543,7 @@ module name {
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x04dd
 	// Free memory pointer
-	requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x60
+	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 2
 	// Static stack items
@@ -519,7 +574,7 @@ module name {
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x04e8
 	// Free memory pointer
-	requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x60
+	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 6
 	// Static stack items
@@ -535,13 +590,15 @@ module name {
 		// |fp=0x0060|_,0x01,_,0x00,0xcc,_|
 		st := Sub(st);
 		// |fp=0x0060|_,_,0x00,0xcc,_|
+		assert st.Peek(2) == 0x00 && st.Peek(3) == 0xcc;
 		st := And(st);
-		// |fp=0x0060|_,0x00,0xcc,_|
+		// |fp=0x0060|l2,0x00,0xcc,_|
 		st := Push1(st,0x02);
-		// |fp=0x0060|0x02,_,0x00,0xcc,_|
+		// |fp=0x0060|0x02,l2,0x00,0xcc,_|
 		st := Swap(st,1);
-		// |fp=0x0060|_,0x02,0x00,0xcc,_|
+		// |fp=0x0060|l2,0x02,0x00,0xcc,_|
 		st := Div(st);
+		// |fp=0x0060|l,0x00,0xcc,_|
 		st := block_0_0x04f3(st);
 		return st;
 	}
@@ -550,29 +607,30 @@ module name {
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x04f3
 	// Free memory pointer
-	requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x60
+	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 4
 	// Static stack items
 	requires (st'.Peek(1) == 0x0 && st'.Peek(2) == 0xcc)
 	{
 		var st := st';
-		// |fp=0x0060|_,0x00,0xcc,_|
+		// |fp=0x0060|l,0x00,0xcc,_|
 		st := Dup(st,1);
-		// |fp=0x0060|_,_,0x00,0xcc,_|
+		// |fp=0x0060|l,l,0x00,0xcc,_|
 		st := Push1(st,0x1f);
-		// |fp=0x0060|0x1f,_,_,0x00,0xcc,_|
+		// |fp=0x0060|0x1f,l,l,0x00,0xcc,_|
 		st := Add(st);
-		// |fp=0x0060|_,_,0x00,0xcc,_|
+		// |fp=0x0060|n,l,0x00,0xcc,_|
 		st := Push1(st,0x20);
-		// |fp=0x0060|0x20,_,_,0x00,0xcc,_|
+		// |fp=0x0060|0x20,n,_,0x00,0xcc,_|
 		st := Dup(st,1);
-		// |fp=0x0060|0x20,0x20,_,_,0x00,0xcc,_|
+		// |fp=0x0060|0x20,0x20,n,_,0x00,0xcc,_|
 		st := Swap(st,2);
-		// |fp=0x0060|_,0x20,0x20,_,0x00,0xcc,_|
+		// |fp=0x0060|n,0x20,0x20,_,0x00,0xcc,_|
 		st := Div(st);
-		// |fp=0x0060|_,0x20,_,0x00,0xcc,_|
+		// |fp=0x0060|m,0x20,_,0x00,0xcc,_|
 		st := Mul(st);
+		// |fp=0x0060|n,_,0x20,_,0x00,0xcc,_|
 		st := block_0_0x04fd(st);
 		return st;
 	}
@@ -581,45 +639,46 @@ module name {
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x04fd
 	// Free memory pointer
-	requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x60
+	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 5
 	// Static stack items
 	requires (st'.Peek(2) == 0x0 && st'.Peek(3) == 0xcc)
 	{
 		var st := st';
-		// |fp=0x0060|_,_,0x00,0xcc,_|
+		// |fp=0x0060|n,_,0x00,0xcc,_|
 		st := Push1(st,0x20);
-		// |fp=0x0060|0x20,_,_,0x00,0xcc,_|
+		// |fp=0x0060|0x20,n,_,0x00,0xcc,_|
 		st := Add(st);
-		// |fp=0x0060|_,_,0x00,0xcc,_|
+		// |fp=0x0060|n+0x20,_,0x00,0xcc,_|
 		st := Push1(st,0x40);
-		// |fp=0x0060|0x40,_,_,0x00,0xcc,_|
+		// |fp=0x0060|0x40,n+0x20,_,0x00,0xcc,_|
 		st := MLoad(st);
-		// |fp=0x0060|0x60,_,_,0x00,0xcc,_|
+		// |fp=0x0060|0x60,n+0x20,_,0x00,0xcc,_|
 		st := Swap(st,1);
-		// |fp=0x0060|_,0x60,_,0x00,0xcc,_|
+		// |fp=0x0060|n+0x20,0x60,_,0x00,0xcc,_|
 		st := Dup(st,2);
-		// |fp=0x0060|0x60,_,0x60,_,0x00,0xcc,_|
+		// |fp=0x0060|0x60,n+0x20,0x60,_,0x00,0xcc,_|
 		st := Add(st);
-		// |fp=0x0060|_,0x60,_,0x00,0xcc,_|
+		// |fp=0x0060|nfp,0x60,_,0x00,0xcc,_|
 		st := Push1(st,0x40);
+		// |fp=0x0060|0x40,nfp,0x60,_,0x00,0xcc,_|
 		st := block_0_0x0508(st);
 		return st;
 	}
 
-	method block_0_0x0508(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method {:verify false} block_0_0x0508(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0508
 	// Free memory pointer
-	requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x60
+	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 7
 	// Static stack items
 	requires (st'.Peek(0) == 0x40 && st'.Peek(2) == 0x60 && st'.Peek(4) == 0x0 && st'.Peek(5) == 0xcc)
 	{
 		var st := st';
-		// |fp=0x0060|0x40,_,0x60,_,0x00,0xcc,_|
+		// |fp=0x0060|0x40,nfp,0x60,_,0x00,0xcc,_|
 		st := MStore(st);
 		// ||0x60,_,0x00,0xcc,_|
 		st := Dup(st,1);
@@ -635,17 +694,21 @@ module name {
 		st := Dup(st,2);
 		// ||0x60,_,0x60,_,0x00,0x60,0xcc,_|
 		st := MStore(st);
-		st := block_0_0x0510(st);
+		st := block_0_0x0510(0,st);
 		return st;
 	}
 
-	method block_0_0x0510(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0510(n: nat, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0510
+	// Free memory pointer
+	requires st'.MemSize() >= 0x80 && 0x80 <= st'.Read(0x40) < 0xffff
 	// Stack height(s)
 	requires st'.Operands() == 6
 	// Static stack items
 	requires (st'.Peek(0) == 0x60 && st'.Peek(2) == 0x0 && st'.Peek(3) == 0x60 && st'.Peek(4) == 0xcc)
+	// Termination	
+	requires var x := st'.Read(0x60); x as nat == n * 0x20
 	{
 		var st := st';
 		// ||0x60,_,0x00,0x60,0xcc,_|
@@ -664,17 +727,21 @@ module name {
 		st := Dup(st,2);
 		// ||_,0x01,_,0x00,0x80,_,0x00,0x60,0xcc,_|
 		st := Push1(st,0x01);
-		st := block_0_0x051b(st);
+		st := block_0_0x051b(n,st);
 		return st;
 	}
 
-	method block_0_0x051b(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x051b(n: nat, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x051b
+	// Free memory pointer
+	requires st'.MemSize() >= 0x80 && 0x80 <= st'.Read(0x40) < 0xffff
 	// Stack height(s)
 	requires st'.Operands() == 11
 	// Static stack items
 	requires (st'.Peek(0) == 0x1 && st'.Peek(2) == 0x1 && st'.Peek(4) == 0x0 && st'.Peek(5) == 0x80 && st'.Peek(7) == 0x0 && st'.Peek(8) == 0x60 && st'.Peek(9) == 0xcc)
+	// Termination	
+	requires var x := st'.Read(0x60); x as nat == n * 0x20
 	{
 		var st := st';
 		// ||0x01,_,0x01,_,0x00,0x80,_,0x00,0x60,0xcc,_|
@@ -686,6 +753,7 @@ module name {
 		// ||0x100,_,0x01,_,0x00,0x80,_,0x00,0x60,0xcc,_|
 		st := Mul(st);
 		// ||_,0x01,_,0x00,0x80,_,0x00,0x60,0xcc,_|
+    	assert st.Peek(4) == 0x80 && st.Peek(6) == 0x00 && st.Peek(7) == 0x60 && st.Peek(8) == 0xcc;
 		st := Sub(st);
 		// ||_,_,0x00,0x80,_,0x00,0x60,0xcc,_|
 		st := And(st);
@@ -693,17 +761,21 @@ module name {
 		st := Push1(st,0x02);
 		// ||0x02,_,0x00,0x80,_,0x00,0x60,0xcc,_|
 		st := Swap(st,1);
-		st := block_0_0x0526(st);
+		st := block_0_0x0526(n,st);
 		return st;
 	}
 
-	method block_0_0x0526(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0526(n: nat, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0526
+	// Free memory pointer
+	requires st'.MemSize() >= 0x80 && 0x80 <= st'.Read(0x40) < 0xffff
 	// Stack height(s)
 	requires st'.Operands() == 9
 	// Static stack items
 	requires (st'.Peek(1) == 0x2 && st'.Peek(2) == 0x0 && st'.Peek(3) == 0x80 && st'.Peek(5) == 0x0 && st'.Peek(6) == 0x60 && st'.Peek(7) == 0xcc)
+	// Termination	
+	requires var x := st'.Read(0x60); x as nat == n * 0x20
 	{
 		var st := st';
 		// ||_,0x02,0x00,0x80,_,0x00,0x60,0xcc,_|
@@ -717,7 +789,7 @@ module name {
 		// ||0x573,_,_,0x00,0x80,_,0x00,0x60,0xcc,_|
 		assume st.IsJumpDest(0x573);
 		st := JumpI(st);
-		if st.PC() == 0x573 { st := block_0_0x0573(st); return st;}
+		if st.PC() == 0x573 { st := block_0_0x0573(n,st); return st;}
 		// ||_,0x00,0x80,_,0x00,0x60,0xcc,_|
 		st := Dup(st,1);
 		// ||_,_,0x00,0x80,_,0x00,0x60,0xcc,_|
@@ -759,7 +831,7 @@ module name {
 		return st;
 	}
 
-	method block_0_0x053d(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method {:verify false} block_0_0x053d(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x053d
 	// Stack height(s)
@@ -785,7 +857,7 @@ module name {
 		// ||0x573,_,0x00,0xa0,_,0x00,0x60,0xcc,_|
 		assume st.IsJumpDest(0x573);
 		st := Jump(st);
-		st := block_0_0x0573(st);
+		st := block_0_0x0573(0,st);
 		return st;
 	}
 
@@ -839,7 +911,7 @@ module name {
 		return st;
 	}
 
-	method block_0_0x0556(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method {:verify false} block_0_0x0556(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0556
 	// Stack height(s)
@@ -876,7 +948,7 @@ module name {
 		return st;
 	}
 
-	method block_0_0x055f(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method {:verify false} block_0_0x055f(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x055f
 	// Stack height(s)
@@ -906,17 +978,21 @@ module name {
 		st := Dup(st,4);
 		// ||_,_,_,_,_,_,0x00,0x60,0xcc,_|
 		st := Gt(st);
-		st := block_0_0x0566(st);
+		st := block_0_0x0566(0,st);
 		return st;
 	}
 
-	method block_0_0x0566(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method {:verify false} block_0_0x0566(n: nat, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0566
+	// Free memory pointer
+	requires st'.MemSize() >= 0x80 && 0x80 <= st'.Read(0x40) < 0xffff
 	// Stack height(s)
 	requires st'.Operands() == 9
 	// Static stack items
 	requires (st'.Peek(5) == 0x0 && st'.Peek(6) == 0x60 && st'.Peek(7) == 0xcc)
+	// Termination	
+	requires var x := st'.Read(0x60); x as nat == n * 0x20
 	{
 		var st := st';
 		// ||_,_,_,_,_,0x00,0x60,0xcc,_|
@@ -934,20 +1010,24 @@ module name {
 		// ||_,_,_,_,0x00,0x60,0xcc,_|
 		st := Push1(st,0x1f);
 		// ||0x1f,_,_,_,_,0x00,0x60,0xcc,_|
-		st := And(st);
+		st := AndU5(st);
 		// ||_,_,_,_,0x00,0x60,0xcc,_|
 		st := Dup(st,3);
-		st := block_0_0x0571(st);
+		st := block_0_0x0571(n,st);
 		return st;
 	}
 
-	method block_0_0x0571(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0571(n: nat, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0571
+	// Free memory pointer
+	requires st'.MemSize() >= 0x80 && 0x80 <= st'.Read(0x40) < 0xffff
 	// Stack height(s)
 	requires st'.Operands() == 9
 	// Static stack items
 	requires (st'.Peek(5) == 0x0 && st'.Peek(6) == 0x60 && st'.Peek(7) == 0xcc)
+	// Termination	
+	requires var x := st'.Read(0x60); x as nat == n * 0x20
 	{
 		var st := st';
 		// ||_,_,_,_,_,0x00,0x60,0xcc,_|
@@ -957,17 +1037,21 @@ module name {
 		// ||_,0x00,0xa0,_,0x00,0x60,0xcc,_|
 		// ||_,_,_,_,0x00,0x60,0xcc,_|
 		// ||_,0x00,0x80,_,0x00,0x60,0xcc,_|
-		st := block_0_0x0573(st);
+		st := block_0_0x0573(n,st);
 		return st;
 	}
 
-	method block_0_0x0573(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0573(n: nat, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0573
+	// Free memory pointer
+	requires st'.MemSize() >= 0x80 && 0x80 <= st'.Read(0x40) < 0xffff
 	// Stack height(s)
 	requires st'.Operands() == 8
 	// Static stack items
 	requires (st'.Peek(4) == 0x0 && st'.Peek(5) == 0x60 && st'.Peek(6) == 0xcc)
+	// Termination	
+	requires var x := st'.Read(0x60); x as nat == n * 0x20
 	{
 		var st := st';
 		// ||_,0x00,0xa0,_,0x00,0x60,0xcc,_|
@@ -995,7 +1079,7 @@ module name {
 		// ||0xcc,0x60,0xcc,_|
 		assume st.IsJumpDest(0xcc);
 		st := Jump(st);
-		st := block_0_0x00cc(st);
+		st := block_0_0x00cc(n,st);
 		return st;
 	}
 
