@@ -17,7 +17,7 @@ module name {
 	// Stack height(s)
 	requires st'.Operands() == 1
 	// Storate Items
-	requires st'.Load(0) < 0xffff // length of "Wrapped Ether"
+	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.
 	{
 		var st := st';
 		// |fp=0x0060|_|
@@ -49,7 +49,7 @@ module name {
 	// Stack height(s)
 	requires st'.Operands() == 1
 	// Storate Items
-	requires st'.Load(0) < 0xffff // length of "Wrapped Ether"
+	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.
 	{
 		var st := st';
 		// |fp=0x0060|_|
@@ -548,7 +548,7 @@ module name {
 	// Static stack items
 	requires (st'.Peek(0) == 0xcc)
 	// Storate Items
-	requires st'.Load(0) < 0xffff // length of "Wrapped Ether"
+	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.
 	{
 		var st := st';
 		// |fp=0x0060|0xcc,_|
@@ -580,11 +580,11 @@ module name {
 	// Stack height(s)
 	requires st'.Operands() == 6
 	// Static stack items
-	requires st'.Peek(0) in {0,1}
+	requires st'.Peek(0) == 0
 	requires st'.Peek(2) == st'.Load(0x00)
 	requires (st'.Peek(1) == 0x1 && st'.Peek(3) == 0x0 && st'.Peek(4) == 0xcc)
 	// Storate Items
-	requires st'.Load(0) < 0xffff // length of "Wrapped Ether"
+	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.
 	{
 		var st := st';
 		// |fp=0x0060|{0,1},0x01,s0,0x00,0xcc,_|
@@ -598,7 +598,7 @@ module name {
 		// |fp=0x0060|_,s0,0x00,0xcc,_|
 		var x := st.Peek(1);
 		assert st.Peek(0) in {MAX_U256 as u256, 0xFF};
-		assert st.Peek(2) == 0x00 && st.Peek(3) == 0xcc;
+		assert st.Peek(1) == 2 * 13 && st.Peek(2) == 0x00 && st.Peek(3) == 0xcc;
 		// ==========================================================
 		// NOTE: Reimplemented following to avoid need to reason about bitvector
 		// arithmetic.
@@ -618,6 +618,7 @@ module name {
 		st := Swap(st,1);
 		// |fp=0x0060|l2,0x02,0x00,0xcc,_|
 		st := Div(st);
+		assert st.Peek(0) == 13;
 		// |fp=0x0060|len,0x00,0xcc,_| // len=length of array (in bytes)
 		st := block_0_0x04f3(st);
 		return st;
@@ -632,7 +633,9 @@ module name {
 	requires st'.Operands() == 4
 	// Static stack items
 	requires (st'.Peek(1) == 0x0 && st'.Peek(2) == 0xcc)
-	requires (st'.Peek(0) < 0xff00)
+	requires (st'.Peek(0) == 13)
+	// Storage
+	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.	
 	{
 		var st := st';
 		// |fp=0x0060|len,0x00,0xcc,_|
@@ -644,7 +647,7 @@ module name {
 		// |fp=0x0060|len+0x1f,len,0x00,0xcc,_|
 		st := Push1(st,0x20);
 		// |fp=0x0060|0x20,len+0x1f,len,0x00,0xcc,_|
-		assert {:split_here} true;
+		assert st.Peek(0) == 0x20 && st.Peek(3) == 0x00 && st.Peek(4) == 0xcc;
 		st := Dup(st,1);
 		// |fp=0x0060|0x20,0x20,len+0x1f,len,0x00,0xcc,_|
 		st := Swap(st,2);
@@ -669,6 +672,8 @@ module name {
 	requires (st'.Peek(0) < 0xff7f)
 	requires (st'.Peek(1) < 0xffff)
 	requires (st'.Peek(2) == 0x0 && st'.Peek(3) == 0xcc)
+	// Storage
+	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.	
 	{
 		var st := st';
 		// |fp=0x0060|x,m,0x00,0xcc,_|
@@ -703,6 +708,8 @@ module name {
 	requires 0x80 <= st'.Peek(1) < 0xffff
 	requires st'.Peek(3) < 0xffff
 	requires (st'.Peek(0) == 0x40 && st'.Peek(2) == 0x60 && st'.Peek(4) == 0x0 && st'.Peek(5) == 0xcc)
+	// Storage
+	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.	
 	{
 		var st := st';
 		// |fp=0x0060|0x40,x+0x80,0x60,m,0x00,0xcc,_|
@@ -736,6 +743,8 @@ module name {
 	requires st'.Operands() == 6
 	// Static stack items
 	requires (st'.Peek(0) == 0x60 && st'.Peek(2) == 0x0 && st'.Peek(3) == 0x60 && st'.Peek(4) == 0xcc)
+	// Storage
+	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.	
 	{
 		var st := st';
 		// ||0x60,_,0x00,0x60,0xcc,_|
@@ -758,7 +767,7 @@ module name {
 		return st;
 	}
 
-	method {:verify false} block_0_0x051b(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x051b(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x051b
 	// Free memory pointer
@@ -768,25 +777,41 @@ module name {
 	requires st'.Operands() == 11
 	// Static stack items
 	requires (st'.Peek(0) == 0x1 && st'.Peek(2) == 0x1 && st'.Peek(4) == 0x0 && st'.Peek(5) == 0x80 && st'.Peek(7) == 0x0 && st'.Peek(8) == 0x60 && st'.Peek(9) == 0xcc)
+	requires (st'.Peek(3) == st'.Load(0))
+	// Storage
+	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.	
 	{
 		var st := st';
-		// ||0x01,_,0x01,_,0x00,0x80,_,0x00,0x60,0xcc,_|
+		// ||0x01,_,0x01,2*l,0x00,0x80,_,0x00,0x60,0xcc,_|
 		st := AndU1(st);
-		// ||_,0x01,_,0x00,0x80,_,0x00,0x60,0xcc,_|
+		// ||_,0x01,2*l,0x00,0x80,_,0x00,0x60,0xcc,_|
 		st := IsZero(st);
-		// ||_,0x01,_,0x00,0x80,_,0x00,0x60,0xcc,_|
+		// ||_,0x01,2*l,0x00,0x80,_,0x00,0x60,0xcc,_|
 		st := Push2(st,0x0100);
-		// ||0x100,_,0x01,_,0x00,0x80,_,0x00,0x60,0xcc,_|
+		// ||0x100,_,0x01,2*l,0x00,0x80,_,0x00,0x60,0xcc,_|
 		st := Mul(st);
-		// ||_,0x01,_,0x00,0x80,_,0x00,0x60,0xcc,_|
+		// ||{0,x100},0x01,2*l,0x00,0x80,_,0x00,0x60,0xcc,_|
     	assert st.Peek(4) == 0x80 && st.Peek(6) == 0x00 && st.Peek(7) == 0x60 && st.Peek(8) == 0xcc;
 		st := Sub(st);
-		// ||_,_,0x00,0x80,_,0x00,0x60,0xcc,_|
-		st := And(st);
-		// ||_,0x00,0x80,_,0x00,0x60,0xcc,_|
+		assert st.Peek(0) in {MAX_U256 as u256, 0xFF};
+		// ||{mx256,xff},2*l,0x00,0x80,_,0x00,0x60,0xcc,_|
+		// ==========================================================
+		// NOTE: Reimplemented following to avoid need to reason about bitvector
+		// arithmetic.
+		// st := And(st);
+		if st.Peek(0) == MAX_U256 as u256 { 
+			// Masking against MAX_U256 (a nop)
+			st := st.Pop().Next();
+		} else {
+			// Masking against 0xFF
+			st := AndU8(st);
+		}
+		// ==========================================================
+		// ||2*l,0x00,0x80,_,0x00,0x60,0xcc,_|
 		st := Push1(st,0x02);
-		// ||0x02,_,0x00,0x80,_,0x00,0x60,0xcc,_|
+		// ||0x02,2*l,0x00,0x80,_,0x00,0x60,0xcc,_|
 		st := Swap(st,1);
+		// ||2*l,0x02,0x00,0x80,_,0x00,0x60,0xcc,_|		
 		st := block_0_0x0526(st);
 		return st;
 	}
@@ -801,12 +826,15 @@ module name {
 	requires st'.Operands() == 9
 	// Static stack items
 	requires (st'.Peek(1) == 0x2 && st'.Peek(2) == 0x0 && st'.Peek(3) == 0x80 && st'.Peek(5) == 0x0 && st'.Peek(6) == 0x60 && st'.Peek(7) == 0xcc)
-	requires (st'.Peek(0) < 2*0xff7f)
+	requires (st'.Peek(0) == st'.Load(0))
+	// Storage
+	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.	
 	{
 		var st := st';
 		// ||2*l,0x02,0x00,0x80,_,0x00,0x60,0xcc,_|
 		st := Div(st);
-		var l := st.Peek(0);		
+		var l := st.Peek(0);
+		assert l == 13;		
 		// ||l,0x00,0x80,_,0x00,0x60,0xcc,_|
 		st := Dup(st,1);
 		// ||l,l,0x00,0x80,_,0x00,0x60,0xcc,_|
@@ -814,7 +842,7 @@ module name {
 		// ||l,l,0x00,0x80,_,0x00,0x60,0xcc,_|
 		st := Push2(st,0x0573);
 		// ||0x573,_,l,0x00,0x80,_,0x00,0x60,0xcc,_|
-		assert {:split_here} true;
+		assert (st.Peek(3) == 0x0 && st.Peek(4) == 0x80 && st.Peek(6) == 0x0 && st.Peek(7) == 0x60 && st.Peek(8) == 0xcc);
 		assume st.IsJumpDest(0x573);
 		st := JumpI(st);
 		if st.PC() == 0x573 { st := block_0_0x0573(st); return st;} // l == 0
@@ -828,7 +856,7 @@ module name {
 		return st;
 	}
 
-	method {:only} block_0_0x0531(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0531(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0531
 	// Free Memory Pointer
@@ -839,7 +867,9 @@ module name {
 	// Static stack items
 	requires (st'.Peek(0) in {0,1}) && (st'.Peek(0) == 1 <==> 0x1f < st'.Peek(1))
 	requires (st'.Peek(2) == 0x0 && st'.Peek(3) == 0x80 && st'.Peek(5) == 0x0 && st'.Peek(6) == 0x60 && st'.Peek(7) == 0xcc)
-	requires (st'.Peek(1) < 0xff7f)
+	requires (st'.Peek(1) == 13)
+	// Storage
+	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.	
 	{
 		var st := st';
 		// ||_,l,0x00,0x80,_,0x00,0x60,0xcc,_|
@@ -847,12 +877,20 @@ module name {
 		// ||0x548,_,l,0x00,0x80,_,0x00,0x60,0xcc,_|
 		assume st.IsJumpDest(0x548);
 		st := JumpI(st);
-		if st.PC() == 0x548 { st := block_0_0x0548(st); return st;} // l >= 0x1f
+		if st.PC() == 0x548 { 
+			// l >= 0x1f
+			//
+			// Deadcode begins here.  The reason is that the following code is used
+			// to account for copying strings whose length exceeds 31 bytes.
+			// However, the actual length of the string involved in this case
+			// ("Wrapped Ether") is only 13 bytes.
+			assert false;
+			st := block_0_0x0548(st); return st;
+		} 
 		// ||l,0x00,0x80,_,0x00,0x60,0xcc,_|
 		st := Push2(st,0x0100);
 		// ||0x100,l,0x00,0x80,_,0x00,0x60,0xcc,_|
-		assert {:split_here} true;
-		assert st.Peek(2) == 0x00 && st.Peek(3) == 0x80 && st.Peek(5) == 0x0 && st.Peek(6) == 0x60 && st.Peek(7) == 0xcc;
+		assert st.Peek(1) == 13 && st.Peek(2) == 0x00 && st.Peek(3) == 0x80 && st.Peek(5) == 0x0 && st.Peek(6) == 0x60 && st.Peek(7) == 0xcc;
 		st := Dup(st,1);
 		// ||0x100,0x100,l,0x00,0x80,_,0x00,0x60,0xcc,_|
 		st := Dup(st,4);
@@ -877,7 +915,7 @@ module name {
 	requires st'.Operands() == 9
 	// Static stack items
 	requires (st'.Peek(2) == 0x0 && st'.Peek(3) == 0x80 && st'.Peek(5) == 0x0 && st'.Peek(6) == 0x60 && st'.Peek(7) == 0xcc)
-	requires (st'.Peek(1) < 0xff7f)
+	requires (st'.Peek(1) == 13)
 	{
 		var st := st';
 		// ||_,l,0x00,0x80,_,0x00,0x60,0xcc,_|
@@ -912,7 +950,7 @@ module name {
 	requires st'.Operands() == 8
 	// Static stack items
 	requires (st'.Peek(1) == 0x0 && st'.Peek(2) == 0x80 && st'.Peek(4) == 0x0 && st'.Peek(5) == 0x60 && st'.Peek(6) == 0xcc)
-	requires (st'.Peek(0) < 0xff7f)
+	requires (st'.Peek(0) == 13)
 	{
 		var st := st';
 		// ||l,0x00,0x80,_,0x00,0x60,0xcc,_|
