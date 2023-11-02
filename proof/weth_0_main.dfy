@@ -34,6 +34,8 @@ module main {
 	requires st'.WritesPermitted() && st'.PC() == 0x0000
 	// Stack height(s)
 	requires st'.Operands() == 0
+	// Storate Items
+	requires st'.Load(0) < 0xffff // length of "Wrapped Ether"
 	{
 		var st := st';
 		// |fp=0x0000||
@@ -65,6 +67,8 @@ module main {
 	requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 0
+	// Storate Items
+	requires st'.Load(0) < 0xffff // length of "Wrapped Ether"
 	{
 		var st := st';
 		// |fp=0x0060||
@@ -94,6 +98,8 @@ module main {
 	requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 2
+	// Storate Items
+	requires st'.Load(0) < 0xffff // length of "Wrapped Ether"
 	{
 		var st := st';
 		// |fp=0x0060|_,_|

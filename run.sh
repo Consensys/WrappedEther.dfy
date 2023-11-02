@@ -1,8 +1,8 @@
 #!/bin/sh
 
-TIMEOUT=60 #seconds
+TIMEOUT=30 #seconds
 Z3_PATH="/home/djp/pkg/z3-4.8.5-x64-ubuntu-16.04/bin/z3"
-DAFNY_CMD="dafny verify --cores=12  --verification-time-limit=$TIMEOUT --solver-path=$Z3_PATH"
+DAFNY_CMD="dafny verify --cores=4  --verification-time-limit=$TIMEOUT --solver-path=$Z3_PATH"
 FILES=$(ls proof/*.dfy)
 
 if [ $# -eq 0 ];
