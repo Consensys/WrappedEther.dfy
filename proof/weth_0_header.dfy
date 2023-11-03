@@ -1,5 +1,5 @@
-include "../../evm-dafny/src/dafny/evm.dfy"
-include "../../evm-dafny/src/dafny/state.dfy"
+include "../evm-dafny/src/dafny/evm.dfy"
+include "../evm-dafny/src/dafny/state.dfy"
 
 module Header {
 	import opened Int

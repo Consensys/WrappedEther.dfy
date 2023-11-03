@@ -1,5 +1,5 @@
-include "../../evm-dafny/src/dafny/evm.dfy"
-include "../../evm-dafny/src/dafny/core/code.dfy"
+include "../evm-dafny/src/dafny/evm.dfy"
+include "../evm-dafny/src/dafny/core/code.dfy"
 include "weth_0_header.dfy"
 include "weth_0_decimals.dfy"
 include "weth_0_totalSupply.dfy"

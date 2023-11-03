@@ -1,5 +1,5 @@
-include "../../evm-dafny/src/dafny/evm.dfy"
-include "../../evm-dafny/src/dafny/core/code.dfy"
+include "../evm-dafny/src/dafny/evm.dfy"
+include "../evm-dafny/src/dafny/core/code.dfy"
 include "weth_0_header.dfy"
 
 module util {
@@ -66,7 +66,8 @@ module util {
 	// Stack height(s)
 	requires st'.Operands() == 5
 	// Static stack items
-	requires (st'.Peek(0) == 0x0 && st'.Peek(1) == 0x60 && st'.Peek(2) == 0x60 && st'.Peek(3) == 0x1)
+	//requires (st'.Peek(0) == 0x0 && st'.Peek(1) == 0x60 && st'.Peek(2) == 0x60 && st'.Peek(3) == 0x1)
+	requires (st'.Peek(1) == 0x60)
 	{
 		var st := st';
 		// |fp=0x0060|0x00,0x60,0x60,0x01,_|
@@ -78,13 +79,16 @@ module util {
 		// |fp=0x0060|0x60,0x60,0x01,_|
 		st := Push1(st,0x20);
 		// |fp=0x0060|0x20,0x60,0x60,0x01,_|
+		assert 0x20 + 0x60 == 0x80;
 		st := Add(st);
+		assert st.Peek(0) == 0x80;		
 		// |fp=0x0060|0x80,0x60,0x01,_|
 		st := Swap(st,2);
 		// |fp=0x0060|0x01,0x60,0x80,_|
 		st := Pop(st);
 		// |fp=0x0060|0x60,0x80,_|
 		st := Pop(st);
+		// |fp=0x0060|0x80,_|		
 		st := block_0_0x023b(st);
 		return st;
 	}
@@ -156,7 +160,8 @@ module util {
 	// Stack height(s)
 	requires st'.Operands() == 5
 	// Static stack items
-	requires (st'.Peek(0) == 0x0 && st'.Peek(1) == 0x60 && st'.Peek(2) == 0x60 && st'.Peek(3) == 0x1)
+	//requires (st'.Peek(0) == 0x0 && st'.Peek(1) == 0x60 && st'.Peek(2) == 0x60 && st'.Peek(3) == 0x1)
+	requires (st'.Peek(1) == 0x60)
 	{
 		var st := st';
 		// |fp=0x0060|0x00,0x60,0x60,0x01,_|
@@ -169,12 +174,14 @@ module util {
 		st := Push1(st,0x20);
 		// |fp=0x0060|0x20,0x60,0x60,0x01,_|
 		st := Add(st);
+		assert st.Peek(0) == 0x80;
 		// |fp=0x0060|0x80,0x60,0x01,_|
 		st := Swap(st,2);
 		// |fp=0x0060|0x01,0x60,0x80,_|
 		st := Pop(st);
 		// |fp=0x0060|0x60,0x80,_|
 		st := Pop(st);
+		// |fp=0x0060|0x80,_|
 		st := block_0_0x03c2(st);
 		return st;
 	}
@@ -262,7 +269,7 @@ module util {
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x03,_,0xb7,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x03,_,0x3d2,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x03,_,0xb7|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,0x03,_,0xb7,_|
 		// |fp=0x0060|_,0x00,0x03,_,0x3d2,_|
 		// |fp=0x0060|_,0x00,0x03,_,0xb7|
@@ -279,16 +286,15 @@ module util {
 	// Stack height(s)
 	requires st'.Operands() >= 6 && st'.Operands() <= 7
 	// Static stack items
-	requires (st'.Peek(0) == 0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffff && st'.Peek(2) == 0x0 && st'.Peek(3) == 0x3)
+	requires (st'.Peek(0) == 0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffff && st'.Peek(2) == 0x0)
 	// Dynamic stack items
-	requires st'.Operands() == 6 ==> ((st'.Peek(5) == 0xb7))
-	requires st'.Operands() == 7 ==> ((st'.Peek(5) == 0xb7) || (st'.Peek(5) == 0x3d2))
+	requires (st'.Peek(5) == 0xb7) || (st'.Peek(5) == 0x3d2)
 	{
 		var st := st';
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x03,_,0xb7,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x03,_,0x3d2,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x03,_,0xb7|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,0x03,_,0xb7,_|
 		// |fp=0x0060|_,0x00,0x03,_,0x3d2,_|
 		// |fp=0x0060|_,0x00,0x03,_,0xb7|
@@ -297,6 +303,7 @@ module util {
 		// |fp=0x0060|0x00,_,0x00,0x03,_,0x3d2,_|
 		// |fp=0x0060|0x00,_,0x00,0x03,_,0xb7|
 		st := MStore(st);
+		assert (st.Peek(3) == 0xb7) || (st.Peek(3) == 0x3d2);
 		// |fp=0x0060|0x00,0x03,_,0xb7,_|
 		// |fp=0x0060|0x00,0x03,_,0x3d2,_|
 		// |fp=0x0060|0x00,0x03,_,0xb7|
@@ -305,6 +312,7 @@ module util {
 		// |fp=0x0060|0x20,0x00,0x03,_,0x3d2,_|
 		// |fp=0x0060|0x20,0x00,0x03,_,0xb7|
 		st := Add(st);
+		assert st.Peek(0) == 0x20;
 		// |fp=0x0060|0x20,0x03,_,0xb7,_|
 		// |fp=0x0060|0x20,0x03,_,0x3d2,_|
 		// |fp=0x0060|0x20,0x03,_,0xb7|
@@ -313,10 +321,14 @@ module util {
 		// |fp=0x0060|0x03,0x20,_,0x3d2,_|
 		// |fp=0x0060|0x03,0x20,_,0xb7|
 		st := Dup(st,2);
+		assert (st.Peek(4) == 0xb7) || (st.Peek(4) == 0x3d2);
 		// |fp=0x0060|0x20,0x03,0x20,_,0xb7,_|
 		// |fp=0x0060|0x20,0x03,0x20,_,0x3d2,_|
 		// |fp=0x0060|0x20,0x03,0x20,_,0xb7|
 		st := MStore(st);
+		// |fp=0x0060|0x20,_,0xb7,_|
+		// |fp=0x0060|0x20,_,0x3d2,_|
+		// |fp=0x0060|0x20,_,0xb7|
 		st := block_0_0x047b(st);
 		return st;
 	}
@@ -327,12 +339,11 @@ module util {
 	// Free memory pointer
 	requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
-	requires st'.Operands() >= 3 && st'.Operands() <= 4
+	requires st'.Operands() == 3 || st'.Operands() == 4
 	// Static stack items
-	requires (st'.Peek(0) == 0x20)
+	requires (st'.Peek(0) == 0x20) 
 	// Dynamic stack items
-	requires st'.Operands() == 3 ==> ((st'.Peek(2) == 0xb7))
-	requires st'.Operands() == 4 ==> ((st'.Peek(2) == 0xb7) || (st'.Peek(2) == 0x3d2))
+	requires (st'.Peek(2) == 0xb7) || (st'.Peek(2) == 0x3d2)
 	{
 		var st := st';
 		// |fp=0x0060|0x20,_,0xb7,_|
@@ -377,12 +388,11 @@ module util {
 	// Free memory pointer
 	requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
-	requires st'.Operands() >= 6 && st'.Operands() <= 7
+	requires st'.Operands() == 6 || st'.Operands() == 7
 	// Static stack items
 	requires (st'.Peek(2) == 0x0)
 	// Dynamic stack items
-	requires st'.Operands() == 6 ==> ((st'.Peek(5) == 0xb7))
-	requires st'.Operands() == 7 ==> ((st'.Peek(5) == 0xb7) || (st'.Peek(5) == 0x3d2))
+	requires (st'.Peek(5) == 0xb7) || (st'.Peek(5) == 0x3d2)
 	{
 		var st := st';
 		// |fp=0x0060|_,_,0x00,_,_,0xb7,_|
@@ -427,10 +437,9 @@ module util {
 	// Free memory pointer
 	requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
-	requires st'.Operands() >= 1 && st'.Operands() <= 2
+	requires st'.Operands() == 1 || st'.Operands() == 2
 	// Dynamic stack items
-	requires st'.Operands() == 1 ==> ((st'.Peek(0) == 0xb7))
-	requires st'.Operands() == 2 ==> ((st'.Peek(0) == 0xb7) || (st'.Peek(0) == 0x3d2))
+	requires (st'.Peek(0) == 0xb7) || (st'.Peek(0) == 0x3d2)
 	{
 		var st := st';
 		// |fp=0x0060|0xb7,_|
@@ -444,7 +453,7 @@ module util {
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0xb7,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x3d2,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0xb7|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0xb7,_|
 		// |fp=0x0060|_,0x3d2,_|
 		// |fp=0x0060|_,0xb7|
@@ -477,10 +486,9 @@ module util {
 	// Stack height(s)
 	requires st'.Operands() >= 6 && st'.Operands() <= 7
 	// Static stack items
-	requires (st'.Peek(0) == 0x60 && st'.Peek(1) == 0x60 && st'.Peek(3) == 0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c)
+	requires (st'.Peek(0) == 0x60 && st'.Peek(1) == 0x60) // && st'.Peek(3) == 0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c)
 	// Dynamic stack items
-	requires st'.Operands() == 6 ==> ((st'.Peek(5) == 0xb7))
-	requires st'.Operands() == 7 ==> ((st'.Peek(5) == 0xb7) || (st'.Peek(5) == 0x3d2))
+	requires (st'.Peek(5) == 0xb7) || (st'.Peek(5) == 0x3d2)
 	{
 		var st := st';
 		// |fp=0x0060|0x60,0x60,_,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,_,0xb7,_|
@@ -498,6 +506,7 @@ module util {
 		// |fp=0x0060|0x60,0x60,_,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,_,0xb7,_|
 		// |fp=0x0060|0x60,0x60,_,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,_,0x3d2,_|
 		// |fp=0x0060|0x60,0x60,_,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,_,0xb7|
+		assert (st.Peek(5) == 0xb7) || (st.Peek(5) == 0x3d2);
 		st := Push1(st,0x20);
 		// |fp=0x0060|0x20,0x60,0x60,_,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,_,0xb7,_|
 		// |fp=0x0060|0x20,0x60,0x60,_,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,_,0x3d2,_|
@@ -527,10 +536,9 @@ module util {
 	// Stack height(s)
 	requires st'.Operands() >= 4 && st'.Operands() <= 5
 	// Static stack items
-	requires (st'.Peek(0) == 0x80 && st'.Peek(1) == 0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c)
+	requires (st'.Peek(0) == 0x80) // && st'.Peek(1) == 0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c)
 	// Dynamic stack items
-	requires st'.Operands() == 4 ==> ((st'.Peek(3) == 0xb7))
-	requires st'.Operands() == 5 ==> ((st'.Peek(3) == 0xb7) || (st'.Peek(3) == 0x3d2))
+	requires (st'.Peek(3) == 0xb7) || (st'.Peek(3) == 0x3d2)
 	{
 		var st := st';
 		// |fp=0x0060|0x80,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,_,0xb7,_|
@@ -609,7 +617,7 @@ module util {
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x03,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x03,_,0x00,_,_,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		st := block_0_0x06ab(st);
 		return st;
 	}
@@ -633,7 +641,7 @@ module util {
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x03,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x03,_,0x00,_,_,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,0x03,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,0x03,_,0x00,_,_,_,0x229,_|
 		st := Dup(st,2);
@@ -763,7 +771,7 @@ module util {
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,_,_,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,_,_,_,0x229,_|
 		st := Dup(st,5);
@@ -772,7 +780,7 @@ module util {
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,_,0x00,_,_,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,_,0x00,_,_,_,0x229,_|
 		st := Eq(st);
@@ -849,13 +857,13 @@ module util {
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x04,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x04,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x00,_,_,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,0x04,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,0x04,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x00,_,_,_,0x229,_|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x04,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x04,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x00,_,_,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,0x04,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,0x04,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x00,_,_,_,0x229,_|
 		st := Dup(st,2);
@@ -936,13 +944,13 @@ module util {
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,_,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,_,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x00,_,_,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,_,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,_,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x00,_,_,_,0x229,_|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,_,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,_,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x00,_,_,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,_,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,_,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x00,_,_,_,0x229,_|
 		st := Dup(st,2);
@@ -1090,13 +1098,13 @@ module util {
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x04,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x04,_,0x00,_,_,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,0x04,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,0x04,_,0x00,_,_,_,0x229,_|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x04,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x04,_,0x00,_,_,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,0x04,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,0x04,_,0x00,_,_,_,0x229,_|
 		st := Dup(st,2);
@@ -1177,13 +1185,13 @@ module util {
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,_,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,_,_,0x00,_,_,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,_,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,_,_,0x00,_,_,_,0x229,_|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,_,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,_,_,0x00,_,_,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,_,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,_,_,0x00,_,_,_,0x229,_|
 		st := Dup(st,2);
@@ -1340,7 +1348,7 @@ module util {
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x04,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x04,_,0x00,_,_,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,0x04,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,0x04,_,0x00,_,_,_,0x229,_|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
@@ -1364,7 +1372,7 @@ module util {
 		var st := st';
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x04,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x04,_,0x00,_,_,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,0x04,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,0x04,_,0x00,_,_,_,0x229,_|
 		st := Dup(st,2);
@@ -1427,7 +1435,7 @@ module util {
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,_,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,_,_,0x00,_,_,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		st := block_0_0x089e(st);
 		return st;
 	}
@@ -1451,7 +1459,7 @@ module util {
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,_,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,_,_,0x00,_,_,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,_,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,_,_,0x00,_,_,_,0x229,_|
 		st := Dup(st,2);
@@ -1615,7 +1623,7 @@ module util {
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x03,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x03,_,0x00,_,_,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,0x03,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,0x03,_,0x00,_,_,_,0x229,_|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
@@ -1639,7 +1647,7 @@ module util {
 		var st := st';
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x03,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x03,_,0x00,_,_,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,0x03,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,0x03,_,0x00,_,_,_,0x229,_|
 		st := Dup(st,2);
@@ -1780,13 +1788,13 @@ module util {
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x03,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x03,_,0x00,_,_,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,0x03,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,0x03,_,0x00,_,_,_,0x229,_|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x03,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x03,_,0x00,_,_,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		st := block_0_0x094f(st);
 		return st;
 	}
@@ -1936,7 +1944,7 @@ module util {
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,_,_,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,_,_,_,0x229,_|
 		st := Dup(st,5);
@@ -1945,7 +1953,7 @@ module util {
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,_,0x00,_,_,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,_,0x00,_,_,_,0x229,_|
 		st := PushN(st,32,0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef);
