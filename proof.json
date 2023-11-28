@@ -1,0 +1,13 @@
+{
+    "functions": {
+        "name": "0x00b9",
+        "approve": "0x0147",
+        "totalSupply": "0x01a1",
+        "decimals": "0x0266",
+        "balanceOf":"0x0295",
+        "symbol": "0x02e2",
+        "transfer": "0x0370",
+        "deposit": "0x03ca",
+        "allowance": "0x03d4"
+    }
+}
