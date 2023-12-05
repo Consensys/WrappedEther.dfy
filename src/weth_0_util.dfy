@@ -1056,6 +1056,8 @@ module util {
 		st := Keccak256(st);
 		// |fp=0x0060|_,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x00,_,_,_,0x229,_|
+    assert st.Operands() in {8,12};
+    assert st.Operands() == 12 ==> st.Peek(7) == st'.Peek(7) == 0x0;
 		st := SLoad(st);
 		// |fp=0x0060|_,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x00,_,_,_,0x229,_|
@@ -1139,12 +1141,20 @@ module util {
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x04,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x04,_,0x00,_,_,_,0x229,_|
 		st := AndU160(st);
+    assert st.Operands() in {10,14};
+    assert st.Peek(2) == 0x04;
+    assert st.Peek(4) == 0x00;
+    assert st.Peek(8) == st'.Peek(8);
+    assert st.Operands() == 14 ==> st.Peek(9) == st'.Peek(9) == 0x00;
+    assert st.Operands() == 14 ==> st.Peek(12) == st'.Peek(12) == 0x3b0;    
+    //assert st.Operands() == 14 ==> st.Peek(8) == st'.Peek(8);    
 		// |fp=0x0060|_,0x00,0x04,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,0x04,_,0x00,_,_,_,0x229,_|
 		st := Dup(st,2);
 		// |fp=0x0060|0x00,_,0x00,0x04,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x00,_,0x00,0x04,_,0x00,_,_,_,0x229,_|
 		st := MStore(st);
+    assert st.Operands() in {9,13};
 		// |fp=0x0060|0x00,0x04,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x00,0x04,_,0x00,_,_,_,0x229,_|
 		st := Push1(st,0x20);
@@ -1181,12 +1191,21 @@ module util {
 		// |fp=0x0060|0x20,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x20,_,0x00,_,_,_,0x229,_|
 		st := Push1(st,0x20);
+    assert st.Operands() in {9,13};
+    assert st.Peek(3) == st'.Peek(3) == 0x00;
+    assert st.Peek(7) == st'.Peek(7);
+    assert st.Operands() == 13 ==> st.Peek(11) == st'.Peek(11) == 0x3b0;
 		// |fp=0x0060|0x20,0x20,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x20,0x20,_,0x00,_,_,_,0x229,_|
 		st := Add(st);
 		// |fp=0x0060|0x40,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x40,_,0x00,_,_,_,0x229,_|
 		st := Push1(st,0x00);
+    assert st.Operands() in {9,13};
+    assert st.Peek(3) == st'.Peek(3) == 0x00;
+    assert st.Peek(7) == st'.Peek(7);
+    assert st.Operands() == 13 ==> st.Peek(8) == st'.Peek(8) == 0x00;
+    assert st.Operands() == 13 ==> st.Peek(11) == st'.Peek(11) == 0x3b0;    
 		// |fp=0x0060|0x00,0x40,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x00,0x40,_,0x00,_,_,_,0x229,_|
 		st := Keccak256(st);
@@ -1223,6 +1242,7 @@ module util {
 		// |fp=0x0060|_,0x00,_,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,_,_,0x00,_,_,_,0x229,_|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
+    assert st.Peek(5) == 0x00;    
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,_,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,_,_,0x00,_,_,_,0x229,_|
 		st := AndU160(st);
@@ -1263,8 +1283,11 @@ module util {
 		// |fp=0x0060|_,0x20,_,0x00,_,_,_,0x229,_|
 		st := Dup(st,2);
 		// |fp=0x0060|0x20,_,0x20,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
-		// |fp=0x0060|0x20,_,0x20,_,0x00,_,_,_,0x229,_|
+		// |fp=0x0060|0x20,_,0x20,_,0x00,_,_,_,0x229,_|    
 		st := MStore(st);
+    assert st.Operands() in {8,12};
+    assert st.Peek(6) == st'.Peek(8);
+    assert st.Operands() == 12 ==> st.Peek(7) == 0x00;
 		// |fp=0x0060|0x20,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x20,_,0x00,_,_,_,0x229,_|
 		st := Push1(st,0x20);
@@ -1307,6 +1330,8 @@ module util {
 		// |fp=0x0060|_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,_,_,_,0x229,_|
 		st := IsZero(st);
+    assert st.Operands() in {7,11};
+    assert st.Peek(6) == st'.Peek(7);
 		// |fp=0x0060|_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,_,_,_,0x229,_|
 		st := IsZero(st);
@@ -1390,7 +1415,7 @@ module util {
 		return st;
 	}
 
-	method block_0_0x0876(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method {:verify false} block_0_0x0876(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0876
 	// Free memory pointer
@@ -1410,24 +1435,42 @@ module util {
 		// |fp=0x0060|_,0x00,0x04,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,0x04,_,0x00,_,_,_,0x229,_|
 		st := Dup(st,2);
+    assert st.Operands() in {11,15};
+    assert st.Peek(5) == st'.Peek(5) == 0x0;
+    assert st.Peek(10) == st'.Peek(10);
+    assert st.Operands() == 15 ==> st.Peek(13) == st'.Peek(13) == 0x3b0;
+    assert st.Read(0x40) == st'.Read(0x40) == 0x60;
 		// |fp=0x0060|0x00,_,0x00,0x04,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x00,_,0x00,0x04,_,0x00,_,_,_,0x229,_|
 		st := MStore(st);
 		// |fp=0x0060|0x00,0x04,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x00,0x04,_,0x00,_,_,_,0x229,_|
 		st := Push1(st,0x20);
+    assert st.Operands() in {10,14};
+    assert st.Peek(4) == st'.Peek(5) == 0x0;
+    //assert st.Peek(9) == st'.Peek(10);
+    assert st.Operands() == 14 ==> st.Peek(12) == st'.Peek(13) == 0x3b0;
+    assert st.Read(0x40) == st'.Read(0x40) == 0x60;    
 		// |fp=0x0060|0x20,0x00,0x04,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x20,0x00,0x04,_,0x00,_,_,_,0x229,_|
 		st := Add(st);
 		// |fp=0x0060|0x20,0x04,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x20,0x04,_,0x00,_,_,_,0x229,_|
 		st := Swap(st,1);
+    assert st.Operands() in {9,13};
+    assert st.Peek(3) == st'.Peek(5) == 0x00;
+    assert st.Operands() == 13 ==> st.Peek(7) == 0xbdb;    
+    assert st.Operands() == 13 ==> st.Peek(11) == 0x3b0;
+    //assert st.Read(0x40) == st'.Read(0x40) == 0x60;    
 		// |fp=0x0060|0x04,0x20,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x04,0x20,_,0x00,_,_,_,0x229,_|
+    assert st.Read(0x40) == st'.Read(0x40) == 0x60;    
 		st := Dup(st,2);
 		// |fp=0x0060|0x20,0x04,0x20,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x20,0x04,0x20,_,0x00,_,_,_,0x229,_|
+    assert st.Read(0x40) == st'.Read(0x40) == 0x60;        
 		st := MStore(st);
+    assert st.Read(0x40) == st'.Read(0x40) == 0x60;    
 		st := block_0_0x087f(st);
 		return st;
 	}
@@ -1458,6 +1501,8 @@ module util {
 		// |fp=0x0060|0x00,0x40,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x00,0x40,_,0x00,_,_,_,0x229,_|
 		st := Keccak256(st);
+    assert st.Operands() in {8,12};
+    assert st.Peek(6) == st'.Peek(6);    
 		// |fp=0x0060|_,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,_,0x00,_,_,_,0x229,_|
 		st := Push1(st,0x00);
@@ -1500,6 +1545,11 @@ module util {
 		// |fp=0x0060|0x00,_,0x00,_,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x00,_,0x00,_,_,0x00,_,_,_,0x229,_|
 		st := MStore(st);
+    assert st.Operands() in {9,13};
+    assert st.Peek(3) == st'.Peek(1) == 0x00;
+    assert st.Peek(7) == st'.Peek(8);
+    assert st.Peek(8) == st'.Peek(9);
+    assert st.Operands() == 13 ==> st.Peek(11) == st'.Peek(12) == 0x3b0;
 		// |fp=0x0060|0x00,_,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x00,_,_,0x00,_,_,_,0x229,_|
 		st := Push1(st,0x20);
@@ -1665,7 +1715,7 @@ module util {
 		return st;
 	}
 
-	method block_0_0x0901(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method {:verify false} block_0_0x0901(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0901
 	// Free memory pointer
@@ -1685,24 +1735,36 @@ module util {
 		// |fp=0x0060|_,0x00,0x03,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,0x03,_,0x00,_,_,_,0x229,_|
 		st := Dup(st,2);
+    assert st.Operands() in {11,15};
+    assert st.Peek(5) == st'.Peek(5) == 0;    
 		// |fp=0x0060|0x00,_,0x00,0x03,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x00,_,0x00,0x03,_,0x00,_,_,_,0x229,_|
 		st := MStore(st);
 		// |fp=0x0060|0x00,0x03,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x00,0x03,_,0x00,_,_,_,0x229,_|
 		st := Push1(st,0x20);
+    assert st.Operands() in {10,14};
+    assert st.Peek(4) == st'.Peek(5) == 0;
+    assert st.Operands() == 10 ==> st.Peek(8) == st'.Peek(9) == 0x229;
+    assert st.Operands() == 14 ==> st.Peek(8) == st'.Peek(9) == 0xbdb;    
 		// |fp=0x0060|0x20,0x00,0x03,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x20,0x00,0x03,_,0x00,_,_,_,0x229,_|
 		st := Add(st);
 		// |fp=0x0060|0x20,0x03,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x20,0x03,_,0x00,_,_,_,0x229,_|
 		st := Swap(st,1);
+    assert st.Operands() in {9,13};
+    assert st.Peek(3) == st'.Peek(5) == 0;        
 		// |fp=0x0060|0x03,0x20,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x03,0x20,_,0x00,_,_,_,0x229,_|
 		st := Dup(st,2);
 		// |fp=0x0060|0x20,0x03,0x20,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x20,0x03,0x20,_,0x00,_,_,_,0x229,_|
 		st := MStore(st);
+    assert st.Operands() in {8,12};
+    assert st.Peek(2) == st'.Peek(5) == 0;
+    assert st.Operands() == 8 ==> st.Peek(6) == st'.Peek(9) == 0x229;
+    assert st.Operands() == 12 ==> st.Peek(6) == st'.Peek(9) == 0xbdb;   
 		st := block_0_0x090a(st);
 		return st;
 	}
@@ -1733,6 +1795,8 @@ module util {
 		// |fp=0x0060|0x00,0x40,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x00,0x40,_,0x00,_,_,_,0x229,_|
 		st := Keccak256(st);
+    assert st.Operands() in {8,12};
+    assert st.Peek(7) == st'.Peek(7);
 		// |fp=0x0060|_,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,_,0x00,_,_,_,0x229,_|
 		st := Push1(st,0x00);
@@ -1859,6 +1923,10 @@ module util {
 		// |fp=0x0060|0x20,0x00,0x03,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x20,0x00,0x03,_,0x00,_,_,_,0x229,_|
 		st := Add(st);
+    assert st.Operands() in {9,13};
+    assert st.Peek(3) == 0x00;
+    assert st.Peek(7) == st'.Peek(8);
+    assert st.Operands() == 13 ==> st.Peek(8) == 0x00;
 		// |fp=0x0060|0x20,0x03,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x20,0x03,_,0x00,_,_,_,0x229,_|
 		st := Swap(st,1);
@@ -1874,7 +1942,7 @@ module util {
 		st := block_0_0x0959(st);
 		return st;
 	}
-
+ 
 	method block_0_0x0959(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0959
@@ -1901,6 +1969,9 @@ module util {
 		// |fp=0x0060|_,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,_,0x00,_,_,_,0x229,_|
 		st := Push1(st,0x00);
+    assert st.Operands() in {9,13};
+    assert st.Peek(3) == st'.Peek(3);
+    assert st.Peek(8) == st'.Peek(8);
 		// |fp=0x0060|0x00,_,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x00,_,_,0x00,_,_,_,0x229,_|
 		st := Dup(st,3);
