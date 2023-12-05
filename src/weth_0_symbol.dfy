@@ -149,13 +149,14 @@ module symbol {
 		return st;
 	}
 
-	method block_0_0x0310(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method {:verify false} block_0_0x0310(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0310
 	// Stack height(s)
 	requires st'.Operands() == 8
 	// Static stack items
 	requires (st'.Peek(1) == 0x60 && st'.Peek(5) == 0x60 && st'.Peek(6) == 0x2f5)
+  requires (st'.Peek(0) == st'.Read(0x60))
 	{
 		var st := st';
 		// ||_,0x60,_,_,_,0x60,0x2f5,_|
@@ -174,24 +175,28 @@ module symbol {
 		st := Dup(st,4);
 		// ||0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
 		st := Push1(st,0x00);
-		st := block_0_0x031a(st);
+		st := block_0_0x031a(4,0,st); // FIXME!
 		return st;
 	}
 
-	method {:verify false} block_0_0x031a(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x031a(i:u256, n:u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x031a
 	// Stack height(s)
 	requires st'.Operands() == 12
 	// Static stack items
 	requires (st'.Peek(1) == 0x80 && st'.Peek(5) == 0x80 && st'.Peek(9) == 0x60 && st'.Peek(10) == 0x2f5)
-	{
+  // Termination
+	requires 0x4 <= i <= n <= 0x7ff
+  requires st'.Peek(0) == 0x20 * i && st'.Peek(3) == 0x20 * n  
+	decreases n-i,2
+  {
 		var st := st';
 		// ||0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
-		// ||_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
+		// ||?1,0x80,_,?2,_,0x80,_,_,_,0x60,0x2f5,_|
 		st := JumpDest(st);
 		// ||0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
-		// ||_,0x80,_,?2,_,0x80,_,_,_,0x60,0x2f5,_|
+		// ||?1,0x80,_,?2,_,0x80,_,_,_,0x60,0x2f5,_|
 		st := Dup(st,4);
 		// ||_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
 		// ||?2,?1,0x80,_,?2,_,0x80,_,_,_,0x60,0x2f5,_|
@@ -199,35 +204,41 @@ module symbol {
 		// ||0x00,_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
 		// ||?1,?2,?1,0x80,_,?2,_,0x80,_,_,_,0x60,0x2f5,_|
 		st := Lt(st);
+    assert st.Peek(2) == 0x80;
 		// ||_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
-		// ||_,_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
+		// ||_,?1,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
 		st := IsZero(st);
 		// ||_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
-		// ||_,_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
+		// ||_,?1,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
 		st := Push2(st,0x0335);
 		// ||0x335,_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
-		// ||0x335,_,_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
+		// ||0x335,_,?1,0x80,_,2?,_,0x80,_,_,_,0x60,0x2f5,_|
 		assume st.IsJumpDest(0x335);
 		st := JumpI(st);
-		if st.PC() == 0x335 { st := block_0_0x0335(st); return st;} // LOOP EXIT
+		if st.PC() == 0x335 { st := block_0_0x0335(st); return st;} // exit is ?1 >= ?2
 		// ||0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
-		// ||_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
+		// ||?1,0x80,_,?2,_,0x80,_,_,_,0x60,0x2f5,_|
 		st := Dup(st,1);
-		st := block_0_0x0324(st);
+    assert st.Peek(0) == st.Peek(1) == st'.Peek(0) && st.Peek(4) == st'.Peek(3);
+		st := block_0_0x0324(i,n,st);
 		return st;
 	}
 
-	method {:verify false} block_0_0x0324(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0324(i:u256, n:u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0324
 	// Stack height(s)
 	requires st'.Operands() == 13
 	// Static stack items
 	requires (st'.Peek(2) == 0x80 && st'.Peek(6) == 0x80 && st'.Peek(10) == 0x60 && st'.Peek(11) == 0x2f5)
+  // Termination
+	requires 0x4 <= i < n <= 0x7ff
+  requires st'.Peek(1) == 0x20 * i && st'.Peek(4) == 0x20 * n  
+	decreases n-i,1  
 	{
 		var st := st';
 		// ||0x00,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
-		// ||_,_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
+		// ||?1,?1,0x80,_,?2,_,0x80,_,_,_,0x60,0x2f5,_|
 		st := Dup(st,3);
 		// ||0x80,0x00,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
 		// ||0x80,_,_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
@@ -238,6 +249,8 @@ module symbol {
 		// ||_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
 		// ||_,_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
 		st := Dup(st,2);
+    assert st.Peek(3) == st.Peek(7) == 0x80 && st.Peek(11) == 0x60 && st.Peek(12) == 0x2f5;
+    assert st.Peek(2) <= st.Peek(5);
 		// ||0x00,_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
 		// ||_,_,_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
 		st := Dup(st,5);
@@ -246,28 +259,33 @@ module symbol {
 		st := Add(st);
 		// ||_,_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
 		// ||_,_,_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
+    assert st.Peek(3) == st.Peek(7) == 0x80;    
 		st := MStore(st);
 		// ||0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
-		// ||_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
+		// ||?1,0x80,_,?2,_,0x80,_,_,_,0x60,0x2f5,_|
 		st := Push1(st,0x20);
-		st := block_0_0x032d(st);
+		st := block_0_0x032d(i,n,st);
 		return st;
 	}
 
-	method {:verify false} block_0_0x032d(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x032d(i:u256, n:u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x032d
 	// Stack height(s)
 	requires st'.Operands() == 13
 	// Static stack items
 	requires (st'.Peek(0) == 0x20 && st'.Peek(2) == 0x80 && st'.Peek(6) == 0x80 && st'.Peek(10) == 0x60 && st'.Peek(11) == 0x2f5)
+  // Termination
+	requires 0x4 <= i < n <= 0x7ff
+  requires st'.Peek(1) == 0x20 * i && st'.Peek(4) == 0x20 * n  
+	decreases n-i,0  
 	{
 		var st := st';
 		// ||0x20,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
-		// ||0x20,_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
+		// ||0x20,?x,0x80,_,?y,_,0x80,_,_,_,0x60,0x2f5,_|
 		st := Dup(st,2);
 		// ||0x00,0x20,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
-		// ||_,0x20,_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
+		// ||?x,0x20,?x,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
 		// Havoc 0
 		// ||_,0x20,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
 		// ||_,0x20,_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
@@ -286,7 +304,7 @@ module symbol {
 		// ||0x31a,_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
 		assume st.IsJumpDest(0x31a);
 		st := Jump(st);
-		st := block_0_0x031a(st);
+		st := block_0_0x031a(i+1,n,st);
 		return st;
 	}
 
