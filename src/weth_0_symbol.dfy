@@ -178,7 +178,7 @@ module symbol {
 		return st;
 	}
 
-	method block_0_0x031a(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method {:verify false} block_0_0x031a(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x031a
 	// Stack height(s)
@@ -191,13 +191,13 @@ module symbol {
 		// ||_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
 		st := JumpDest(st);
 		// ||0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
-		// ||_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
+		// ||_,0x80,_,?2,_,0x80,_,_,_,0x60,0x2f5,_|
 		st := Dup(st,4);
 		// ||_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
-		// ||_,_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
+		// ||?2,?1,0x80,_,?2,_,0x80,_,_,_,0x60,0x2f5,_|
 		st := Dup(st,2);
 		// ||0x00,_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
-		// ||_,_,_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
+		// ||?1,?2,?1,0x80,_,?2,_,0x80,_,_,_,0x60,0x2f5,_|
 		st := Lt(st);
 		// ||_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
 		// ||_,_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
@@ -209,7 +209,7 @@ module symbol {
 		// ||0x335,_,_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
 		assume st.IsJumpDest(0x335);
 		st := JumpI(st);
-		if st.PC() == 0x335 { st := block_0_0x0335(st); return st;}
+		if st.PC() == 0x335 { st := block_0_0x0335(st); return st;} // LOOP EXIT
 		// ||0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
 		// ||_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
 		st := Dup(st,1);
@@ -217,7 +217,7 @@ module symbol {
 		return st;
 	}
 
-	method block_0_0x0324(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method {:verify false} block_0_0x0324(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0324
 	// Stack height(s)
@@ -254,7 +254,7 @@ module symbol {
 		return st;
 	}
 
-	method block_0_0x032d(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method {:verify false} block_0_0x032d(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x032d
 	// Stack height(s)
@@ -398,6 +398,7 @@ module symbol {
 		st := Push2(st,0x0100);
 		// ||0x100,_,0x01,_,_,_,_,_,_,0x60,0x2f5,_|
 		st := Exp(st);
+    assert st.Peek(8) == 0x60 && st.Peek(9) == 0x2f5;
 		// ||_,0x01,_,_,_,_,_,_,0x60,0x2f5,_|
 		st := Sub(st);
 		// ||_,_,_,_,_,_,_,0x60,0x2f5,_|
@@ -535,6 +536,7 @@ module symbol {
 		st := Mul(st);
 		// |fp=0x0060|_,0x01,_,0x01,0x2f5,_|
 		st := Sub(st);
+    assert st.Peek(2) == 0x1 && st.Peek(3) == 0x2f5;
 		// |fp=0x0060|_,_,0x01,0x2f5,_|
 		st := And(st);
 		// |fp=0x0060|_,0x01,0x2f5,_|
@@ -686,7 +688,8 @@ module symbol {
 		st := Push2(st,0x0100);
 		// ||0x100,_,0x01,_,0x01,0x80,_,0x01,0x60,0x2f5,_|
 		st := Mul(st);
-		// ||_,0x01,_,0x01,0x80,_,0x01,0x60,0x2f5,_|
+    assert st.Peek(3) == st.Peek(6) == 0x1 && st.Peek(7) == 0x60 && st.Peek(8) == 0x2f5;
+		// ||_,0x01,_,0x01,0x80,_,0x01,0x60,0x2f5,_|    
 		st := Sub(st);
 		// ||_,_,0x01,0x80,_,0x01,0x60,0x2f5,_|
 		st := And(st);
@@ -840,7 +843,7 @@ module symbol {
 		return st;
 	}
 
-	method block_0_0x0ba9(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method {:verify false} block_0_0x0ba9(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0ba9
 	// Stack height(s)
@@ -877,7 +880,7 @@ module symbol {
 		return st;
 	}
 
-	method block_0_0x0bb2(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method {:verify false} block_0_0x0bb2(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0bb2
 	// Stack height(s)
@@ -911,7 +914,7 @@ module symbol {
 		return st;
 	}
 
-	method block_0_0x0bb9(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method {:verify false} block_0_0x0bb9(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0bb9
 	// Stack height(s)
