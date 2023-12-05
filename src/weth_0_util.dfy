@@ -1421,9 +1421,9 @@ module util {
 	// Free memory pointer
 	requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
-	requires st'.Operands() in {11,15}
+	requires st'.Operands() == 11 || st'.Operands() == 15
 	// Static stack items
-	requires (st'.Peek(0) == 0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffff && st'.Peek(2) == 0x0 && st'.Peek(3) == 0x4 && st'.Peek(5) == 0x0)
+	requires (st'.Peek(0) == 0xffffffffffffffffffffffffffffffffffffffff && st'.Peek(2) == 0x0 && st'.Peek(3) == 0x4 && st'.Peek(5) == 0x0)
 	// Dynamic stack items
 	requires st'.Operands() == 11 ==> ((st'.Peek(9) == 0x229))
 	requires st'.Operands() == 15 ==> ((st'.Peek(9) == 0xbdb && st'.Peek(10) == 0x0 && st'.Peek(13) == 0x3b0))
@@ -1435,42 +1435,24 @@ module util {
 		// |fp=0x0060|_,0x00,0x04,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|_,0x00,0x04,_,0x00,_,_,_,0x229,_|
 		st := Dup(st,2);
-    assert st.Operands() in {11,15};
-    assert st.Peek(5) == st'.Peek(5) == 0x0;
-    assert st.Peek(10) == st'.Peek(10);
-    assert st.Operands() == 15 ==> st.Peek(13) == st'.Peek(13) == 0x3b0;
-    assert st.Read(0x40) == st'.Read(0x40) == 0x60;
 		// |fp=0x0060|0x00,_,0x00,0x04,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
-		// |fp=0x0060|0x00,_,0x00,0x04,_,0x00,_,_,_,0x229,_|
+		// |fp=0x0060|0x00,_,0x00,0x04,_,0x00,_,_,_,0x229,_|    
 		st := MStore(st);
 		// |fp=0x0060|0x00,0x04,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x00,0x04,_,0x00,_,_,_,0x229,_|
 		st := Push1(st,0x20);
-    assert st.Operands() in {10,14};
-    assert st.Peek(4) == st'.Peek(5) == 0x0;
-    //assert st.Peek(9) == st'.Peek(10);
-    assert st.Operands() == 14 ==> st.Peek(12) == st'.Peek(13) == 0x3b0;
-    assert st.Read(0x40) == st'.Read(0x40) == 0x60;    
-		// |fp=0x0060|0x20,0x00,0x04,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
-		// |fp=0x0060|0x20,0x00,0x04,_,0x00,_,_,_,0x229,_|
+		// |fp=0x0060|0x20,0x00,0x04,_,0x00, _,_,_,0xbdb,0x00, _,_,0x3b0,_|
+		// |fp=0x0060|0x20,0x00,0x04,_,0x00, _,_,_,0x229,_|
 		st := Add(st);
 		// |fp=0x0060|0x20,0x04,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x20,0x04,_,0x00,_,_,_,0x229,_|
 		st := Swap(st,1);
-    assert st.Operands() in {9,13};
-    assert st.Peek(3) == st'.Peek(5) == 0x00;
-    assert st.Operands() == 13 ==> st.Peek(7) == 0xbdb;    
-    assert st.Operands() == 13 ==> st.Peek(11) == 0x3b0;
-    //assert st.Read(0x40) == st'.Read(0x40) == 0x60;    
 		// |fp=0x0060|0x04,0x20,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x04,0x20,_,0x00,_,_,_,0x229,_|
-    assert st.Read(0x40) == st'.Read(0x40) == 0x60;    
 		st := Dup(st,2);
 		// |fp=0x0060|0x20,0x04,0x20,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		// |fp=0x0060|0x20,0x04,0x20,_,0x00,_,_,_,0x229,_|
-    assert st.Read(0x40) == st'.Read(0x40) == 0x60;        
 		st := MStore(st);
-    assert st.Read(0x40) == st'.Read(0x40) == 0x60;    
 		st := block_0_0x087f(st);
 		return st;
 	}
@@ -1481,11 +1463,13 @@ module util {
 	// Free memory pointer
 	requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
-	requires st'.Operands() in {8,12}
+	//requires st'.Operands() in {8,12}
+  requires st'.Operands() == 8 || st'.Operands() == 12
 	// Static stack items
-	requires (st'.Peek(0) == 0x20 && st'.Peek(2) == 0x0)
+	requires st'.Peek(0) == 0x20
+  requires st'.Peek(2) == 0x0
 	// Dynamic stack items
-	requires st'.Operands() == 8 ==> ((st'.Peek(6) == 0x229))
+  requires st'.Operands() == 8 ==> ((st'.Peek(6) == 0x229))
 	requires st'.Operands() == 12 ==> ((st'.Peek(6) == 0xbdb && st'.Peek(7) == 0x0 && st'.Peek(10) == 0x3b0))
 	{
 		var st := st';
