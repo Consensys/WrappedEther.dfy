@@ -35,7 +35,8 @@ module main {
 	// Stack height(s)
 	requires st'.Operands() == 0
 	// Storate Items
-	requires st'.Load(0) < 0xffff // length of "Wrapped Ether"
+	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.
+  requires st'.Load(0x01) == 4 * 2 // length of "WETH", shifted left.            
 	{
 		var st := st';
 		// |fp=0x0000||
@@ -68,7 +69,8 @@ module main {
 	// Stack height(s)
 	requires st'.Operands() == 0
 	// Storate Items
-	requires st'.Load(0) < 0xffff // length of "Wrapped Ether"
+	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.
+  requires st'.Load(0x01) == 4 * 2 // length of "WETH", shifted left.  
 	{
 		var st := st';
 		// |fp=0x0060||
@@ -99,7 +101,8 @@ module main {
 	// Stack height(s)
 	requires st'.Operands() == 2
 	// Storate Items
-	requires st'.Load(0) < 0xffff // length of "Wrapped Ether"
+	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.
+  requires st'.Load(0x01) == 4 * 2 // length of "WETH", shifted left.  
 	{
 		var st := st';
 		// |fp=0x0060|_,_|
@@ -133,6 +136,7 @@ module main {
 	requires st'.Operands() == 3
 	// Static stack items
 	requires (st'.Peek(0) == 0x147)
+  requires st'.Load(0x01) == 4 * 2 // length of "WETH", shifted left.  
 	{
 		var st := st';
 		// |fp=0x0060|0x147,_,_|
@@ -168,6 +172,7 @@ module main {
 	requires st'.Operands() == 3
 	// Static stack items
 	requires (st'.Peek(0) == 0x23b872dd)
+  requires st'.Load(0x01) == 4 * 2 // length of "WETH", shifted left.
 	{
 		var st := st';
 		// |fp=0x0060|0x23b872dd,_,_|
@@ -201,6 +206,7 @@ module main {
 	requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 1
+  requires st'.Load(0x01) == 4 * 2 // length of "WETH", shifted left.
 	{
 		var st := st';
 		// |fp=0x0060|_|
@@ -232,6 +238,8 @@ module main {
 	requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 2
+  // Termination
+  requires st'.Load(0x01) == 4 * 2 // length of "WETH", shifted left.          
 	{
 		var st := st';
 		// |fp=0x0060|_,_|
@@ -402,7 +410,7 @@ module main {
 		// |fp=0x0060|_,0x04,0x04,0x229,_|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x04,0x04,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		st := block_0_0x01f4(st);
 		return st;
 	}
@@ -452,12 +460,13 @@ module main {
 		// |fp=0x0060|_,0x24,0x04,_,0x229,_|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x24,0x04,_,0x229,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x24,0x04,_,0x229,_|
 		st := Swap(st,1);
 		// |fp=0x0060|0x24,_,0x04,_,0x229,_|
 		st := Push1(st,0x20);
 		// |fp=0x0060|0x20,0x24,_,0x04,_,0x229,_|
+    assert st.Peek(5) == 0x229;
 		st := Add(st);
 		// |fp=0x0060|0x44,_,0x04,_,0x229,_|
 		st := Swap(st,1);
@@ -655,7 +664,7 @@ module main {
 		// |fp=0x0060|_,0x00,0x03,_,_,0x264,_|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x03,_,_,0x264,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,0x03,_,_,0x264,_|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		st := block_0_0x0a0b(st);
@@ -674,7 +683,7 @@ module main {
 	{
 		var st := st';
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x03,_,_,0x264,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,0x03,_,_,0x264,_|
 		st := Dup(st,2);
 		// |fp=0x0060|0x00,_,0x00,0x03,_,_,0x264,_|
@@ -682,6 +691,7 @@ module main {
 		// |fp=0x0060|0x00,0x03,_,_,0x264,_|
 		st := Push1(st,0x20);
 		// |fp=0x0060|0x20,0x00,0x03,_,_,0x264,_|
+    assert st.Peek(5) == 0x264;
 		st := Add(st);
 		// |fp=0x0060|0x20,0x03,_,_,0x264,_|
 		st := Swap(st,1);
@@ -713,6 +723,7 @@ module main {
 		// |fp=0x0060|0x00,0x40,_,_,0x264,_|
 		st := Keccak256(st);
 		// |fp=0x0060|_,_,_,0x264,_|
+    assert st.Peek(3) == 0x264;    
 		st := SLoad(st);
 		// |fp=0x0060|_,_,_,0x264,_|
 		st := Lt(st);
@@ -776,7 +787,7 @@ module main {
 		// |fp=0x0060|_,0x00,0x03,_,_,0x264,_|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x03,_,_,0x264,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,0x03,_,_,0x264,_|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		st := block_0_0x0a59(st);
@@ -795,7 +806,7 @@ module main {
 	{
 		var st := st';
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x03,_,_,0x264,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,0x00,0x03,_,_,0x264,_|
 		st := Dup(st,2);
 		// |fp=0x0060|0x00,_,0x00,0x03,_,_,0x264,_|
@@ -803,6 +814,7 @@ module main {
 		// |fp=0x0060|0x00,0x03,_,_,0x264,_|
 		st := Push1(st,0x20);
 		// |fp=0x0060|0x20,0x00,0x03,_,_,0x264,_|
+    assert st.Peek(5) == 0x264;
 		st := Add(st);
 		// |fp=0x0060|0x20,0x03,_,_,0x264,_|
 		st := Swap(st,1);
@@ -892,7 +904,7 @@ module main {
 		// |fp=0x0060|_,_,0x264,_|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,_,0x264,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,_,0x264,_|
 		st := Push2(st,0x08fc);
 		// |fp=0x0060|0x8fc,_,_,0x264,_|
@@ -962,6 +974,7 @@ module main {
 		// |fp=0x0060|_,_,0x60,0x00,0x60,0x00,0x60,_,_,_,_,0x264,_|
 		st := Dup(st,9);
 		// |fp=0x0060|_,_,_,0x60,0x00,0x60,0x00,0x60,_,_,_,_,0x264,_|
+    assert st.Peek(12) == 0x264;
 		var CONTINUING(cc) := Call(st);
 		{
 			var inner := cc.CallEnter(1);
@@ -1045,7 +1058,7 @@ module main {
 		// |fp=0x0060|_,_,0x264,_|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		// |fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,_,0x264,_|
-		st := And(st);
+		st := AndU160(st);
 		// |fp=0x0060|_,_,0x264,_|
 		st := PushN(st,32,0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65);
 		// |fp=0x0060|0x7fcf532c15f0a6dbbd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65,_,_,0x264,_|
