@@ -6,9 +6,11 @@ Z3_PATH="/home/djp/pkg/z3-4.8.5-x64-ubuntu-16.04/bin/z3"
 #Z3_PATH="/home/djp/pkg/z3-4.12.3-x64-glibc-2.35/bin/z3"
 #Z3_PATH="/home/djp/pkg/z3-solver-4.12.3.0/bin/z3"
 #
-#DAFNY_HOME="/home/djp/pkg/dafny-4.2.0/dafny"
-DAFNY_HOME="/home/djp/pkg/dafny-4.3.0/dafny"
-DAFNY_CMD="time dafny verify --cores=8 --verification-time-limit=$TIMEOUT --solver-path=$Z3_PATH"
+#DAFNY_HOME="/home/djp/pkg/dafny-4.2.0"
+DAFNY_HOME="/home/djp/pkg/dafny-4.3.0"
+#DAFNY_HOME="/home/djp/pkg/dafny-4.4.0"
+#
+DAFNY_CMD="time $DAFNY_HOME/dafny verify --cores=8 --verification-time-limit=$TIMEOUT --solver-path=$Z3_PATH"
 FILES=$(ls src/weth_*.dfy)
 
 if [ $# -eq 0 ];
