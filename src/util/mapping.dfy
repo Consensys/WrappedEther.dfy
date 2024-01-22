@@ -1,5 +1,5 @@
 module Mapping {
-    datatype mapping<S,T> = Map(data:map<S,T>, default: T) {
+    datatype mapping<S(==),T(==)> = Map(data:map<S,T>, default: T) {
         function Get(from: S) : (r:T)
         ensures from in data.Keys || r == default {
             if from in data.Keys

@@ -104,7 +104,7 @@ class Contract {
     }
 
     //
-    function sum(m:set<(u160,u256)>) : nat {
+    ghost function sum(m:set<(u160,u256)>) : nat {
         if m == {} then 0
         else
             var pair :| pair in m;
