@@ -1,76 +1,12 @@
-include "../evm-dafny/src/dafny/evm.dfy"
-include "../evm-dafny/src/dafny/state.dfy"
+include "../../evm-dafny/src/dafny/evm.dfy"
+include "../../evm-dafny/src/dafny/state.dfy"
 
 module Header {
 	import opened Int
 	import EvmState
 
- 	type u8 = Int.u8
-    type u160 = Int.u160
-    type u256 = Int.u256
-    const MAX_U256 : nat := Int.MAX_U256
-
-    /**
-     * Provides an alternative implementation of Bytecode.And specialised to the
-     * particular case of converting an arbitrary u256 into a u1 (i.e. coercing
-     * into a bool).
-     */
-    function AndU1(st: EvmState.ExecutingState): (st': EvmState.State)
-    requires st.Operands() >= 2 && st.Peek(0) == 1 {
-        var rhs := st.Peek(1);
-        var res := rhs % 2;
-        st.Pop(2).Push(res).Next()
-    }
-
-    /**
-     * Provides an alternative implementation of Bytecode.And specialised to the
-     * particular case of converting an arbitrary u256 into a u5.
-     */
-    function AndU5(st: EvmState.ExecutingState): (st': EvmState.State)
-    requires st.Operands() >= 2 && st.Peek(0) == 0x1f {
-        var rhs := st.Peek(1);
-        var res := rhs % 32;
-        st.Pop(2).Push(res).Next()
-    }
-
-    /**
-     * Provides an alternative implementation of Bytecode.And specialised to the
-     * particular case of converting an arbitrary u256 into a u8 (i.e. coercing
-     * into a byte).
-     */
-    function AndU8(st: EvmState.ExecutingState): (st': EvmState.State)
-    requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U8 as u256) {
-        var rhs := st.Peek(1);
-        var res := rhs % (Int.TWO_8 as u256);
-        st.Pop(2).Push(res).Next()
-    }
-
-    /**
-     * Provides an alternative implementation of Bytecode.And specialised to the
-     * particular case of converting an arbitrary u256 into a u32 (i.e.
-     * stripping out a 4byte function signature for dispatch).
-     */
-    function AndU32(st: EvmState.ExecutingState): (st': EvmState.State)
-    requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U32 as u256) {
-        var rhs := st.Peek(1);
-        var res := rhs % (Int.TWO_32 as u256);
-        st.Pop(2).Push(res).Next()
-    }
-
-    /**
-     * Provides an alternative implementation of Bytecode.And specialised to the
-     * particular case of converting an arbitrary u256 into a u160 (i.e. to
-     * represent a contract address).  This is a common operation, and the
-     * semantics in the DafnyEVM uses bitvectors to implement this operation
-     * (which are quite expensive).
-     */
-    function AndU160(st: EvmState.ExecutingState): (st': EvmState.State)
-    requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U160 as u256) {
-        var rhs := st.Peek(1);
-        var res := rhs % (Int.TWO_160 as u256);
-        st.Pop(2).Push(res).Next()
-    }
-
+	type u256 = Int.u256
+	const MAX_U256 : nat := Int.MAX_U256
 
 	const BYTECODE_0 : seq<u8> := [
 		0x60, 0x60, 0x60, 0x40, 0x52, 0x60, 0x4, 0x36, 

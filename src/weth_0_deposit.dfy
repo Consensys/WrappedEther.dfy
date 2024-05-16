@@ -1,5 +1,5 @@
-include "../evm-dafny/src/dafny/evm.dfy"
-include "../evm-dafny/src/dafny/core/code.dfy"
+include "../../evm-dafny/src/dafny/evm.dfy"
+include "../../evm-dafny/src/dafny/core/code.dfy"
 include "weth_0_header.dfy"
 include "weth_0_util.dfy"
 
@@ -15,18 +15,18 @@ module deposit {
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x03ca
 	// Free memory pointer
-	requires Memory.Size(st'.evm.memory) >= 0x60 && st'.Read(0x40) == 0x60
+	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 1
 	{
 		var st := st';
-		// |fp=0x0060|_|
+		//|fp=0x0060|_|
 		st := JumpDest(st);
-		// |fp=0x0060|_|
+		//|fp=0x0060|_|
 		st := Push2(st,0x03d2);
-		// |fp=0x0060|0x3d2,_|
+		//|fp=0x0060|0x3d2*,_|
 		st := Push2(st,0x0440);
-		// |fp=0x0060|0x440,0x3d2,_|
+		//|fp=0x0060|0x440*,0x3d2*,_|
 		assume st.IsJumpDest(0x440);
 		st := Jump(st);
 		st := block_0_0x0440(st);
