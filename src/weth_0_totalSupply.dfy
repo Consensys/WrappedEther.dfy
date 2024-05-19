@@ -26,15 +26,15 @@ module totalSupply {
 		st := IsZero(st);
 		//|fp=0x0060|_,_|
 		st := Push2(st,0x01ac);
-		//|fp=0x0060|0x1ac*,_,_|
+		//|fp=0x0060|0x1ac,_,_|
 		assume st.IsJumpDest(0x1ac);
 		st := JumpI(st);
 		if st.PC() == 0x1ac { st := block_0_0x01ac(st); return st;}
 		//|fp=0x0060|_|
 		st := Push1(st,0x00);
-		//|fp=0x0060|_,_|
+		//|fp=0x0060|0x00,_|
 		st := Dup(st,1);
-		//|fp=0x0060|_,_,_|
+		//|fp=0x0060|0x00,0x00,_|
 		st := Revert(st);
 		return st;
 	}
@@ -52,9 +52,9 @@ module totalSupply {
 		st := JumpDest(st);
 		//|fp=0x0060|_|
 		st := Push2(st,0x01b4);
-		//|fp=0x0060|0x1b4*,_|
+		//|fp=0x0060|0x1b4,_|
 		st := Push2(st,0x066d);
-		//|fp=0x0060|0x66d*,0x1b4*,_|
+		//|fp=0x0060|0x66d,0x1b4,_|
 		assume st.IsJumpDest(0x66d);
 		st := Jump(st);
 		st := block_0_0x066d(st);
@@ -74,17 +74,17 @@ module totalSupply {
 		st := JumpDest(st);
 		//|fp=0x0060|_,_|
 		st := Push1(st,0x40);
-		//|fp=0x0060|0x40*,_,_|
+		//|fp=0x0060|0x40,_,_|
 		st := MLoad(st);
-		//|fp=0x0060|0x60*,_,_|
+		//|fp=0x0060|0x60,_,_|
 		st := Dup(st,1);
-		//|fp=0x0060|0x60*,_,_,_|
+		//|fp=0x0060|0x60,0x60,_,_|
 		st := Dup(st,3);
-		//|fp=0x0060|_,0x60*,_,_,_|
+		//|fp=0x0060|_,0x60,0x60,_,_|
 		st := Dup(st,2);
-		//|fp=0x0060|_,_,0x60*,_,_,_|
+		//|fp=0x0060|0x60,_,0x60,0x60,_,_|
 		st := MStore(st);
-		//|fp=0x0060|0x60*,_,_,_|
+		//|fp=0x0060|0x60,0x60,_,_|
 		st := Push1(st,0x20);
 		st := block_0_0x01be(st);
 		return st;
@@ -101,23 +101,23 @@ module totalSupply {
 	requires (st'.Peek(0) == 0x20 && st'.Peek(1) == 0x60)
 	{
 		var st := st';
-		//|fp=0x0060|0x20*,0x60*,_,_,_|
+		//|fp=0x0060|0x20,0x60,0x60,_,_|
 		assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-		//|fp=0x0060|0x20*,0x60*,_,_,_|
+		//|fp=0x0060|0x20,0x60,0x60,_,_|
 		st := Add(st);
-		//|fp=0x0060|0x80*,_,_,_|
+		//|fp=0x0060|0x80,0x60,_,_|
 		st := Swap(st,2);
-		//|fp=0x0060|_,_,0x80*,_|
+		//|fp=0x0060|_,0x60,0x80,_|
 		st := Pop(st);
-		//|fp=0x0060|_,0x80*,_|
+		//|fp=0x0060|0x60,0x80,_|
 		st := Pop(st);
-		//|fp=0x0060|0x80*,_|
+		//|fp=0x0060|0x80,_|
 		st := Push1(st,0x40);
-		//|fp=0x0060|0x40*,0x80*,_|
+		//|fp=0x0060|0x40,0x80,_|
 		st := MLoad(st);
-		//|fp=0x0060|0x60*,0x80*,_|
+		//|fp=0x0060|0x60,0x80,_|
 		st := Dup(st,1);
-		//|fp=0x0060|_,0x60*,0x80*,_|
+		//|fp=0x0060|0x60,0x60,0x80,_|
 		st := Swap(st,2);
 		st := block_0_0x01c7(st);
 		return st;
@@ -134,13 +134,13 @@ module totalSupply {
 	requires (st'.Peek(0) == 0x80 && st'.Peek(1) == 0x60)
 	{
 		var st := st';
-		//|fp=0x0060|0x80*,0x60*,_,_|
+		//|fp=0x0060|0x80,0x60,0x60,_|
 		assert st.Peek(1) <= st.Peek(0);
-		//|fp=0x0060|_,_,_,_|
+		//|fp=0x0060|0x80,0x60,0x60,_|
 		st := Sub(st);
-		//|fp=0x0060|_,_,_|
+		//|fp=0x0060|0x20,0x60,_|
 		st := Swap(st,1);
-		//|fp=0x0060|_,_,_|
+		//|fp=0x0060|0x60,0x20,_|
 		st := Return(st);
 		return st;
 	}
@@ -156,21 +156,21 @@ module totalSupply {
 	requires (st'.Peek(0) == 0x1b4)
 	{
 		var st := st';
-		//|fp=0x0060|0x1b4*,_|
+		//|fp=0x0060|0x1b4,_|
 		st := JumpDest(st);
-		//|fp=0x0060|0x1b4*,_|
+		//|fp=0x0060|0x1b4,_|
 		st := Push1(st,0x00);
-		//|fp=0x0060|_,0x1b4*,_|
+		//|fp=0x0060|0x00,0x1b4,_|
 		st := Address(st);
-		//|fp=0x0060|_,_,0x1b4*,_|
+		//|fp=0x0060|_,0x00,0x1b4,_|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
-		//|fp=0x0060|_,_,_,0x1b4*,_|
-		st := And(st);
-		//|fp=0x0060|_,_,0x1b4*,_|
+		//|fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,0x1b4,_|
+		st := AndU160(st);
+		//|fp=0x0060|_,0x00,0x1b4,_|
 		st := Balance(st);
-		//|fp=0x0060|_,_,0x1b4*,_|
+		//|fp=0x0060|_,0x00,0x1b4,_|
 		st := Swap(st,1);
-		//|fp=0x0060|_,_,0x1b4*,_|
+		//|fp=0x0060|0x00,_,0x1b4,_|
 		st := Pop(st);
 		st := block_0_0x068a(st);
 		return st;
@@ -187,9 +187,9 @@ module totalSupply {
 	requires (st'.Peek(1) == 0x1b4)
 	{
 		var st := st';
-		//|fp=0x0060|_,0x1b4*,_|
+		//|fp=0x0060|_,0x1b4,_|
 		st := Swap(st,1);
-		//|fp=0x0060|0x1b4*,_,_|
+		//|fp=0x0060|0x1b4,_,_|
 		assume st.IsJumpDest(0x1b4);
 		st := Jump(st);
 		st := block_0_0x01b4(st);

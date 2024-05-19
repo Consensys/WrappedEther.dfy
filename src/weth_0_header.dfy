@@ -399,4 +399,67 @@ module Header {
 	ensures r.RETURNS? ==> r.world.Exists(sender) {
 		return EvmState.ERROR(EvmState.INSUFFICIENT_GAS); // dummy
 	}
+/**
+ * Alternative to Bytecode.And for masking u256 into a u1
+ */
+function AndU1(st: EvmState.ExecutingState): (st': EvmState.State)
+requires st.Operands() >= 2 && st.Peek(0) == 1 {
+    var rhs := st.Peek(1);
+    var res := rhs % 2;
+    st.Pop(2).Push(res).Next()
+}
+/**
+ * Alternative to Bytecode.And for masking u256 into a u5
+ */
+function AndU5(st: EvmState.ExecutingState): (st': EvmState.State)
+requires st.Operands() >= 2 && st.Peek(0) == 0x1f {
+    var rhs := st.Peek(1);
+    var res := rhs % 32;
+    st.Pop(2).Push(res).Next()
+}
+/**
+ * Alternative to Bytecode.And for masking u256 into a u8
+ */
+function AndU8(st: EvmState.ExecutingState): (st': EvmState.State)
+requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U8 as u256) {
+    var rhs := st.Peek(1);
+    var res := rhs % (Int.TWO_8 as u256);
+    st.Pop(2).Push(res).Next()
+}
+/**
+ * Alternative to Bytecode.And for masking u256 into a u32
+ */
+function AndU32(st: EvmState.ExecutingState): (st': EvmState.State)
+requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U32 as u256) {
+    var rhs := st.Peek(1);
+    var res := rhs % (Int.TWO_32 as u256);
+    st.Pop(2).Push(res).Next()
+}
+/**
+ * Alternative to Bytecode.And for masking u256 into a u64
+ */
+function AndU64(st: EvmState.ExecutingState): (st': EvmState.State)
+requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U64 as u256) {
+    var rhs := st.Peek(1);
+    var res := rhs % (Int.TWO_64 as u256);
+    st.Pop(2).Push(res).Next()
+}
+/**
+ * Alternative to Bytecode.And for masking u256 into a u128
+ */
+function AndU128(st: EvmState.ExecutingState): (st': EvmState.State)
+requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U128 as u256) {
+    var rhs := st.Peek(1);
+    var res := rhs % (Int.TWO_128 as u256);
+    st.Pop(2).Push(res).Next()
+}
+/**
+ * Alternative to Bytecode.And for masking u256 into a u160
+ */
+function AndU160(st: EvmState.ExecutingState): (st': EvmState.State)
+requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U160 as u256) {
+    var rhs := st.Peek(1);
+    var res := rhs % (Int.TWO_160 as u256);
+    st.Pop(2).Push(res).Next()
+}
 }
