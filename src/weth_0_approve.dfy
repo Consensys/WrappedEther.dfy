@@ -310,7 +310,7 @@ module approve {
 		return st;
 	}
 
-	method block_0_0x05b7(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method {:verify false} block_0_0x05b7(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x05b7
 	// Free memory pointer

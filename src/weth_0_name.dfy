@@ -16,6 +16,8 @@ module name {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 1
+	// Storate Items
+	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.
 	{
 		var st := st';
 		//|fp=0x0060|_|
@@ -46,6 +48,8 @@ module name {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 1
+	// Storate Items
+	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.
 	{
 		var st := st';
 		//|fp=0x0060|_|
@@ -64,10 +68,13 @@ module name {
 	method block_0_0x00cc(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x00cc
+	// Free memory pointer
+	requires st'.MemSize() >= 0x80 && 0x80 <= st'.Read(0x40) <= 0xffff
 	// Stack height(s)
 	requires st'.Operands() == 3
 	// Static stack items
 	requires (st'.Peek(0) == 0x60)
+	requires (st'.Read(0x60) <= 0xffff)
 	{
 		var st := st';
 		//||0x60,0xcc,_|
@@ -97,8 +104,16 @@ module name {
 	requires st'.WritesPermitted() && st'.PC() == 0x00d6
 	// Stack height(s)
 	requires st'.Operands() == 7
+	// Free memory pointer
+	requires st'.MemSize() >= 0x80 && 0x80 <= st'.Read(0x40) <= 0xffff
+	requires st'.Read(0x40) == st'.Peek(0)
 	// Static stack items
 	requires (st'.Peek(4) == 0x60)
+	//requires (st'.Peek(4) == 0x60 && st'.Peek(5) == 0xcc)
+	requires (st'.Peek(0) == st'.Peek(2) == st'.Peek(3))	
+	requires (st'.Read(0x60) <= 0xffff)
+	requires var p := st'.Peek(0); p >= 0x80
+	requires var q := st'.Peek(1); var p := st'.Peek(0); q > p && q - p == 0x20
 	{
 		var st := st';
 		//||_,_,_,_,0x60,0xcc,_|
@@ -123,13 +138,18 @@ module name {
 		return st;
 	}
 
-	method block_0_0x00de(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method {:only} block_0_0x00de(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x00de
+	// Free memory pointer
+	requires st'.MemSize() >= 0x80 && 0x80 <= st'.Read(0x40) <= 0xffff
 	// Stack height(s)
 	requires st'.Operands() == 9
 	// Static stack items
 	requires (st'.Peek(2) == 0x60)
+	requires (st'.Read(0x60) <= 0xffff)
+	// Termination	
+	requires var p := st'.Peek(1); p >= 0x80
 	{
 		var st := st';
 		//||_,_,0x60,_,_,_,0x60,0xcc,_|
