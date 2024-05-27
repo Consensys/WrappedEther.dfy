@@ -27,7 +27,7 @@ module balanceOf {
 		//|fp=0x0060|_,_|
 		st := Push2(st,0x02a0);
 		//|fp=0x0060|0x2a0,_,_|
-		assume st.IsJumpDest(0x2a0);
+		assume {:axiom} st.IsJumpDest(0x2a0);
 		st := JumpI(st);
 		if st.PC() == 0x2a0 { st := block_0_0x02a0(st); return st;}
 		//|fp=0x0060|_|
@@ -115,7 +115,7 @@ module balanceOf {
 		//|fp=0x0060|_,0x2cc,_|
 		st := Push2(st,0x0b18);
 		//|fp=0x0060|0xb18,_,0x2cc,_|
-		assume st.IsJumpDest(0xb18);
+		assume {:axiom} st.IsJumpDest(0xb18);
 		st := Jump(st);
 		st := block_0_0x0b18(st);
 		return st;
@@ -281,7 +281,7 @@ module balanceOf {
 		//|fp=0x0060|_,0x2cc,_|
 		st := Dup(st,2);
 		//|fp=0x0060|0x2cc,_,0x2cc,_|
-		assume st.IsJumpDest(0x2cc);
+		assume {:axiom} st.IsJumpDest(0x2cc);
 		st := Jump(st);
 		st := block_0_0x02cc(st);
 		return st;

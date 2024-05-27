@@ -27,7 +27,7 @@ module deposit {
 		//|fp=0x0060|0x3d2,_|
 		st := Push2(st,0x0440);
 		//|fp=0x0060|0x440,0x3d2,_|
-		assume st.IsJumpDest(0x440);
+		assume {:axiom} st.IsJumpDest(0x440);
 		st := Jump(st);
 		st := block_0_0x0440(st);
 		return st;

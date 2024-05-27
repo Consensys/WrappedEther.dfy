@@ -27,7 +27,7 @@ module decimals {
 		//|fp=0x0060|_,_|
 		st := Push2(st,0x0271);
 		//|fp=0x0060|0x271,_,_|
-		assume st.IsJumpDest(0x271);
+		assume {:axiom} st.IsJumpDest(0x271);
 		st := JumpI(st);
 		if st.PC() == 0x271 { st := block_0_0x0271(st); return st;}
 		//|fp=0x0060|_|
@@ -55,7 +55,7 @@ module decimals {
 		//|fp=0x0060|0x279,_|
 		st := Push2(st,0x0b05);
 		//|fp=0x0060|0xb05,0x279,_|
-		assume st.IsJumpDest(0xb05);
+		assume {:axiom} st.IsJumpDest(0xb05);
 		st := Jump(st);
 		st := block_0_0x0b05(st);
 		return st;
@@ -98,7 +98,7 @@ module decimals {
 	// Stack height(s)
 	requires st'.Operands() == 7
 	// Static stack items
-	requires (st'.Peek(2) == 0x60)
+	requires (st'.Peek(0) == 0xff && st'.Peek(2) == 0x60)
 	{
 		var st := st';
 		//|fp=0x0060|0xff,_,0x60,0x60,_,0x279,_|
@@ -206,7 +206,7 @@ module decimals {
 		//|fp=0x0060|_,0x279,_|
 		st := Dup(st,2);
 		//|fp=0x0060|0x279,_,0x279,_|
-		assume st.IsJumpDest(0x279);
+		assume {:axiom} st.IsJumpDest(0x279);
 		st := Jump(st);
 		st := block_0_0x0279(st);
 		return st;

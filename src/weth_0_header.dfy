@@ -403,18 +403,18 @@ module Header {
  * Alternative to Bytecode.And for masking u256 into a u1
  */
 function AndU1(st: EvmState.ExecutingState): (st': EvmState.State)
-requires st.Operands() >= 2 && st.Peek(0) == 1 {
+requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U1 as u256) {
     var rhs := st.Peek(1);
-    var res := rhs % 2;
+    var res := rhs % (Int.TWO_1 as u256);
     st.Pop(2).Push(res).Next()
 }
 /**
  * Alternative to Bytecode.And for masking u256 into a u5
  */
 function AndU5(st: EvmState.ExecutingState): (st': EvmState.State)
-requires st.Operands() >= 2 && st.Peek(0) == 0x1f {
+requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U5 as u256) {
     var rhs := st.Peek(1);
-    var res := rhs % 32;
+    var res := rhs % (Int.TWO_5 as u256);
     st.Pop(2).Push(res).Next()
 }
 /**

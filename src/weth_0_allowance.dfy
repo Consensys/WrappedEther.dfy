@@ -27,7 +27,7 @@ module allowance {
 		//|fp=0x0060|_,_|
 		st := Push2(st,0x03df);
 		//|fp=0x0060|0x3df,_,_|
-		assume st.IsJumpDest(0x3df);
+		assume {:axiom} st.IsJumpDest(0x3df);
 		st := JumpI(st);
 		if st.PC() == 0x3df { st := block_0_0x03df(st); return st;}
 		//|fp=0x0060|_|
@@ -152,7 +152,7 @@ module allowance {
 		//|fp=0x0060|_,_,0x42a,_|
 		st := Push2(st,0x0be3);
 		//|fp=0x0060|0xbe3,_,_,0x42a,_|
-		assume st.IsJumpDest(0xbe3);
+		assume {:axiom} st.IsJumpDest(0xbe3);
 		st := Jump(st);
 		st := block_0_0x0be3(st);
 		return st;
@@ -351,7 +351,7 @@ module allowance {
 		//|fp=0x0060|_,0x42a,_|
 		st := Dup(st,2);
 		//|fp=0x0060|0x42a,_,0x42a,_|
-		assume st.IsJumpDest(0x42a);
+		assume {:axiom} st.IsJumpDest(0x42a);
 		st := Jump(st);
 		st := block_0_0x042a(st);
 		return st;

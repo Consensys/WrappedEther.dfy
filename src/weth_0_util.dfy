@@ -283,7 +283,7 @@ module util {
 	// Stack height(s)
 	requires st'.Operands() >= 6 && st'.Operands() <= 7
 	// Static stack items
-	requires (st'.Peek(2) == 0x0)
+	requires (st'.Peek(0) == 0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffff && st'.Peek(2) == 0x0)
 	// Dynamic stack items
 	requires st'.Operands() == 6 ==> ((st'.Peek(5) == 0xb7))
 	requires st'.Operands() == 7 ==> ((st'.Peek(5) == 0xb7) || (st'.Peek(5) == 0x3d2))
@@ -586,8 +586,8 @@ module util {
 		//|fp=0x0060|0xb7,_|
 		//|fp=0x0060|0x3d2,_|
 		//|fp=0x0060|0xb7|
-		assume st.IsJumpDest(0xb7);
-		assume st.IsJumpDest(0x3d2);
+		assume {:axiom} st.IsJumpDest(0xb7);
+		assume {:axiom} st.IsJumpDest(0x3d2);
 		st := Jump(st);
 		match st.PC() {
 			case 0xb7 => { st := block_0_0x00b7(st); }
@@ -689,7 +689,7 @@ module util {
 	// Stack height(s)
 	requires st'.Operands() in {10,14}
 	// Static stack items
-	requires (st'.Peek(2) == 0x20)
+	requires (st'.Peek(0) == 0x20 && st'.Peek(2) == 0x20)
 	// Dynamic stack items
 	requires st'.Operands() == 10 ==> ((st'.Peek(8) == 0x229))
 	requires st'.Operands() == 14 ==> ((st'.Peek(8) == 0xbdb && st'.Peek(12) == 0x3b0))
@@ -749,7 +749,7 @@ module util {
 		st := Push2(st,0x06dc);
 		//|fp=0x0060|0x6dc,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		//|fp=0x0060|0x6dc,_,0x00,_,_,_,0x229,_|
-		assume st.IsJumpDest(0x6dc);
+		assume {:axiom} st.IsJumpDest(0x6dc);
 		st := JumpI(st);
 		if st.PC() == 0x6dc { st := block_0_0x06dc(st); return st;}
 		//|fp=0x0060|0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
@@ -830,7 +830,7 @@ module util {
 		st := Push2(st,0x07b4);
 		//|fp=0x0060|0x7b4,_,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		//|fp=0x0060|0x7b4,_,_,0x00,_,_,_,0x229,_|
-		assume st.IsJumpDest(0x7b4);
+		assume {:axiom} st.IsJumpDest(0x7b4);
 		st := JumpI(st);
 		if st.PC() == 0x7b4 { st := block_0_0x07b4(st); return st;}
 		//|fp=0x0060|_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
@@ -982,7 +982,7 @@ module util {
 	// Stack height(s)
 	requires st'.Operands() in {11,15}
 	// Static stack items
-	requires (st'.Peek(2) == 0x0)
+	requires (st'.Peek(0) == 0x0 && st'.Peek(2) == 0x0)
 	// Dynamic stack items
 	requires st'.Operands() == 11 ==> ((st'.Peek(9) == 0x229))
 	requires st'.Operands() == 15 ==> ((st'.Peek(9) == 0xbdb && st'.Peek(13) == 0x3b0))
@@ -1076,7 +1076,7 @@ module util {
 		st := Push2(st,0x08cf);
 		//|fp=0x0060|0x8cf,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		//|fp=0x0060|0x8cf,_,0x00,_,_,_,0x229,_|
-		assume st.IsJumpDest(0x8cf);
+		assume {:axiom} st.IsJumpDest(0x8cf);
 		st := JumpI(st);
 		if st.PC() == 0x8cf { st := block_0_0x08cf(st); return st;}
 		//|fp=0x0060|0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
@@ -1307,7 +1307,7 @@ module util {
 		st := Push2(st,0x0844);
 		//|fp=0x0060|0x844,_,0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		//|fp=0x0060|0x844,_,0x00,_,_,_,0x229,_|
-		assume st.IsJumpDest(0x844);
+		assume {:axiom} st.IsJumpDest(0x844);
 		st := JumpI(st);
 		if st.PC() == 0x844 { st := block_0_0x0844(st); return st;}
 		//|fp=0x0060|0x00,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
@@ -1383,7 +1383,7 @@ module util {
 	// Stack height(s)
 	requires st'.Operands() in {11,15}
 	// Static stack items
-	requires (st'.Peek(2) == 0x0)
+	requires (st'.Peek(0) == 0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffff && st'.Peek(2) == 0x0)
 	// Dynamic stack items
 	requires st'.Operands() == 11 ==> ((st'.Peek(9) == 0x229))
 	requires st'.Operands() == 15 ==> ((st'.Peek(9) == 0xbdb && st'.Peek(13) == 0x3b0))
@@ -1518,7 +1518,7 @@ module util {
 	// Stack height(s)
 	requires st'.Operands() in {10,14}
 	// Static stack items
-	requires (st'.Peek(2) == 0x20)
+	requires (st'.Peek(0) == 0x20 && st'.Peek(2) == 0x20)
 	// Dynamic stack items
 	requires st'.Operands() == 10 ==> ((st'.Peek(8) == 0x229))
 	requires st'.Operands() == 14 ==> ((st'.Peek(8) == 0xbdb && st'.Peek(12) == 0x3b0))
@@ -1665,7 +1665,7 @@ module util {
 	// Stack height(s)
 	requires st'.Operands() in {11,15}
 	// Static stack items
-	requires (st'.Peek(2) == 0x0)
+	requires (st'.Peek(0) == 0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffff && st'.Peek(2) == 0x0)
 	// Dynamic stack items
 	requires st'.Operands() == 11 ==> ((st'.Peek(9) == 0x229))
 	requires st'.Operands() == 15 ==> ((st'.Peek(9) == 0xbdb && st'.Peek(13) == 0x3b0))
@@ -2150,8 +2150,8 @@ module util {
 		st := Pop(st);
 		//|fp=0x0060|0xbdb,0x01,0x00,_,_,0x3b0,_|
 		//|fp=0x0060|0x229,0x01,_|
-		assume st.IsJumpDest(0x229);
-		assume st.IsJumpDest(0xbdb);
+		assume {:axiom} st.IsJumpDest(0x229);
+		assume {:axiom} st.IsJumpDest(0xbdb);
 		st := Jump(st);
 		match st.PC() {
 			case 0x229 => { st := block_0_0x0229(st); }
@@ -2186,7 +2186,7 @@ module util {
 		//|fp=0x0060|_,0x3b0,0x01,_|
 		st := Pop(st);
 		//|fp=0x0060|0x3b0,0x01,_|
-		assume st.IsJumpDest(0x3b0);
+		assume {:axiom} st.IsJumpDest(0x3b0);
 		st := Jump(st);
 		st := block_0_0x03b0(st);
 		return st;

@@ -16,8 +16,6 @@ module name {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 1
-	// Storate Items
-	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.
 	{
 		var st := st';
 		//|fp=0x0060|_|
@@ -29,7 +27,7 @@ module name {
 		//|fp=0x0060|_,_|
 		st := Push2(st,0x00c4);
 		//|fp=0x0060|0xc4,_,_|
-		assume st.IsJumpDest(0xc4);
+		assume {:axiom} st.IsJumpDest(0xc4);
 		st := JumpI(st);
 		if st.PC() == 0xc4 { st := block_0_0x00c4(st); return st;}
 		//|fp=0x0060|_|
@@ -48,8 +46,6 @@ module name {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 1
-	// Storate Items
-	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.
 	{
 		var st := st';
 		//|fp=0x0060|_|
@@ -59,7 +55,7 @@ module name {
 		//|fp=0x0060|0xcc,_|
 		st := Push2(st,0x04dd);
 		//|fp=0x0060|0x4dd,0xcc,_|
-		assume st.IsJumpDest(0x4dd);
+		assume {:axiom} st.IsJumpDest(0x4dd);
 		st := Jump(st);
 		st := block_0_0x04dd(st);
 		return st;
@@ -68,13 +64,10 @@ module name {
 	method block_0_0x00cc(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x00cc
-	// Free memory pointer
-	requires st'.MemSize() >= 0x80 && 0x80 <= st'.Read(0x40) <= 0xffff
 	// Stack height(s)
 	requires st'.Operands() == 3
 	// Static stack items
 	requires (st'.Peek(0) == 0x60)
-	requires (st'.Read(0x60) <= 0xffff)
 	{
 		var st := st';
 		//||0x60,0xcc,_|
@@ -104,16 +97,8 @@ module name {
 	requires st'.WritesPermitted() && st'.PC() == 0x00d6
 	// Stack height(s)
 	requires st'.Operands() == 7
-	// Free memory pointer
-	requires st'.MemSize() >= 0x80 && 0x80 <= st'.Read(0x40) <= 0xffff
-	requires st'.Read(0x40) == st'.Peek(0)
 	// Static stack items
 	requires (st'.Peek(4) == 0x60)
-	//requires (st'.Peek(4) == 0x60 && st'.Peek(5) == 0xcc)
-	requires (st'.Peek(0) == st'.Peek(2) == st'.Peek(3))	
-	requires (st'.Read(0x60) <= 0xffff)
-	requires var p := st'.Peek(0); p >= 0x80
-	requires var q := st'.Peek(1); var p := st'.Peek(0); q > p && q - p == 0x20
 	{
 		var st := st';
 		//||_,_,_,_,0x60,0xcc,_|
@@ -138,18 +123,13 @@ module name {
 		return st;
 	}
 
-	method {:only} block_0_0x00de(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x00de(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x00de
-	// Free memory pointer
-	requires st'.MemSize() >= 0x80 && 0x80 <= st'.Read(0x40) <= 0xffff
 	// Stack height(s)
 	requires st'.Operands() == 9
 	// Static stack items
 	requires (st'.Peek(2) == 0x60)
-	requires (st'.Read(0x60) <= 0xffff)
-	// Termination	
-	requires var p := st'.Peek(1); p >= 0x80
 	{
 		var st := st';
 		//||_,_,0x60,_,_,_,0x60,0xcc,_|
@@ -234,7 +214,7 @@ module name {
 		st := Push2(st,0x010c);
 		//||0x10c,_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
 		//||0x10c,_,_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		assume st.IsJumpDest(0x10c);
+		assume {:axiom} st.IsJumpDest(0x10c);
 		st := JumpI(st);
 		if st.PC() == 0x10c { st := block_0_0x010c(st); return st;}
 		//||0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
@@ -320,7 +300,7 @@ module name {
 		//||_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Push2(st,0x00f1);
 		//||0xf1,_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		assume st.IsJumpDest(0xf1);
+		assume {:axiom} st.IsJumpDest(0xf1);
 		st := Jump(st);
 		st := block_0_0x00f1(st);
 		return st;
@@ -394,7 +374,7 @@ module name {
 	{
 		var st := st';
 		//||0x139,_,_,_,_,_,0x60,0xcc,_|
-		assume st.IsJumpDest(0x139);
+		assume {:axiom} st.IsJumpDest(0x139);
 		st := JumpI(st);
 		if st.PC() == 0x139 { st := block_0_0x0139(st); return st;}
 		//||_,_,_,_,0x60,0xcc,_|
@@ -666,7 +646,7 @@ module name {
 	// Stack height(s)
 	requires st'.Operands() == 7
 	// Static stack items
-	requires (st'.Peek(2) == 0x60 && st'.Peek(4) == 0x0 && st'.Peek(5) == 0xcc)
+	requires (st'.Peek(0) == 0x40 && st'.Peek(2) == 0x60 && st'.Peek(4) == 0x0 && st'.Peek(5) == 0xcc)
 	{
 		var st := st';
 		//|fp=0x0060|0x40,_,0x60,_,0x00,0xcc,_|
@@ -771,7 +751,7 @@ module name {
 		//||_,_,0x00,0x80,_,0x00,0x60,0xcc,_|
 		st := Push2(st,0x0573);
 		//||0x573,_,_,0x00,0x80,_,0x00,0x60,0xcc,_|
-		assume st.IsJumpDest(0x573);
+		assume {:axiom} st.IsJumpDest(0x573);
 		st := JumpI(st);
 		if st.PC() == 0x573 { st := block_0_0x0573(st); return st;}
 		//||_,0x00,0x80,_,0x00,0x60,0xcc,_|
@@ -796,7 +776,7 @@ module name {
 		//||_,_,0x00,0x80,_,0x00,0x60,0xcc,_|
 		st := Push2(st,0x0548);
 		//||0x548,_,_,0x00,0x80,_,0x00,0x60,0xcc,_|
-		assume st.IsJumpDest(0x548);
+		assume {:axiom} st.IsJumpDest(0x548);
 		st := JumpI(st);
 		if st.PC() == 0x548 { st := block_0_0x0548(st); return st;}
 		//||_,0x00,0x80,_,0x00,0x60,0xcc,_|
@@ -843,7 +823,7 @@ module name {
 		//||_,0x00,0xa0,_,0x00,0x60,0xcc,_|
 		st := Push2(st,0x0573);
 		//||0x573,_,0x00,0xa0,_,0x00,0x60,0xcc,_|
-		assume st.IsJumpDest(0x573);
+		assume {:axiom} st.IsJumpDest(0x573);
 		st := Jump(st);
 		st := block_0_0x0573(st);
 		return st;
@@ -988,7 +968,7 @@ module name {
 		//||_,_,_,_,_,0x00,0x60,0xcc,_|
 		st := Push2(st,0x0556);
 		//||0x556,_,_,_,_,_,0x00,0x60,0xcc,_|
-		assume st.IsJumpDest(0x556);
+		assume {:axiom} st.IsJumpDest(0x556);
 		st := JumpI(st);
 		if st.PC() == 0x556 { st := block_0_0x0556(st); return st;}
 		//||_,_,_,_,0x00,0x60,0xcc,_|
@@ -1060,7 +1040,7 @@ module name {
 		//||0x60,0xcc,_|
 		st := Dup(st,2);
 		//||0xcc,0x60,0xcc,_|
-		assume st.IsJumpDest(0xcc);
+		assume {:axiom} st.IsJumpDest(0xcc);
 		st := Jump(st);
 		st := block_0_0x00cc(st);
 		return st;

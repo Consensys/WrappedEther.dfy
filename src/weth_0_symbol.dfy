@@ -27,7 +27,7 @@ module symbol {
 		//|fp=0x0060|_,_|
 		st := Push2(st,0x02ed);
 		//|fp=0x0060|0x2ed,_,_|
-		assume st.IsJumpDest(0x2ed);
+		assume {:axiom} st.IsJumpDest(0x2ed);
 		st := JumpI(st);
 		if st.PC() == 0x2ed { st := block_0_0x02ed(st); return st;}
 		//|fp=0x0060|_|
@@ -55,7 +55,7 @@ module symbol {
 		//|fp=0x0060|0x2f5,_|
 		st := Push2(st,0x0b30);
 		//|fp=0x0060|0xb30,0x2f5,_|
-		assume st.IsJumpDest(0xb30);
+		assume {:axiom} st.IsJumpDest(0xb30);
 		st := Jump(st);
 		st := block_0_0x0b30(st);
 		return st;
@@ -214,7 +214,7 @@ module symbol {
 		st := Push2(st,0x0335);
 		//||0x335,_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
 		//||0x335,_,_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
-		assume st.IsJumpDest(0x335);
+		assume {:axiom} st.IsJumpDest(0x335);
 		st := JumpI(st);
 		if st.PC() == 0x335 { st := block_0_0x0335(st); return st;}
 		//||0x00,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
@@ -300,7 +300,7 @@ module symbol {
 		//||_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
 		st := Push2(st,0x031a);
 		//||0x31a,_,0x80,_,_,_,0x80,_,_,_,0x60,0x2f5,_|
-		assume st.IsJumpDest(0x31a);
+		assume {:axiom} st.IsJumpDest(0x31a);
 		st := Jump(st);
 		st := block_0_0x031a(st);
 		return st;
@@ -374,7 +374,7 @@ module symbol {
 	{
 		var st := st';
 		//||0x362,_,_,_,_,_,0x60,0x2f5,_|
-		assume st.IsJumpDest(0x362);
+		assume {:axiom} st.IsJumpDest(0x362);
 		st := JumpI(st);
 		if st.PC() == 0x362 { st := block_0_0x0362(st); return st;}
 		//||_,_,_,_,0x60,0x2f5,_|
@@ -646,7 +646,7 @@ module symbol {
 	// Stack height(s)
 	requires st'.Operands() == 7
 	// Static stack items
-	requires (st'.Peek(2) == 0x60 && st'.Peek(4) == 0x1 && st'.Peek(5) == 0x2f5)
+	requires (st'.Peek(0) == 0x40 && st'.Peek(2) == 0x60 && st'.Peek(4) == 0x1 && st'.Peek(5) == 0x2f5)
 	{
 		var st := st';
 		//|fp=0x0060|0x40,_,0x60,_,0x01,0x2f5,_|
@@ -751,7 +751,7 @@ module symbol {
 		//||_,_,0x01,0x80,_,0x01,0x60,0x2f5,_|
 		st := Push2(st,0x0bc6);
 		//||0xbc6,_,_,0x01,0x80,_,0x01,0x60,0x2f5,_|
-		assume st.IsJumpDest(0xbc6);
+		assume {:axiom} st.IsJumpDest(0xbc6);
 		st := JumpI(st);
 		if st.PC() == 0xbc6 { st := block_0_0x0bc6(st); return st;}
 		//||_,0x01,0x80,_,0x01,0x60,0x2f5,_|
@@ -776,7 +776,7 @@ module symbol {
 		//||_,_,0x01,0x80,_,0x01,0x60,0x2f5,_|
 		st := Push2(st,0x0b9b);
 		//||0xb9b,_,_,0x01,0x80,_,0x01,0x60,0x2f5,_|
-		assume st.IsJumpDest(0xb9b);
+		assume {:axiom} st.IsJumpDest(0xb9b);
 		st := JumpI(st);
 		if st.PC() == 0xb9b { st := block_0_0x0b9b(st); return st;}
 		//||_,0x01,0x80,_,0x01,0x60,0x2f5,_|
@@ -823,7 +823,7 @@ module symbol {
 		//||_,0x01,0xa0,_,0x01,0x60,0x2f5,_|
 		st := Push2(st,0x0bc6);
 		//||0xbc6,_,0x01,0xa0,_,0x01,0x60,0x2f5,_|
-		assume st.IsJumpDest(0xbc6);
+		assume {:axiom} st.IsJumpDest(0xbc6);
 		st := Jump(st);
 		st := block_0_0x0bc6(st);
 		return st;
@@ -968,7 +968,7 @@ module symbol {
 		//||_,_,_,_,_,0x01,0x60,0x2f5,_|
 		st := Push2(st,0x0ba9);
 		//||0xba9,_,_,_,_,_,0x01,0x60,0x2f5,_|
-		assume st.IsJumpDest(0xba9);
+		assume {:axiom} st.IsJumpDest(0xba9);
 		st := JumpI(st);
 		if st.PC() == 0xba9 { st := block_0_0x0ba9(st); return st;}
 		//||_,_,_,_,0x01,0x60,0x2f5,_|
@@ -1040,7 +1040,7 @@ module symbol {
 		//||0x60,0x2f5,_|
 		st := Dup(st,2);
 		//||0x2f5,0x60,0x2f5,_|
-		assume st.IsJumpDest(0x2f5);
+		assume {:axiom} st.IsJumpDest(0x2f5);
 		st := Jump(st);
 		st := block_0_0x02f5(st);
 		return st;

@@ -27,7 +27,7 @@ module approve {
 		//|fp=0x0060|_,_|
 		st := Push2(st,0x0152);
 		//|fp=0x0060|0x152,_,_|
-		assume st.IsJumpDest(0x152);
+		assume {:axiom} st.IsJumpDest(0x152);
 		st := JumpI(st);
 		if st.PC() == 0x152 { st := block_0_0x0152(st); return st;}
 		//|fp=0x0060|_|
@@ -148,7 +148,7 @@ module approve {
 		//|fp=0x0060|_,_,0x187,_|
 		st := Push2(st,0x057b);
 		//|fp=0x0060|0x57b,_,_,0x187,_|
-		assume st.IsJumpDest(0x57b);
+		assume {:axiom} st.IsJumpDest(0x57b);
 		st := Jump(st);
 		st := block_0_0x057b(st);
 		return st;
@@ -310,7 +310,7 @@ module approve {
 		return st;
 	}
 
-	method {:verify false} block_0_0x05b7(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x05b7(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x05b7
 	// Free memory pointer
@@ -318,7 +318,7 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 9
 	// Static stack items
-	requires (st'.Peek(2) == 0x20 && st'.Peek(7) == 0x187)
+	requires (st'.Peek(0) == 0x20 && st'.Peek(2) == 0x20 && st'.Peek(7) == 0x187)
 	{
 		var st := st';
 		//|fp=0x0060|0x20,0x04,0x20,_,0x00,_,_,0x187,_|
@@ -351,7 +351,7 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 10
 	// Static stack items
-	requires (st'.Peek(2) == 0x0 && st'.Peek(8) == 0x187)
+	requires (st'.Peek(0) == 0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffff && st'.Peek(2) == 0x0 && st'.Peek(8) == 0x187)
 	{
 		var st := st';
 		//|fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x00,_,_,0x00,_,_,0x187,_|
@@ -555,7 +555,7 @@ module approve {
 		//|fp=0x0060|_,0x187,0x01,_|
 		st := Pop(st);
 		//|fp=0x0060|0x187,0x01,_|
-		assume st.IsJumpDest(0x187);
+		assume {:axiom} st.IsJumpDest(0x187);
 		st := Jump(st);
 		st := block_0_0x0187(st);
 		return st;

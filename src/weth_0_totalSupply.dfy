@@ -27,7 +27,7 @@ module totalSupply {
 		//|fp=0x0060|_,_|
 		st := Push2(st,0x01ac);
 		//|fp=0x0060|0x1ac,_,_|
-		assume st.IsJumpDest(0x1ac);
+		assume {:axiom} st.IsJumpDest(0x1ac);
 		st := JumpI(st);
 		if st.PC() == 0x1ac { st := block_0_0x01ac(st); return st;}
 		//|fp=0x0060|_|
@@ -55,7 +55,7 @@ module totalSupply {
 		//|fp=0x0060|0x1b4,_|
 		st := Push2(st,0x066d);
 		//|fp=0x0060|0x66d,0x1b4,_|
-		assume st.IsJumpDest(0x66d);
+		assume {:axiom} st.IsJumpDest(0x66d);
 		st := Jump(st);
 		st := block_0_0x066d(st);
 		return st;
@@ -190,7 +190,7 @@ module totalSupply {
 		//|fp=0x0060|_,0x1b4,_|
 		st := Swap(st,1);
 		//|fp=0x0060|0x1b4,_,_|
-		assume st.IsJumpDest(0x1b4);
+		assume {:axiom} st.IsJumpDest(0x1b4);
 		st := Jump(st);
 		st := block_0_0x01b4(st);
 		return st;

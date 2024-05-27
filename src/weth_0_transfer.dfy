@@ -29,7 +29,7 @@ module transfer {
 		//|fp=0x0060|_,_|
 		st := Push2(st,0x037b);
 		//|fp=0x0060|0x37b,_,_|
-		assume st.IsJumpDest(0x37b);
+		assume {:axiom} st.IsJumpDest(0x37b);
 		st := JumpI(st);
 		if st.PC() == 0x37b { st := block_0_0x037b(st); return st;}
 		//|fp=0x0060|_|
@@ -150,7 +150,7 @@ module transfer {
 		//|fp=0x0060|_,_,0x3b0,_|
 		st := Push2(st,0x0bce);
 		//|fp=0x0060|0xbce,_,_,0x3b0,_|
-		assume st.IsJumpDest(0xbce);
+		assume {:axiom} st.IsJumpDest(0xbce);
 		st := Jump(st);
 		st := block_0_0x0bce(st);
 		return st;
@@ -182,7 +182,7 @@ module transfer {
 		//|fp=0x0060|_,_,_,0xbdb,0x00,_,_,0x3b0,_|
 		st := Push2(st,0x068c);
 		//|fp=0x0060|0x68c,_,_,_,0xbdb,0x00,_,_,0x3b0,_|
-		assume st.IsJumpDest(0x68c);
+		assume {:axiom} st.IsJumpDest(0x68c);
 		st := Jump(st);
 		st := block_0_0x068c(st);
 		return st;
