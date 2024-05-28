@@ -9,9 +9,9 @@ Z3_VERSION="z3-4.12.4"
 #
 # DAFNY_VERSION="4.2.0"
 #DAFNY_VERSION="4.3.0"
-# DAFNY_VERSION="4.4.0"
+DAFNY_VERSION="4.4.0"
 #DAFNY_VERSION="4.5.0"
-DAFNY_VERSION="4.6.0"
+#DAFNY_VERSION="4.6.0"
 
 #------------------------------------
 echo "Dafny: $DAFNY_VERSION"

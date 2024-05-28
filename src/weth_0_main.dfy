@@ -1,15 +1,15 @@
-include "../../evm-dafny/src/dafny/evm.dfy"
-include "../../evm-dafny/src/dafny/core/code.dfy"
+include "../evm-dafny/src/dafny/evm.dfy"
+include "../evm-dafny/src/dafny/core/code.dfy"
 include "weth_0_header.dfy"
-include "weth_0_allowance.dfy"
-include "weth_0_name.dfy"
-include "weth_0_deposit.dfy"
-include "weth_0_totalSupply.dfy"
-include "weth_0_symbol.dfy"
-include "weth_0_balanceOf.dfy"
-include "weth_0_decimals.dfy"
 include "weth_0_transfer.dfy"
+include "weth_0_balanceOf.dfy"
+include "weth_0_allowance.dfy"
+include "weth_0_decimals.dfy"
+include "weth_0_deposit.dfy"
+include "weth_0_symbol.dfy"
+include "weth_0_name.dfy"
 include "weth_0_approve.dfy"
+include "weth_0_totalSupply.dfy"
 include "weth_0_util.dfy"
 
 module main {
@@ -18,15 +18,15 @@ module main {
 	import opened Memory
 	import opened Bytecode
 	import opened Header
-	import opened allowance
-	import opened name
-	import opened deposit
-	import opened totalSupply
-	import opened symbol
-	import opened balanceOf
-	import opened decimals
 	import opened transfer
+	import opened balanceOf
+	import opened allowance
+	import opened decimals
+	import opened deposit
+	import opened symbol
+	import opened name
 	import opened approve
+	import opened totalSupply
 	import opened util
 
 	method block_0_0x0000(st': EvmState.ExecutingState) returns (st'': EvmState.State)
