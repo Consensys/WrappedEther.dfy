@@ -298,6 +298,7 @@ module allowance {
 		st := Push1(st,0x00);
 		//|fp=0x0060|0x00,_,_,_,0x42a,_|
 		st := MStore(st);
+		assert st.Read(0x40) == 0x60;
 		//|fp=0x0060|_,_,0x42a,_|
 		st := Push1(st,0x40);
 		st := block_0_0x0bfb(st);
