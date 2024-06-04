@@ -685,6 +685,21 @@ module main {
 		//|fp=0x0060|0x20,0x00,0x03,_,_,0x264,_|
 		st := Add(st);
 		//|fp=0x0060|0x20,0x03,_,_,0x264,_|
+		st := block_0_0x0a11(st);
+		return st;
+	}
+
+	method block_0_0x0a11(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	requires st'.evm.code == Code.Create(BYTECODE_0)
+	requires st'.WritesPermitted() && st'.PC() == 0x0a11
+	// Free memory pointer
+	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
+	// Stack height(s)
+	requires st'.Operands() == 6
+	// Static stack items
+	requires (st'.Peek(0) == 0x20 && st'.Peek(4) == 0x264)
+	{
+		var st := st';	
 		st := Swap(st,1);
 		//|fp=0x0060|0x03,0x20,_,_,0x264,_|
 		st := Dup(st,2);
