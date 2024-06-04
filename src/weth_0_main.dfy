@@ -715,6 +715,7 @@ module main {
 		st := Push1(st,0x00);
 		//|fp=0x0060|0x00,0x40,_,_,0x264,_|
 		st := Keccak256(st);
+		assert st.Peek(3) == 0x264;    
 		//|fp=0x0060|_,_,_,0x264,_|
 		st := SLoad(st);
 		//|fp=0x0060|_,_,_,0x264,_|
