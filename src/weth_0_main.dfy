@@ -925,7 +925,7 @@ module main {
 	// Stack height(s)
 	requires st'.Operands() == 7
 	// Static stack items
-	requires (st'.Peek(1) == 0x8fc && st'.Peek(5) == 0x264)
+	requires ((st'.Peek(0) == 0 || st'.Peek(0) == 1) && st'.Peek(1) == 0x8fc && st'.Peek(5) == 0x264)
 	{
 		var st := st';
 		//|fp=0x0060|_,0x8fc,_,_,_,0x264,_|
