@@ -64,9 +64,12 @@ module name {
 	method block_0_0x00cc(st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x00cc
+	// Free memory pointer
+	requires st'.MemSize() >= 0x80 && 0x80 <= st'.Read(0x40) <= 0xffff
 	// Stack height(s)
 	requires st'.Operands() == 3
-	// Static stack items
+	// Static stack itemsrequires (st'.Peek(0) == 0x60 && st'.Peek(1) == 0xcc)	
+	requires (st'.Read(0x60) <= 0xffff)
 	requires (st'.Peek(0) == 0x60)
 	{
 		var st := st';
