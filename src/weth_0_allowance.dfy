@@ -282,7 +282,7 @@ module allowance {
 	// Stack height(s)
 	requires st'.Operands() == 5
 	// Static stack items
-	requires (st'.Peek(3) == 0x42a)
+	requires (st'.Peek(0) == 0x40 && st'.Peek(3) == 0x42a)
 	{
 		var st := st';
 		//|fp=0x0060|0x40,_,_,0x42a,_|
@@ -297,6 +297,22 @@ module allowance {
 		st := Dup(st,1);
 		//|fp=0x0060|_,_,_,0x42a,_|
 		st := Push1(st,0x00);
+		//|fp=0x0060|0x00,_,_,_,0x42a,_|
+		st := block_0_0x0bf8(st);
+		return st;
+	}
+
+	method block_0_0x0bf8(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	requires st'.evm.code == Code.Create(BYTECODE_0)
+	requires st'.WritesPermitted() && st'.PC() == 0x0bf8
+	// Free memory pointer
+	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
+	// Stack height(s)
+	requires st'.Operands() == 6
+	// Static stack items
+	requires (st'.Peek(0) == 0x00 && st'.Peek(4) == 0x42a)
+	{
+		var st := st';
 		//|fp=0x0060|0x00,_,_,_,0x42a,_|
 		st := MStore(st);
 		assert st.Read(0x40) == 0x60;
