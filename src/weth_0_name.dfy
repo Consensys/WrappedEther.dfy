@@ -70,7 +70,7 @@ module name {
 	requires st'.Operands() == 3
 	// Static stack itemsrequires (st'.Peek(0) == 0x60 && st'.Peek(1) == 0xcc)	
 	requires (st'.Read(0x60) <= 0xffff)
-	requires (st'.Peek(0) == 0x60)
+	requires (st'.Peek(0) == 0x60 && st'.Peek(1) == 0xcc)
 	{
 		var st := st';
 		//||0x60,0xcc,_|
@@ -100,8 +100,16 @@ module name {
 	requires st'.WritesPermitted() && st'.PC() == 0x00d6
 	// Stack height(s)
 	requires st'.Operands() == 7
+	// Free memory pointer
+	requires st'.MemSize() >= 0x80 && 0x80 <= st'.Read(0x40) <= 0xffff
+	requires st'.Read(0x40) == st'.Peek(0)
 	// Static stack items
-	requires (st'.Peek(4) == 0x60)
+	requires (st'.Peek(4) == 0x60 && st'.Peek(5) == 0xcc)
+	requires (st'.Peek(0) == st'.Peek(2) == st'.Peek(3))	
+	requires (st'.Read(0x60) <= 0xffff)
+	requires var p := st'.Peek(0); p >= 0x80
+	requires var q := st'.Peek(1); var p := st'.Peek(0); q > p && q - p == 0x20
+	
 	{
 		var st := st';
 		//||_,_,_,_,0x60,0xcc,_|
