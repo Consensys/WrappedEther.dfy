@@ -903,6 +903,7 @@ module name {
 		st := Push1(st,0x1f);
 		// ||0x1f,l,l,0x00,0x80,_,0x00,0x60,0xcc,_|
 		st := Lt(st);
+		assert (st.Peek(2) == 0x0 && st.Peek(3) == 0x80 && st.Peek(6) == 0x60 && st.Peek(7) == 0xcc);
 		st := block_0_0x0531(st);
 		return st;
 	}
