@@ -286,7 +286,7 @@ module name {
 	// Stack height(s)
 	requires st'.Operands() == 13
 	// Static stack items
-	requires (st'.Peek(2) == st'.Peek(6) == 0x80 && st'.Peek(10) == 0x60 && st'.Peek(11) == 0xcc)
+	requires (st'.Peek(0) == st'.Peek(1) && st'.Peek(2) == st'.Peek(6) == 0x80 && st'.Peek(10) == 0x60 && st'.Peek(11) == 0xcc)
 	// Termination
 	requires var y := st'.Peek(1); y as nat == i * 0x20
 	requires var x := st'.Peek(4); var y := st'.Peek(1); y < x <= 0xffff
@@ -298,6 +298,8 @@ module name {
 		st := Dup(st,3);
 		// ||0x80,0x00,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
 		// ||0x80,y,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		assert st.Peek(0) == 0x80;
+		assert st.Peek(1) == st'.Peek(1) <= 0xffff;
 		assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
 		st := Add(st);
 		// ||0x80,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
