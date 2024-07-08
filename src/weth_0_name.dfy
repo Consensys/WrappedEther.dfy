@@ -1167,6 +1167,7 @@ module name {
 		// ||_,_,_,_,0x00,0x60,0xcc,_|
 		st := Dup(st,3);
 		// ||_,_,_,_,_,0x00,0x60,0xcc,_|
+		assert (st.Peek(5) == 0x0 && st.Peek(6) == 0x60 && st.Peek(7) == 0xcc);
 		st := Swap(st,1);
 		assert st.Peek(5) == 0x00;
 		//||_,_,_,_,_,0x00,0x60,0xcc,_|
