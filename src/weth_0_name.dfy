@@ -149,16 +149,16 @@ module name {
 	requires (st'.Peek(2) == 0x60 && st'.Peek(6) == 0x60 && st'.Peek(7) == 0xcc)
 	requires (st'.Read(0x60) <= 0xffff)
 	// Termination	
-	requires var p := st'.Peek(1); (MAX_U256 as u256- 0x20) >= p >= 0x80
+	requires var p := st'.Peek(1); (MAX_U256 as u256 - 0x1001f) >= p >= 0x80
 	{
 		var st := st';
-		//||_,_,0x60,_,_,_,0x60,0xcc,_|
+		//||_,p,0x60,_,_,_,0x60,0xcc,_|
 		st := Dup(st,2);
-		//||_,_,_,0x60,_,_,_,0x60,0xcc,_|
+		//||p,_,p,0x60,_,_,_,0x60,0xcc,_|
 		st := MStore(st);
-		//||_,0x60,_,_,_,0x60,0xcc,_|
+		//||p,0x60,_,_,_,0x60,0xcc,_|
 		st := Push1(st,0x20);
-		//||0x20,_,0x60,_,_,_,0x60,0xcc,_|
+		//||0x20,p,0x60,_,_,_,0x60,0xcc,_|
 		st := block_0_0x00e2(st);
 		return st;
 	}
@@ -173,24 +173,29 @@ module name {
 	// Static stack items
 	requires (st'.Peek(0) == 0x20 &&  st'.Peek(2) == 0x60 && st'.Peek(6) == 0x60 && st'.Peek(7) == 0xcc)
 	requires (st'.Read(0x60) <= 0xffff)
+	//b <= 0xffff && a <= max - b
 	// Termination	
-	requires var p := st'.Peek(1); (MAX_U256 as u256- 0x20) >= p >= 0x80
+	requires var p := st'.Peek(1); (MAX_U256 as u256- 0x1001f) >= p >= 0x80
 	{
 		var st := st';
 		//||0x20,_,0x60,_,_,_,0x60,0xcc,_|
 		assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-		//||0x20,_,0x60,_,_,_,0x60,0xcc,_|
+		//||0x20,a-0x20,0x60,_,_,_,0x60,0xcc,_|
 		st := Add(st);
 		assert {:split_here} true;
-		//||_,0x60,_,_,_,0x60,0xcc,_|
+		//||a,0x60,_,_,_,0x60,0xcc,_|
 		st := Swap(st,2);
-		//||_,0x60,_,_,_,0x60,0xcc,_|
+		//||_,0x60,a,_,_,0x60,0xcc,_|
 		st := Pop(st);
-		//||0x60,_,_,_,0x60,0xcc,_|
+		//||0x60,a,_,_,0x60,0xcc,_|
 		st := Dup(st,1);
-		//||0x60,0x60,_,_,_,0x60,0xcc,_|
+		//||0x60,0x60,a,_,_,0x60,0xcc,_|
 		st := MLoad(st);
 		assert st.Peek(0) == st.Read(0x60);
+		//||b,0x60,a,_,_,0x60,0xcc,_|
+		assert st.Peek(0) <= 0xffff;
+		assert st'.Peek(1) + 0x20 == st.Peek(2);
+		assert (MAX_U256 as u256- 0xffff) >= st.Peek(2);
 		st := block_0_0x00e7(st);
 		return st;
 	}
@@ -205,28 +210,33 @@ module name {
 	// Static stack items
 	requires var x := st'.Peek(0); x == st'.Read(0x60) <= 0xffff
 	requires (st'.Peek(1) == 0x60 && st'.Peek(5) == 0x60 && st'.Peek(6) == 0xcc)
+	requires var x := st'.Peek(0); var y := st'.Peek(2); y <= (MAX_U256 as u256) - x
 	{
 		var st := st';
-		//||_,0x60,_,_,_,0x60,0xcc,_|
+		//||b,0x60,a,_,_,0x60,0xcc,_|
 		st := Swap(st,1);
-		//||0x60,_,_,_,_,0x60,0xcc,_|
+		//||0x60,b,a,_,_,0x60,0xcc,_|
 		st := Push1(st,0x20);
-		//||0x20,0x60,_,_,_,_,0x60,0xcc,_|
+		//||0x20,0x60,b,a,_,_,0x60,0xcc,_|
 		assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-		//||0x20,0x60,_,_,_,_,0x60,0xcc,_|
+		//||0x20,0x60,b,a,_,_,0x60,0xcc,_|
 		st := Add(st);
-		//||0x80,_,_,_,_,0x60,0xcc,_|
+		//||0x80,b,a,_,_,0x60,0xcc,_|
 		st := Swap(st,1);
-		//||_,0x80,_,_,_,0x60,0xcc,_|
+		//||b,0x80,a,_,_,0x60,0xcc,_|
 		assert st.Peek(0) == st'.Peek(0);
 		st := Dup(st,1);
-		//||_,_,0x80,_,_,_,0x60,0xcc,_|
+		//||b,b,0x80,a,_,_,0x60,0xcc,_|
 		st := Dup(st,4);
-		//||_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		//||_,b,b,0x80,a,_,_,0x60,0xcc,_|
 		st := Dup(st,4);
-		//||0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		//||0x80,_,b,b,0x80,a,_,_,0x60,0xcc,_|
 		st := Push1(st,0x00);
 		assert st.Peek(3) == st'.Peek(0);
+		assert st.Peek(6) == st'.Peek(2);
+		assert st.Peek(3) == st.Peek(4);
+		// ||0x00,0x80,_,b,b,0x80,a,_,_,0x60,0xcc,_|
+		assert st.Peek(6) <= (MAX_U256 as u256) - st.Peek(4);
 		st := block_0_0x00f1(0,st);
 		return st;
 	}
@@ -238,44 +248,55 @@ module name {
 	requires st'.Operands() == 12
 	// Static stack items
 	requires (st'.Peek(1) == 0x80 && st'.Peek(5) == 0x80 && st'.Peek(9) == 0x60 && st'.Peek(10) == 0xcc)	
+	requires (st'.Peek(3) == st'.Peek(4))
 	// Termination
 	requires var y := st'.Peek(0); y as nat == i * 0x20
 	requires var x := st'.Peek(3); x <= 0xffff
 	requires var x := st'.Peek(3); var y := st'.Peek(0); y <= (x+0x1f)
+	requires var x := st'.Peek(4); var y := st'.Peek(6); y <= (MAX_U256 as u256) - x
 	decreases var x := st'.Peek(3); var y := st'.Peek(0); (x+0x1f) - y,2
 	{
 		var st := st';
 		// ||0x00,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||y,0x80,_,x,b,0x80,a,_,_,0x60,0xcc,_|
 		st := JumpDest(st);
 		// ||0x00,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||y,0x80,_,x,b,0x80,a,_,_,0x60,0xcc,_|
 		st := Dup(st,4);
 		// ||x,0x00,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||x,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||x,y,0x80,_,x,b,0x80,a,_,_,0x60,0xcc,_|
 		st := Dup(st,2);
 		// ||0x00,x,0x00,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||y,x,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||y,x,y,0x80,_,x,b,0x80,a,_,_,0x60,0xcc,_|
 		assert st.Peek(12) == 0xcc;
 		assert st.Peek(3) == 0x80;
+		assert st.Peek(7) == st'.Peek(5);
 		st := Lt(st); // y < x
 		// ||_,0x00,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||_,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||_,y,0x80,_,x,b,0x80,a,_,_,0x60,0xcc,_|
 		st := IsZero(st);
 		// ||_,0x00,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||_,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||_,y,0x80,_,x,b,0x80,a,_,_,0x60,0xcc,_|
 		st := Push2(st,0x010c);
 		// ||0x10c,_,0x00,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||0x10c,_,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||0x10c,_,y,0x80,_,x,b,0x80,a,_,_,0x60,0xcc,_|
 		assume {:axiom} st.IsJumpDest(0x10c);
 		st := JumpI(st);
-		if st.PC() == 0x10c { st := block_0_0x010c(st); return st;} // if y >= x
+		if st.PC() == 0x10c { 
+			// ||y,0x80,_,x,b,0x80,a,_,_,0x60,0xcc,_|
+			assert st.Peek(4) <= 0xffff; // st'.Peek(3) == 
+			assert st.Peek(6) <= (MAX_U256 as u256) - st'.Peek(4);
+			st := block_0_0x010c(st); return st;
+		
+		} // if y >= x
 		// ||0x00,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		// ||y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Dup(st,1);
 		// ||0x00,0x00,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		// ||y,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
-		assert st'.Peek(0) == st.Peek(1) && st'.Peek(3) == st.Peek(4);		
+		assert st'.Peek(0) == st.Peek(1) && st'.Peek(3) == st.Peek(4) && st'.Peek(4) == st.Peek(5);		
+		assert st.Peek(2) == st'.Peek(1);
+		assert st.Peek(6) == st'.Peek(5);
 		st := block_0_0x00fb(i,st); // i.e. y < x
 		return st;
 	}
@@ -287,6 +308,9 @@ module name {
 	requires st'.Operands() == 13
 	// Static stack items
 	requires (st'.Peek(0) == st'.Peek(1) && st'.Peek(2) == st'.Peek(6) == 0x80 && st'.Peek(10) == 0x60 && st'.Peek(11) == 0xcc)
+	requires st'.Peek(4) == st'.Peek(5)
+	requires var x := st'.Peek(5); var y := st'.Peek(7); y <= (MAX_U256 as u256) - x
+	
 	// Termination
 	requires var y := st'.Peek(1); y as nat == i * 0x20
 	requires var x := st'.Peek(4); var y := st'.Peek(1); y < x <= 0xffff
@@ -294,10 +318,10 @@ module name {
 	{
 		var st := st';
 		// ||0x00,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||_,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||_,y,0x80,_,x,x,0x80,_,_,_,0x60,0xcc,_|
 		st := Dup(st,3);
 		// ||0x80,0x00,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||0x80,y,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||0x80,y,y,0x80,_,x,x,0x80,_,_,_,0x60,0xcc,_|
 		assert st.Peek(0) == 0x80;
 		assert st.Peek(1) == st'.Peek(1) <= 0xffff;
 		assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
@@ -310,6 +334,7 @@ module name {
 		st := Dup(st,2);
 		assert st'.Peek(1) == st.Peek(2) && st'.Peek(4) == st.Peek(5);
 		assert st.Peek(3) == st.Peek(7) == 0x80;
+		assert st.Peek(8) == st'.Peek(7);
 		assert st.Peek(11) == 0x60;
 		assert st.Peek(12) == 0xcc;
 		// ||0x00,_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
@@ -318,6 +343,7 @@ module name {
 		// ||_,0x00,_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
 		// ||_,y,_,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Add(st);
+		assert {:split_here} true;
 		assert st.Peek(3) == st.Peek(7) == 0x80;    
 		// ||_,_,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
 		// ||_,_,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
@@ -325,7 +351,11 @@ module name {
 		// ||0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
 		// ||y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		st := Push1(st,0x20);
-		// ||0x20,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||0x20,y,0x80,_,x,x,0x80,_,_,_,0x60,0xcc,_|
+		assert st.Peek(4) == st'.Peek(4) && st.Peek(5) == st'.Peek(5) ;
+		assert st.Peek(7) == st'.Peek(7);
+		assert (st.Peek(0) == 0x20 && st.Peek(2) == 0x80 && st.Peek(6) == 0x80 && st.Peek(10) == 0x60 && st.Peek(11) == 0xcc);
+		assert st.Peek(7) <= (MAX_U256 as u256) - st.Peek(5);
 		st := block_0_0x0104(i,st);
 		return st;
 	}
@@ -337,6 +367,9 @@ module name {
 	requires st'.Operands() == 13
 	// Static stack items
 	requires (st'.Peek(0) == 0x20 && st'.Peek(2) == 0x80 && st'.Peek(6) == 0x80 && st'.Peek(10) == 0x60 && st'.Peek(11) == 0xcc)
+	requires st'.Peek(4) == st'.Peek(5)
+	requires var x := st'.Peek(5); var y := st'.Peek(7); y <= (MAX_U256 as u256) - x
+	
 	// Termination
 	requires var y := st'.Peek(1); y as nat == i * 0x20
 	requires var x := st'.Peek(4); var y := st'.Peek(1); y < x <= 0xffff
@@ -344,7 +377,7 @@ module name {
 	{
 		var st := st';
 		// ||0x20,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		// ||0x20,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||0x20,y,0x80,_,x,x,0x80,z,_,_,0x60,0xcc,_|
 		st := Dup(st,2);
 		// ||0x00,0x20,0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
 		// ||y,0x20,y,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
@@ -368,7 +401,9 @@ module name {
 		// ||0xf1,y+0x20,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
 		assume {:axiom} st.IsJumpDest(0xf1);
 		st := Jump(st);
-		// ||y+0x20,0x80,_,x,_,0x80,_,_,_,0x60,0xcc,_|
+		// ||y+0x20,0x80,_,x,x,0x80,z,_,_,0x60,0xcc,_|
+		assert st.Peek(3) == st.Peek(4);
+		assert st.Peek(6) <= (MAX_U256 as u256) - st.Peek(4);
 		st := block_0_0x00f1(i+1,st);
 		return st;
 	}
@@ -380,27 +415,29 @@ module name {
 	requires st'.Operands() == 12
 	// Static stack items
 	requires (st'.Peek(1) == 0x80 && st'.Peek(5) == 0x80 && st'.Peek(9) == 0x60 && st'.Peek(10) == 0xcc)
+	requires var a := st'.Peek(6); var b := st'.Peek(4); b <= 0xffff && a <= (MAX_U256 as u256) - b
 	{
 		var st := st';
 		//||_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		//||0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		//||0x00,0x80,_,_,b,0x80,a,_,_,0x60,0xcc,_|
 		st := JumpDest(st);
 		//||_,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
-		//||0x00,0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		//||0x00,0x80,_,_,b,0x80,a,_,_,0x60,0xcc,_|
 		st := Pop(st);
-		//||0x80,_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		//||0x80,_,_,b,0x80,a,_,_,0x60,0xcc,_|
 		st := Pop(st);
-		//||_,_,_,0x80,_,_,_,0x60,0xcc,_|
+		//||_,_,b,0x80,a,_,_,0x60,0xcc,_|
 		assert st.Operands() == 10;
 		st := Pop(st);
-		//||_,_,0x80,_,_,_,0x60,0xcc,_|
+		//||_,b,0x80,a,_,_,0x60,0xcc,_|
 		st := Pop(st);
-		//||_,0x80,_,_,_,0x60,0xcc,_|
+		//||b,0x80,a,_,_,0x60,0xcc,_|
 		st := Swap(st,1);
-		//||0x80,_,_,_,_,0x60,0xcc,_|
+		//||0x80,b,a,_,_,0x60,0xcc,_|
 		st := Pop(st);
-		//||_,_,_,_,0x60,0xcc,_|
+		//||b,a,_,_,0x60,0xcc,_|
 		st := Swap(st,1);
+		//||a,b,_,_,0x60,0xcc,_|
 		st := block_0_0x0114(st);
 		return st;
 	}
@@ -412,27 +449,37 @@ module name {
 	requires st'.Operands() == 7
 	// Static stack items
 	requires (st'.Peek(4) == 0x60 && st'.Peek(5) == 0xcc)
-	
+	requires var a := st'.Peek(0); var b := st'.Peek(1); b <= 0xffff && /*0x1f <= */ a <= (MAX_U256 as u256) - b // see below
 	{
 		var st := st';
-		//||_,_,_,_,0x60,0xcc,_|
+		//||a,b,_,_,0x60,0xcc,_|
 		st := Dup(st,2);
-		//||_,_,_,_,_,0x60,0xcc,_|
+		//||b,a,b,_,_,0x60,0xcc,_|
+		assert st.Peek(0) == st'.Peek(1);
 		assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-		//||_,_,_,_,_,0x60,0xcc,_|
+		//||b,a,b,_,_,0x60,0xcc,_|
 		st := Add(st);
-		//||_,_,_,_,0x60,0xcc,_|
+		//||a+b,b,_,_,0x60,0xcc,_|
 		st := Swap(st,1);
-		//||_,_,_,_,0x60,0xcc,_|
+		//||b,a+b,_,_,0x60,0xcc,_|
 		st := Push1(st,0x1f);
-		//||0x1f,_,_,_,_,0x60,0xcc,_|
+		//||0x1f,b,a+b,_,_,0x60,0xcc,_|
 		st := AndU5(st);
-		//||_,_,_,_,0x60,0xcc,_|
+		//||0x1f&b,a+b,_,_,0x60,0xcc,_|
+		assert st.Peek(0) <= 0xffff; // i.e. b
+		assert st.Peek(0) <= st.Peek(1);
 		st := Dup(st,1);
-		//||_,_,_,_,_,0x60,0xcc,_|
+		//||0x1f&b,0x1f&b,a+b_,_,_,0x60,0xcc,_|
 		st := IsZero(st);
-		//||_,_,_,_,_,0x60,0xcc,_|
+		assert st.Peek(0) == 0 ==> st.Peek(1) != 0;
+		assert st.Peek(0) == 1 ==> st.Peek(1) == 0;
+		assert st.Peek(6) == 0xcc;
+		//||1,0x1f&b==0,a+b,_,_,0x60,0xcc,_|
+		//||0,0x1f&b!=0,a+b,_,_,0x60,0xcc,_|
 		st := Push2(st,0x0139);
+		//||0x0139,1,0x1f&b==0,a+b,_,_,0x60,0xcc,_|
+		//||0x0139,0,0x1f&b!=0,a+b,_,_,0x60,0xcc,_|
+		assert st.Peek(0) == 0x0139  && st.Peek(6) == 0x60;
 		st := block_0_0x011f(st);
 		return st;
 	}
@@ -444,28 +491,38 @@ module name {
 	requires st'.Operands() == 9
 	// Static stack items
 	requires (st'.Peek(0) == 0x139 && st'.Peek(6) == 0x60 && st'.Peek(7) == 0xcc)
+	requires st'.Peek(1) == 0 ==> st'.Peek(2) != 0
+	requires st'.Peek(1) == 1 ==> st'.Peek(2) == 0
+	requires st'.Peek(2) <= st'.Peek(3) && st'.Peek(2) <= 0x20
 	{
 		var st := st';
-		//||0x139,_,_,_,_,_,0x60,0xcc,_|
+		//||0x0139,1,0x1f&b==0,a+b,_,_,0x60,0xcc,_|
+		//||0x0139,0,0x1f&b!=0,a+b,_,_,0x60,0xcc,_|
 		assume {:axiom} st.IsJumpDest(0x139);
 		st := JumpI(st);
-		if st.PC() == 0x139 { st := block_0_0x0139(st); return st;}
-		//||_,_,_,_,0x60,0xcc,_|
+		if st.PC() == 0x139 { 
+			assert st'.Peek(1) != 0;
+			st := block_0_0x0139(st); 
+			return st;
+		} // cond was true
+		assert st'.Peek(1) == 0;
+		assert st.Peek(0) == st'.Peek(2) != 0;
+		//||0x1f&b!=0,a+b,_,_,0x60,0xcc,_|
 		st := Dup(st,1);
-		//||_,_,_,_,_,0x60,0xcc,_|
+		//||0x1f&b!=0,0x1f+b!=0,a+b,_,_,0x60,0xcc,_|
 		st := Dup(st,3);
-		//||_,_,_,_,_,_,0x60,0xcc,_|
-		assert st.Peek(1) <= st.Peek(0);
-		//||_,_,_,_,_,_,0x60,0xcc,_|
+		//||a+b,0x1f&b!=0,0x1f&b!=0,a+b,_,_,0x60,0xcc,_|
+		assert st.Peek(1) <= st.Peek(0); 
 		st := Sub(st);
-		//||_,_,_,_,_,0x60,0xcc,_|
+		//||a,0<b<=0xffff,_,_,_,0x60,0xcc,_|
 		st := Dup(st,1);
-		//||_,_,_,_,_,_,0x60,0xcc,_|
+		//||a,a,*,_,_,_,0x60,0xcc,_|
 		st := MLoad(st);
-		//||_,_,_,_,_,_,0x60,0xcc,_|
+		//||mem(a),a,*,_,_,_,0x60,0xcc,_|
 		st := Push1(st,0x01);
-		//||0x01,_,_,_,_,_,_,0x60,0xcc,_|
+		//||0x01,mem(a),a,*,_,_,_,0x60,0xcc,_|
 		st := Dup(st,4);
+		//||*,0x01,mem(a),a,*,_,_,_,0x60,0xcc,_|
 		st := block_0_0x0128(st);
 		return st;
 	}
@@ -477,29 +534,33 @@ module name {
 	requires st'.Operands() == 11
 	// Static stack items
 	requires (st'.Peek(1) == 0x1 && st'.Peek(8) == 0x60 && st'.Peek(9) == 0xcc)
+	requires st'.Peek(0) <= 0x20
 	{
 		var st := st';
-		//||_,0x01,_,_,_,_,_,_,0x60,0xcc,_|
+		//||*,0x01,_,_,_,_,_,_,0x60,0xcc,_|
 		st := Push1(st,0x20);
-		//||0x20,_,0x01,_,_,_,_,_,_,0x60,0xcc,_|
 		assert st.Peek(1) <= st.Peek(0);
-		//||0x20,_,0x01,_,_,_,_,_,_,0x60,0xcc,_|
+		//||0x20,*,0x01,_,_,_,_,_,_,0x60,0xcc,_|
 		st := Sub(st);
-		//||_,0x01,_,_,_,_,_,_,0x60,0xcc,_|
+		//||0x20-*,0x01,_,_,_,_,_,_,0x60,0xcc,_|
+		assert 0 <= st.Peek(0);
 		st := Push2(st,0x0100);
-		//||0x100,_,0x01,_,_,_,_,_,_,0x60,0xcc,_|
+		//||0x100,0x20-*,0x01,_,_,_,_,_,_,0x60,0xcc,_|
 		st := Exp(st);
-		//||_,0x01,_,_,_,_,_,_,0x60,0xcc,_|
-		assert st.Peek(1) <= st.Peek(0);
-		//||_,0x01,_,_,_,_,_,_,0x60,0xcc,_|
-		st := Sub(st);
-		//||_,_,_,_,_,_,_,0x60,0xcc,_|
-		st := Not(st);
-		//||_,_,_,_,_,_,_,0x60,0xcc,_|
-		st := And(st);
-		//||_,_,_,_,_,_,0x60,0xcc,_|
-		st := Dup(st,2);
-		st := block_0_0x0133(st);
+		assert {:split_here} true;
+		//||0x100**(0x20-*),0x01,_,_,_,_,_,_,0x60,0xcc,_|
+		assert st.Peek(0) as nat < 0x1_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000;
+		// assert st.Peek(1) <= st.Peek(0);
+		// //||_,0x01,_,_,_,_,_,_,0x60,0xcc,_|
+		// st := Sub(st);
+		// //||#,_,_,_,_,_,_,0x60,0xcc,_|
+		// st := Not(st);
+		// //||!#,_,_,_,_,_,_,0x60,0xcc,_|
+		// st := And(st);
+		// //||_,!#,_,_,_,_,0x60,0xcc,_|
+		// st := Dup(st,2);
+		// //||_,_,!#,_,_,_,_,0x60,0xcc,_|
+		// st := block_0_0x0133(st);
 		return st;
 	}
 
@@ -510,20 +571,21 @@ module name {
 	requires st'.Operands() == 10
 	// Static stack items
 	requires (st'.Peek(7) == 0x60 && st'.Peek(8) == 0xcc)
+	requires st'.Peek(2) <= (MAX_U256 as u256 - 0x20)
 	{
 		var st := st';
-		//||_,_,_,_,_,_,_,0x60,0xcc,_|
+		//||_,_,!#,_,_,_,_,0x60,0xcc,_|
 		st := MStore(st);
-		//||_,_,_,_,_,0x60,0xcc,_|
+		//||!#,_,_,_,_,0x60,0xcc,_|
 		st := Push1(st,0x20);
-		//||0x20,_,_,_,_,_,0x60,0xcc,_|
+		//||0x20,!#,_,_,_,_,0x60,0xcc,_|
 		assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
-		//||0x20,_,_,_,_,_,0x60,0xcc,_|
 		st := Add(st);
-		//||_,_,_,_,_,0x60,0xcc,_|
+		//||$,_,_,_,_,0x60,0xcc,_|
 		st := Swap(st,2);
-		//||_,_,_,_,_,0x60,0xcc,_|
+		//||_,_,$,_,_,0x60,0xcc,_|
 		st := Pop(st);
+		//||_,$,_,_,0x60,0xcc,_|
 		st := block_0_0x0139(st);
 		return st;
 	}
@@ -537,22 +599,23 @@ module name {
 	requires (st'.Peek(4) == 0x60 && st'.Peek(5) == 0xcc)
 	{
 		var st := st';
-		//||_,_,_,_,0x60,0xcc,_|
+		//||_,$,_,_,0x60,0xcc,_|
 		st := JumpDest(st);
-		//||_,_,_,_,0x60,0xcc,_|
+		//||_,$,_,_,0x60,0xcc,_|
 		st := Pop(st);
-		//||_,_,_,0x60,0xcc,_|
+		//||$,_,_,0x60,0xcc,_|
 		st := Swap(st,3);
-		//||0x60,_,_,_,0xcc,_|
+		//||0x60,_,_,$,0xcc,_|
 		st := Pop(st);
-		//||_,_,_,0xcc,_|
+		//||_,_,$,0xcc,_|
 		st := Pop(st);
-		//||_,_,0xcc,_|
+		//||_,$,0xcc,_|
 		st := Pop(st);
-		//||_,0xcc,_|
+		//||$,0xcc,_|
 		st := Push1(st,0x40);
-		//||0x40,_,0xcc,_|
+		//||0x40,$,0xcc,_|
 		st := MLoad(st);
+		//||mem(0x40),$,0xcc,_|
 		st := block_0_0x0142(st);
 		return st;
 	}
@@ -564,15 +627,17 @@ module name {
 	requires st'.Operands() == 4
 	// Static stack items
 	requires (st'.Peek(2) == 0xcc)
+	// Free memory pointer
+	requires st'.MemSize() >= 0x80
+	requires var x := st'.Peek(0); x == st'.Read(0x40) <= st'.Peek(1) // TRY TO GET BOUND FOR PEEK1
 	{
 		var st := st';
-		//||_,_,0xcc,_|
+		//||^,@,0xcc,_|
 		st := Dup(st,1);
-		//||_,_,_,0xcc,_|
+		//||^,^,@,0xcc,_|
 		st := Swap(st,2);
-		//||_,_,_,0xcc,_|
-		assert st.Peek(1) <= st.Peek(0);
-		//||_,_,_,0xcc,_|
+		//||@,^,^,0xcc,_|
+		assert st.Peek(1) <= st.Peek(0); // ^ <= @
 		st := Sub(st);
 		//||_,_,0xcc,_|
 		st := Swap(st,1);
