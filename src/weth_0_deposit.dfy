@@ -20,15 +20,16 @@ module deposit {
 	requires st'.Operands() == 1
 	{
 		var st := st';
-		//|fp=0x0060|_|
+		//|fp=0x0060|0xd0e30db0|
 		st := JumpDest(st);
-		//|fp=0x0060|_|
+		//|fp=0x0060|0xd0e30db0|
 		st := Push2(st,0x03d2);
-		//|fp=0x0060|0x3d2,_|
+		//|fp=0x0060|0x3d2,0xd0e30db0|
 		st := Push2(st,0x0440);
-		//|fp=0x0060|0x440,0x3d2,_|
+		//|fp=0x0060|0x440,0x3d2,0xd0e30db0|
 		assume {:axiom} st.IsJumpDest(0x440);
 		st := Jump(st);
+		//|fp=0x0060|0x3d2,0xd0e30db0|
 		st := block_0_0x0440(st);
 		return st;
 	}
