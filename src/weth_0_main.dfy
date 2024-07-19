@@ -349,22 +349,20 @@ module main {
 	{
 		var st := st';
 		// from a3: |fp=0x0060|callSig|
-		//|fp=0x0060||
+		// from 00: |fp=0x0060||
 		st := JumpDest(st);
 		// from a3: |fp=0x0060|callSig|
-		//|fp=0x0060|_|
-		//|fp=0x0060||
+		// from 00: |fp=0x0060||
 		st := Push2(st,0x00b7);
 		// from a3: |fp=0x0060|0x00b7,callSig|
-		//|fp=0x0060|0xb7,_|
-		//|fp=0x0060|0xb7|
+		// from 00: |fp=0x0060|0x00b7|
 		st := Push2(st,0x0440);
 		// from a3: |fp=0x0060|0x0440,0x00b7,callSig|
-		//|fp=0x0060|0x440,0xb7,_|
-		//|fp=0x0060|0x440,0xb7|
+		// from 00: |fp=0x0060|0x0440,0x00b7|
 		assume {:axiom} st.IsJumpDest(0x440);
 		st := Jump(st);
 		// from a3: |fp=0x0060|0x00b7,callSig|
+		// from 00: |fp=0x0060|0x00b7|
 		st := block_0_0x0440(st);
 		return st;
 	}
