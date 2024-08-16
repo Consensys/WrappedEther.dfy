@@ -252,7 +252,10 @@ module approve {
 	// Storage
 	requires st'.Load(Hash(guy as u256,Hash(st'.evm.context.sender as u256,0x04))) == wad
 
-	ensures st''.RETURNS? && |st''.data| > 0 && st''.data[0] == 0x01 //&& st''.Load(hash2) == wad
+	ensures st''.RETURNS? 
+	ensures |st''.data| > 0 && st''.data[0] == 0x01 
+	ensures st''.world.Exists(st'.evm.context.address)
+	ensures st''.world.Read(st'.evm.context.address,Hash(guy as u256,Hash(st'.evm.context.sender as u256,0x04))) == wad
 	{
 		var st := st';
 		//|fp=0x0060|0x80,_|
