@@ -4,6 +4,7 @@ include "../evm-dafny/src/dafny/state.dfy"
 module Header {
 	import opened Int
 	import EvmState
+	import opened Memory
 
 	type u256 = Int.u256
 	const MAX_U256 : nat := Int.MAX_U256
@@ -462,4 +463,22 @@ requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U160 as u256) {
     var res := rhs % (Int.TWO_160 as u256);
     st.Pop(2).Push(res).Next()
 }
+
+lemma {:axiom} TotalSupplyBoundAxiom(a: u256, b: u256)
+	ensures (a as nat + b as nat) <= Int.MAX_U256 
+
+function Hash(a: u256, b: u256): (h: u256)
+
+lemma {:axiom} HashEquivalenceAxiom(st: EvmState.ExecutingState, h: u256, a: u256, b:u256)
+	requires st.MemSize() >= 0x40 && h == st.evm.precompiled.Sha3(Memory.Slice(st.evm.memory, 0x00, 0x40))
+	requires st.Read(0x00) == a && st.Read(0x20) == b
+	ensures h == Hash(a,b)
+
+lemma {:axiom} MemoryReadAxiom(st: EvmState.ExecutingState, i:nat)
+	requires st.MemSize() >= i + 0x20 
+	ensures Memory.Slice(st.evm.memory, i, 0x20) == Int.ToBytes(st.Read(i) as nat)
+
+lemma {:axiom} NoCollisionsAxiom(h1: u256, h2: u256)
+	ensures h1 != h2
+
 }
