@@ -552,7 +552,7 @@ module util {
 	// Dynamic stack items
 	requires (st'.Peek(0) == wad && st'.Peek(1) == dst as u256 && st'.Peek(2) == src as u256)
 	requires st'.Operands() == 5 ==> ((st'.Peek(3) == 0x229))
-	requires st'.Operands() == 9 ==> ((st'.Peek(3) == 0xbdb && st'.Peek(7) == 0x3b0)) // could add here st'.Peek(2) == caller
+	requires st'.Operands() == 9 ==> ((st'.Peek(3) == 0xbdb && st'.Peek(7) == 0x3b0)) 
 	{
 		var st := st';
 		//|fp=0x0060|wad,dst*,caller,0xbdb,0x00,wad,dst*,0x3b0,transfer|
