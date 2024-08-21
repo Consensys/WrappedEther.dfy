@@ -37,7 +37,8 @@ module main {
 	requires st'.Operands() == 0
 	// Storage
 	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.
-  	requires st'.Load(0x01) == 4 * 2 // length of "WETH", shifted left.
+  	requires st'.Load(0x01) == 0x5745544800000000000000000000000000000000000000000000000000000008 // "WETH" ... 0s ... len*2  
+	requires st'.Load(0x02) == 18 // uint8  public decimals = 18.
 	{
 		var st := st';
 		//|fp=0x0000||
@@ -72,7 +73,8 @@ module main {
 	requires st'.Operands() == 0
 	// Storage
 	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.
-  	requires st'.Load(0x01) == 4 * 2 // length of "WETH", shifted left.
+  	requires st'.Load(0x01) == 0x5745544800000000000000000000000000000000000000000000000000000008 // "WETH" ... 0s ... len*2  
+	requires st'.Load(0x02) == 18 // uint8  public decimals = 18.
 	{
 		// implies calll data size >=  4 bytes
 		var st := st';
@@ -106,7 +108,8 @@ module main {
 	requires st'.Operands() == 2
 	// Storage
 	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.
-  	requires st'.Load(0x01) == 4 * 2 // length of "WETH", shifted left.
+  	requires st'.Load(0x01) == 0x5745544800000000000000000000000000000000000000000000000000000008 // "WETH" ... 0s ... len*2  
+	requires st'.Load(0x02) == 18 // uint8  public decimals = 18.
 	{
 		var st := st';
 		//|fp=0x0060|callSig,callSig|
@@ -142,7 +145,8 @@ module main {
 	// Static stack items
 	requires (st'.Peek(0) == 0x147)
 	// Termination
-  	requires st'.Load(0x01) == 4 * 2 // length of "WETH", shifted left.
+  	requires st'.Load(0x01) == 0x5745544800000000000000000000000000000000000000000000000000000008 // "WETH" ... 0s ... len*2  
+	requires st'.Load(0x02) == 18 // uint8  public decimals = 18.
 	{
 		var st := st';
 		//|fp=0x0060|0x0147,0x95ea7b3==callSig,callSig|
@@ -178,7 +182,8 @@ module main {
 	// Stack height(s)
 	requires st'.Operands() == 3
 	// Termination
-  	requires st'.Load(0x01) == 4 * 2 // length of "WETH", shifted left.
+  	requires st'.Load(0x01) == 0x5745544800000000000000000000000000000000000000000000000000000008 // "WETH" ... 0s ... len*2  
+	requires st'.Load(0x02) == 18 // uint8  public decimals = 18.
 	{
 		var st := st';
 		//|fp=0x0060|0x23b872dd,callSig,callSig|
@@ -214,7 +219,8 @@ module main {
 	// Stack height(s)
 	requires st'.Operands() == 1
 	// Termination
-  	requires st'.Load(0x01) == 4 * 2 // length of "WETH", shifted left.
+  	requires st'.Load(0x01) == 0x5745544800000000000000000000000000000000000000000000000000000008 // "WETH" ... 0s ... len*2  
+	requires st'.Load(0x02) == 18 // uint8  public decimals = 18.
 	{
 		var st := st';
 		//|fp=0x0060|callSig|
@@ -248,7 +254,7 @@ module main {
 	// Stack height(s)
 	requires st'.Operands() == 2
 	// Termination
-  	requires st'.Load(0x01) == 4 * 2 // length of "WETH", shifted left.
+  	requires st'.Load(0x01) == 0x5745544800000000000000000000000000000000000000000000000000000008 // "WETH" ... 0s ... len*2  
 	{
 		var st := st';
 		//|fp=0x0060|0x70a08231==callSig,callSig|
