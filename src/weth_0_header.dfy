@@ -477,6 +477,19 @@ requires st.Peek(1) % 0x10000000000000000000000000000000000000000000000000000000
     st.Pop(2).Push(res).Next()
 }
 
+/**
+ * Alternative to Bytecode.And for masking upper 13 bytes of u256 
+ * where the lower 18 bytes are zero
+ */
+function AndUpper13Bytes(st: EvmState.ExecutingState): (st': EvmState.State)
+requires st.Operands() >= 2 
+requires st.Peek(0) == 0xffffffffffffffffffffffffff00000000000000000000000000000000000000 
+requires st.Peek(1) % 0x100000000000000000000000000000000000000 == 0{
+    var rhs := st.Peek(1);
+    var res := rhs;
+    st.Pop(2).Push(res).Next()
+}
+
 lemma {:axiom} TotalSupplyBoundAxiom(a: u256, b: u256)
 	ensures (a as nat + b as nat) <= Int.MAX_U256 
 
