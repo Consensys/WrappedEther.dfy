@@ -36,8 +36,8 @@ module main {
 	// Stack height(s)
 	requires st'.Operands() == 0
 	// Storage
-	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.
-  	requires st'.Load(0x01) == 0x5745544800000000000000000000000000000000000000000000000000000008 // "WETH" ... 0s ... len*2  
+	requires st'.Load(0) == 0x577261707065642045746865720000000000000000000000000000000000001a // length of "Wrapped Ether", shifted left.
+	requires st'.Load(0x01) == 0x5745544800000000000000000000000000000000000000000000000000000008 // "WETH" ... 0s ... len*2  
 	requires st'.Load(0x02) == 18 // uint8  public decimals = 18.
 	{
 		var st := st';
@@ -72,8 +72,8 @@ module main {
 	// Stack height(s)
 	requires st'.Operands() == 0
 	// Storage
-	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.
-  	requires st'.Load(0x01) == 0x5745544800000000000000000000000000000000000000000000000000000008 // "WETH" ... 0s ... len*2  
+	requires st'.Load(0) == 0x577261707065642045746865720000000000000000000000000000000000001a // length of "Wrapped Ether", shifted left.
+	requires st'.Load(0x01) == 0x5745544800000000000000000000000000000000000000000000000000000008 // "WETH" ... 0s ... len*2  
 	requires st'.Load(0x02) == 18 // uint8  public decimals = 18.
 	{
 		// implies calll data size >=  4 bytes
@@ -107,8 +107,8 @@ module main {
 	// Stack height(s)
 	requires st'.Operands() == 2
 	// Storage
-	requires st'.Load(0) == 13 * 2 // length of "Wrapped Ether", shifted left.
-  	requires st'.Load(0x01) == 0x5745544800000000000000000000000000000000000000000000000000000008 // "WETH" ... 0s ... len*2  
+	requires st'.Load(0) == 0x577261707065642045746865720000000000000000000000000000000000001a // length of "Wrapped Ether", shifted left.
+	requires st'.Load(0x01) == 0x5745544800000000000000000000000000000000000000000000000000000008 // "WETH" ... 0s ... len*2  
 	requires st'.Load(0x02) == 18 // uint8  public decimals = 18.
 	{
 		var st := st';
