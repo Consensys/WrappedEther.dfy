@@ -4,73 +4,10 @@ include "../evm-dafny/src/dafny/state.dfy"
 module Header {
 	import opened Int
 	import EvmState
+	import opened Memory
 
- 	type u8 = Int.u8
-    type u160 = Int.u160
-    type u256 = Int.u256
-    const MAX_U256 : nat := Int.MAX_U256
-
-    /**
-     * Provides an alternative implementation of Bytecode.And specialised to the
-     * particular case of converting an arbitrary u256 into a u1 (i.e. coercing
-     * into a bool).
-     */
-    function AndU1(st: EvmState.ExecutingState): (st': EvmState.State)
-    requires st.Operands() >= 2 && st.Peek(0) == 1 {
-        var rhs := st.Peek(1);
-        var res := rhs % 2;
-        st.Pop(2).Push(res).Next()
-    }
-
-    /**
-     * Provides an alternative implementation of Bytecode.And specialised to the
-     * particular case of converting an arbitrary u256 into a u5.
-     */
-    function AndU5(st: EvmState.ExecutingState): (st': EvmState.State)
-    requires st.Operands() >= 2 && st.Peek(0) == 0x1f {
-        var rhs := st.Peek(1);
-        var res := rhs % 32;
-        st.Pop(2).Push(res).Next()
-    }
-
-    /**
-     * Provides an alternative implementation of Bytecode.And specialised to the
-     * particular case of converting an arbitrary u256 into a u8 (i.e. coercing
-     * into a byte).
-     */
-    function AndU8(st: EvmState.ExecutingState): (st': EvmState.State)
-    requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U8 as u256) {
-        var rhs := st.Peek(1);
-        var res := rhs % (Int.TWO_8 as u256);
-        st.Pop(2).Push(res).Next()
-    }
-
-    /**
-     * Provides an alternative implementation of Bytecode.And specialised to the
-     * particular case of converting an arbitrary u256 into a u32 (i.e.
-     * stripping out a 4byte function signature for dispatch).
-     */
-    function AndU32(st: EvmState.ExecutingState): (st': EvmState.State)
-    requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U32 as u256) {
-        var rhs := st.Peek(1);
-        var res := rhs % (Int.TWO_32 as u256);
-        st.Pop(2).Push(res).Next()
-    }
-
-    /**
-     * Provides an alternative implementation of Bytecode.And specialised to the
-     * particular case of converting an arbitrary u256 into a u160 (i.e. to
-     * represent a contract address).  This is a common operation, and the
-     * semantics in the DafnyEVM uses bitvectors to implement this operation
-     * (which are quite expensive).
-     */
-    function AndU160(st: EvmState.ExecutingState): (st': EvmState.State)
-    requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U160 as u256) {
-        var rhs := st.Peek(1);
-        var res := rhs % (Int.TWO_160 as u256);
-        st.Pop(2).Push(res).Next()
-    }
-
+	type u256 = Int.u256
+	const MAX_U256 : nat := Int.MAX_U256
 
 	const BYTECODE_0 : seq<u8> := [
 		0x60, 0x60, 0x60, 0x40, 0x52, 0x60, 0x4, 0x36, 
@@ -463,4 +400,111 @@ module Header {
 	ensures r.RETURNS? ==> r.world.Exists(sender) {
 		return EvmState.ERROR(EvmState.INSUFFICIENT_GAS); // dummy
 	}
+/**
+ * Alternative to Bytecode.And for masking u256 into a u1
+ */
+function AndU1(st: EvmState.ExecutingState): (st': EvmState.State)
+requires st.Operands() >= 2 && st.Peek(0) == 1 {
+    var rhs := st.Peek(1);
+    var res := rhs % 2;
+    st.Pop(2).Push(res).Next()
+}
+/**
+ * Alternative to Bytecode.And for masking u256 into a u5
+ */
+function AndU5(st: EvmState.ExecutingState): (st': EvmState.State)
+requires st.Operands() >= 2 && st.Peek(0) == 31 {
+    var rhs := st.Peek(1);
+    var res := rhs % 32;
+    st.Pop(2).Push(res).Next()
+}
+/**
+ * Alternative to Bytecode.And for masking u256 into a u8
+ */
+function AndU8(st: EvmState.ExecutingState): (st': EvmState.State)
+requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U8 as u256) {
+    var rhs := st.Peek(1);
+    var res := rhs % (Int.TWO_8 as u256);
+    st.Pop(2).Push(res).Next()
+}
+/**
+ * Alternative to Bytecode.And for masking u256 into a u32
+ */
+function AndU32(st: EvmState.ExecutingState): (st': EvmState.State)
+requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U32 as u256) {
+    var rhs := st.Peek(1);
+    var res := rhs % (Int.TWO_32 as u256);
+    st.Pop(2).Push(res).Next()
+}
+/**
+ * Alternative to Bytecode.And for masking u256 into a u64
+ */
+function AndU64(st: EvmState.ExecutingState): (st': EvmState.State)
+requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U64 as u256) {
+    var rhs := st.Peek(1);
+    var res := rhs % (Int.TWO_64 as u256);
+    st.Pop(2).Push(res).Next()
+}
+/**
+ * Alternative to Bytecode.And for masking u256 into a u128
+ */
+function AndU128(st: EvmState.ExecutingState): (st': EvmState.State)
+requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U128 as u256) {
+    var rhs := st.Peek(1);
+    var res := rhs % (Int.TWO_128 as u256);
+    st.Pop(2).Push(res).Next()
+}
+/**
+ * Alternative to Bytecode.And for masking u256 into a u160
+ */
+function AndU160(st: EvmState.ExecutingState): (st': EvmState.State)
+requires st.Operands() >= 2 && st.Peek(0) == (Int.MAX_U160 as u256) {
+    var rhs := st.Peek(1);
+    var res := rhs % (Int.TWO_160 as u256);
+    st.Pop(2).Push(res).Next()
+}
+
+/**
+ * Alternative to Bytecode.And for masking upper 4 bytes of u256 
+ * where the lower 28 bytes are zero
+ */
+function AndUpper4Bytes(st: EvmState.ExecutingState): (st': EvmState.State)
+requires st.Operands() >= 2 
+requires st.Peek(0) == 0xffffffff00000000000000000000000000000000000000000000000000000000 
+requires st.Peek(1) % 0x100000000000000000000000000000000000000000000000000000000 == 0{
+    var rhs := st.Peek(1);
+    var res := rhs;
+    st.Pop(2).Push(res).Next()
+}
+
+/**
+ * Alternative to Bytecode.And for masking upper 13 bytes of u256 
+ * where the lower 18 bytes are zero
+ */
+function AndUpper13Bytes(st: EvmState.ExecutingState): (st': EvmState.State)
+requires st.Operands() >= 2 
+requires st.Peek(0) == 0xffffffffffffffffffffffffff00000000000000000000000000000000000000 
+requires st.Peek(1) % 0x100000000000000000000000000000000000000 == 0{
+    var rhs := st.Peek(1);
+    var res := rhs;
+    st.Pop(2).Push(res).Next()
+}
+
+lemma {:axiom} TotalSupplyBoundAxiom(a: u256, b: u256)
+	ensures (a as nat + b as nat) <= Int.MAX_U256 
+
+function Hash(a: u256, b: u256): (h: u256)
+
+lemma {:axiom} HashEquivalenceAxiom(st: EvmState.ExecutingState, h: u256, a: u256, b:u256)
+	requires st.MemSize() >= 0x40 && h == st.evm.precompiled.Sha3(Memory.Slice(st.evm.memory, 0x00, 0x40))
+	requires st.Read(0x00) == a && st.Read(0x20) == b
+	ensures h == Hash(a,b)
+
+lemma {:axiom} MemoryReadAxiom(st: EvmState.ExecutingState, i:nat)
+	requires st.MemSize() >= i + 0x20 
+	ensures Memory.Slice(st.evm.memory, i, 0x20) == Int.ToBytes(st.Read(i) as nat)
+
+lemma {:axiom} NoCollisionsAxiom(h1: u256, h2: u256)
+	ensures h1 != h2
+
 }
