@@ -508,7 +508,7 @@ lemma {:axiom} NoCollisionsAxiom(h1: u256, h2: u256)
 	ensures h1 != h2
 
 lemma stackLemma(st: EvmState.ExecutingState, n: nat)
-	requires 1 <= n <= 15 && st.Operands() == n
+	requires 1 <= n <= 16 && st.Operands() == n
 	ensures n == 1 ==> st.evm.stack.contents == [st.Peek(0)]
 	ensures n == 2 ==> st.evm.stack.contents == [st.Peek(0),st.Peek(1)]
 	ensures n == 3 ==> st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2)]
@@ -524,6 +524,7 @@ lemma stackLemma(st: EvmState.ExecutingState, n: nat)
 	ensures n == 13 ==> st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8),st.Peek(9),st.Peek(10),st.Peek(11),st.Peek(12)]
 	ensures n == 14 ==> st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8),st.Peek(9),st.Peek(10),st.Peek(11),st.Peek(12),st.Peek(13)]
 	ensures n == 15 ==> st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8),st.Peek(9),st.Peek(10),st.Peek(11),st.Peek(12),st.Peek(13),st.Peek(14)]
+	ensures n == 16 ==> st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8),st.Peek(9),st.Peek(10),st.Peek(11),st.Peek(12),st.Peek(13),st.Peek(14),st.Peek(15)]
 
 {}
 
