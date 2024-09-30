@@ -507,4 +507,174 @@ lemma {:axiom} MemoryReadAxiom(st: EvmState.ExecutingState, i:nat)
 lemma {:axiom} NoCollisionsAxiom(h1: u256, h2: u256)
 	ensures h1 != h2
 
+lemma stackLemma(st: EvmState.ExecutingState, n: nat)
+	requires 1 <= n <= 15 && st.Operands() == n
+	ensures n == 1 ==> st.evm.stack.contents == [st.Peek(0)]
+	ensures n == 2 ==> st.evm.stack.contents == [st.Peek(0),st.Peek(1)]
+	ensures n == 3 ==> st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2)]
+	ensures n == 4 ==> st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3)]
+	ensures n == 5 ==> st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4)]
+	ensures n == 6 ==> st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5)]
+	ensures n == 7 ==> st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6)]
+	ensures n == 8 ==> st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7)]
+	ensures n == 9 ==> st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8)]
+	ensures n == 10 ==> st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8),st.Peek(9)]
+	ensures n == 11 ==> st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8),st.Peek(9),st.Peek(10)]
+	ensures n == 12 ==> st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8),st.Peek(9),st.Peek(10),st.Peek(11)]
+	ensures n == 13 ==> st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8),st.Peek(9),st.Peek(10),st.Peek(11),st.Peek(12)]
+	ensures n == 14 ==> st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8),st.Peek(9),st.Peek(10),st.Peek(11),st.Peek(12),st.Peek(13)]
+	ensures n == 15 ==> st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8),st.Peek(9),st.Peek(10),st.Peek(11),st.Peek(12),st.Peek(13),st.Peek(14)]
+
+{}
+
+
+lemma stackLemma1(st: EvmState.ExecutingState)
+	requires st.Operands() == 1
+	ensures st.evm.stack.contents == [st.Peek(0)]
+{}
+
+lemma stackLemma2(st: EvmState.ExecutingState)
+	requires st.Operands() == 2
+	ensures st.evm.stack.contents == [st.Peek(0),st.Peek(1)]
+{}
+
+lemma stackLemma3(st: EvmState.ExecutingState)
+	requires st.Operands() == 3
+	ensures st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2)]
+{}
+
+lemma stackLemma4(st: EvmState.ExecutingState)
+	requires st.Operands() == 4
+	ensures st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3)]
+{}
+lemma stackLemma5(st: EvmState.ExecutingState)
+	requires st.Operands() == 5
+	ensures st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4)]
+{}
+
+lemma stackLemma6(st: EvmState.ExecutingState)
+	requires st.Operands() == 6
+	ensures st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5)]
+{}
+
+lemma stackLemma7(st: EvmState.ExecutingState)
+	requires st.Operands() == 7
+	ensures st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6)]
+{}
+
+lemma stackLemma8(st: EvmState.ExecutingState)
+	requires st.Operands() == 8
+	ensures st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7)]
+{}
+
+lemma stackLemma9(st: EvmState.ExecutingState)
+	requires st.Operands() == 9
+	ensures st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8)]
+{}
+
+lemma stackLemma10(st: EvmState.ExecutingState)
+	requires st.Operands() == 10
+	ensures st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8),st.Peek(9)]
+{}
+
+lemma stackLemma11(st: EvmState.ExecutingState)
+	requires st.Operands() == 11
+	ensures st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8),st.Peek(9),st.Peek(10)]
+{}
+
+lemma stackLemma12(st: EvmState.ExecutingState)
+	requires st.Operands() == 12
+	ensures st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8),st.Peek(9),st.Peek(10),st.Peek(11)]
+{}
+
+lemma stackLemma13(st: EvmState.ExecutingState)
+	requires st.Operands() == 13
+	ensures st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8),st.Peek(9),st.Peek(10),st.Peek(11),st.Peek(12)]
+{}
+
+lemma stackLemma14(st: EvmState.ExecutingState)
+	requires st.Operands() == 14
+	ensures st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8),st.Peek(9),st.Peek(10),st.Peek(11),st.Peek(12),st.Peek(13)]
+{}
+
+lemma stackLemma15(st: EvmState.ExecutingState)
+	requires st.Operands() == 15
+	ensures st.evm.stack.contents == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8),st.Peek(9),st.Peek(10),st.Peek(11),st.Peek(12),st.Peek(13),st.Peek(14)]
+{}
+
+// lemma stackLemma1(st: EvmState.ExecutingState)
+// 	requires st.Operands() >= 1
+// 	ensures st.evm.stack.contents[0..1] == [st.Peek(0)]
+// {}
+
+// lemma stackLemma2(st: EvmState.ExecutingState)
+// 	requires st.Operands() >= 2
+// 	ensures st.evm.stack.contents[0..2] == [st.Peek(0),st.Peek(1)]
+// {}
+
+// lemma stackLemma3(st: EvmState.ExecutingState)
+// 	requires st.Operands() >= 3
+// 	ensures st.evm.stack.contents[0..3] == [st.Peek(0),st.Peek(1),st.Peek(2)]
+// {}
+
+// lemma stackLemma4(st: EvmState.ExecutingState)
+// 	requires st.Operands() >= 4
+// 	ensures st.evm.stack.contents[0..4] == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3)]
+// {}
+// lemma stackLemma5(st: EvmState.ExecutingState)
+// 	requires st.Operands() >= 5
+// 	ensures st.evm.stack.contents[0..5] == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4)]
+// {}
+
+// lemma stackLemma6(st: EvmState.ExecutingState)
+// 	requires st.Operands() >= 6
+// 	ensures st.evm.stack.contents[0..6] == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5)]
+// {}
+
+// lemma stackLemma7(st: EvmState.ExecutingState)
+// 	requires st.Operands() >= 7
+// 	ensures st.evm.stack.contents[0..7] == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6)]
+// {}
+
+// lemma stackLemma8(st: EvmState.ExecutingState)
+// 	requires st.Operands() >= 8
+// 	ensures st.evm.stack.contents[0..8] == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7)]
+// {}
+
+// lemma stackLemma9(st: EvmState.ExecutingState)
+// 	requires st.Operands() >= 9
+// 	ensures st.evm.stack.contents[0..9] == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8)]
+// {}
+
+// lemma stackLemma10(st: EvmState.ExecutingState)
+// 	requires st.Operands() >= 10
+// 	ensures st.evm.stack.contents[0..10] == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8),st.Peek(9)]
+// {}
+
+// lemma stackLemma11(st: EvmState.ExecutingState)
+// 	requires st.Operands() >= 11
+// 	ensures st.evm.stack.contents[0..11] == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8),st.Peek(9),st.Peek(10)]
+// {}
+
+// lemma stackLemma12(st: EvmState.ExecutingState)
+// 	requires st.Operands() >= 12
+// 	ensures st.evm.stack.contents[0..12] == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8),st.Peek(9),st.Peek(10),st.Peek(11)]
+// {}
+
+// lemma stackLemma13(st: EvmState.ExecutingState)
+// 	requires st.Operands() >= 13
+// 	ensures st.evm.stack.contents[0..13] == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8),st.Peek(9),st.Peek(10),st.Peek(11),st.Peek(12)]
+// {}
+
+// lemma stackLemma14(st: EvmState.ExecutingState)
+// 	requires st.Operands() >= 14
+// 	ensures st.evm.stack.contents[0..14] == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8),st.Peek(9),st.Peek(10),st.Peek(11),st.Peek(12),st.Peek(13)]
+// {}
+
+// lemma stackLemma15(st: EvmState.ExecutingState)
+// 	requires st.Operands() >= 15
+// 	ensures st.evm.stack.contents[0..15] == [st.Peek(0),st.Peek(1),st.Peek(2),st.Peek(3),st.Peek(4),st.Peek(5),st.Peek(6),st.Peek(7),st.Peek(8),st.Peek(9),st.Peek(10),st.Peek(11),st.Peek(12),st.Peek(13),st.Peek(14)]
+// {}
+
 }
+

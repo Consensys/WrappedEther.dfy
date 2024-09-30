@@ -66,7 +66,7 @@ module util {
 		//|fp=0x0060|0x60,0x01,0x60,0x60,0x01,transferFrom|
 		st := MStore(st);
 		//|fp=0x0060|0x60,0x60,0x01,transferFrom|
-		stackLemma4(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0235(dBal,bal,src,dst,wad,st);
 		return st;
 	}
@@ -85,7 +85,7 @@ module util {
 	requires st'.Load(Hash(dst as u256,0x03)) as nat == dBal as nat + wad as nat 
 	{
 		var st := st';
-		stackLemma4(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x60,0x60,0x01,transferFrom|
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x60,0x60,0x01,transferFrom|
@@ -98,7 +98,7 @@ module util {
 		st := Pop(st);
 		//|fp=0x0060|0x60,0x80,transferFrom|
 		st := Pop(st);
-		stackLemma2(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x023b(dBal,bal,src,dst,wad,st);
 		return st;
 	}
@@ -117,7 +117,7 @@ module util {
 	requires st'.Load(Hash(dst as u256,0x03)) as nat == dBal as nat + wad as nat 
 	{
 		var st := st';
-		stackLemma2(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x80,transferFrom|
 		st := Push1(st,0x40);
 		//|fp=0x0060|0x40,0x80,transferFrom|
@@ -169,7 +169,7 @@ module util {
 	requires st'.evm.stack.contents == [0xb7]
 	{
 		var st := st';
-		stackLemma1(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0xb7|
 		st := JumpDest(st);
 		//|fp=0x0060|0xb7|
@@ -193,7 +193,7 @@ module util {
 		//|fp=0x0060|caller,0x00,0x03,callVal,0xb7|
 		st := Dup(st,2);
 		//|fp=0x0060|0x00,caller,0x00,0x03,callVal,0xb7|
-		stackLemma6(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0474(st);
 		return st;
 	}
@@ -208,10 +208,10 @@ module util {
 	requires st'.evm.stack.contents == [0x0,st'.evm.context.sender as u256,0x0,0x3,st'.evm.context.callValue,0xb7]
 	{
 		var st := st';
-		stackLemma6(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x00,caller,0x00,0x03,callVal,0xb7|
 		st := MStore(st);
-		stackLemma4(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0475(st);
 		return st;
 	}
@@ -226,7 +226,7 @@ module util {
 	requires st'.evm.stack.contents == [0x0,0x03,st'.evm.context.callValue,0xb7]
 	{
 		var st := st';
-		stackLemma4(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x00,0x03,callVal,0xb7| 
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x00,0x03,callVal,0xb7|
@@ -237,7 +237,7 @@ module util {
 		//|fp=0x0060|0x03,0x20,callVal,0xb7|
 		st := Dup(st,2);
 		//|fp=0x0060|0x20,0x03,0x20,callVal,0xb7|
-		stackLemma5(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x047a(st);
 		return st;
 	}
@@ -252,10 +252,10 @@ module util {
 	requires st'.evm.stack.contents == [0x20,0x03,0x20,st'.evm.context.callValue,0xb7]
 	{
 		var st := st';
-		stackLemma5(st);
+		stackLemma(st,st.Operands());
 		st := MStore(st);
 		//|fp=0x0060|0x20,callVal,0xb7|
-		stackLemma3(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x047b(st);
 		return st;
 	}
@@ -271,7 +271,7 @@ module util {
 	requires st'.evm.stack.contents == [0x20,st'.evm.context.callValue,0xb7]
 	{
 		var st := st';
-		stackLemma3(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x20,callVal,0xb7|
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x20,callVal,0xb7|
@@ -294,7 +294,7 @@ module util {
 		//|fp=0x0060|bal,callVal,0x00,hash,callVal,0xb7|
 		var bal := st.Peek(0);
 		assert bal == st.Load(Hash(st.evm.context.sender as u256,0x03));
-		stackLemma6(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0486(bal,st);
 		return st;
 	}
@@ -312,7 +312,7 @@ module util {
 	requires st'.Load(Hash(st'.evm.context.sender as u256,0x03)) == bal
 	{
 		var st := st';
-		stackLemma6(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|bal,callVal,0x00,hash,callVal,0xb7|
 		TotalSupplyBoundAxiom(st.Peek(0),st.Peek(1));
 		assert (st.Peek(0) as nat + st.Peek(1) as nat) <= Int.MAX_U256 ; 
@@ -335,7 +335,7 @@ module util {
 		assert st.Load(Hash(st.evm.context.sender as u256,0x03)) == bal + st.evm.context.callValue;
 		st := Pop(st);
 		//|fp=0x0060|0xb7|
-		stackLemma1(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x048e(bal,st);
 		return st;
 	}
@@ -353,7 +353,7 @@ module util {
 	requires st'.Load(Hash(st'.evm.context.sender as u256,0x03)) as nat == bal as nat +  st'.evm.context.callValue as nat
 	{
 		var st := st';
-		stackLemma1(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0xb7|
 		st := Caller(st);
 		//|fp=0x0060|caller,0xb7|
@@ -372,7 +372,7 @@ module util {
 		//|fp=0x0060|0x60,callVal,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,caller,0xb7|
 		st := Dup(st,1);
 		//|fp=0x0060|0x60,0x60,callVal,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,caller,0xb7|
-		stackLemma6(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x04cb(bal,st);
 		return st;
 	}
@@ -391,7 +391,7 @@ module util {
 	
 	{
 		var st := st';
-		stackLemma6(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x60,0x60,callVal,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,caller,0xb7|
 		st := Dup(st,3);
 		//|fp=0x0060|callVal,0x60,0x60,callVal,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,caller,0xb7|
@@ -399,7 +399,7 @@ module util {
 		//|fp=0x0060|0x60,callVal,0x60,0x60,callVal,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,caller,0xb7|
 		st := MStore(st);
 		//|fp=0x0060|0x60,0x60,callVal,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,caller,0xb7|
-		stackLemma6(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x04d0(bal,st);
 		return st;
 	}
@@ -417,7 +417,7 @@ module util {
 	requires st'.Load(Hash(st'.evm.context.sender as u256,0x03)) as nat == bal as nat +  st'.evm.context.callValue as nat
 	{
 		var st := st';
-		stackLemma6(st);
+		stackLemma(st,st.Operands());
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x60,0x60,callVal,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,caller,0xb7|
 		assert (st.Peek(0) + st.Peek(1)) <= (Int.MAX_U256 as u256);
@@ -429,7 +429,7 @@ module util {
 		//|fp=0x0060|0x60,0x80,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,caller,0xb7|
 		st := Pop(st);
 		//|fp=0x0060|0x80,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,caller,0xb7|
-		stackLemma4(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x04d4(bal,st);
 		return st;
 	}
@@ -447,7 +447,7 @@ module util {
 	requires st'.Load(Hash(st'.evm.context.sender as u256,0x03)) as nat == bal as nat +  st'.evm.context.callValue as nat
 	{
 		var st := st';
-		stackLemma4(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x80,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,caller,0xb7|
 		st := Push1(st,0x40);
 		//|fp=0x0060|0x40,0x80,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,caller,0xb7|
@@ -483,7 +483,7 @@ module util {
 	requires st'.evm.stack.contents == [0x3d2,st'.Peek(1)] || st'.evm.stack.contents == [0x0b7,st'.Peek(1)] 
 	{
 		var st := st';
-		stackLemma2(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|(0xb7||0x3d2),callSig|
 		st := JumpDest(st);
 		//|fp=0x0060|(0xb7||0x3d2),callSig|
@@ -502,7 +502,7 @@ module util {
 		assert st.Peek(0) == st.evm.context.sender as u256;
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		//|fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,caller,0x00,0x03,callVal,(0xb7||0x3d2),callSig|
-		stackLemma7(st);
+		stackLemma(st,st.Operands());
 		st := block_1_0x0472(st);
 		return st;
 	}
@@ -518,14 +518,14 @@ module util {
 								|| st'.evm.stack.contents == [0xffffffffffffffffffffffffffffffffffffffff,st'.evm.context.sender as u256,0x0,0x03,st'.evm.context.callValue,0x0b7,st'.Peek(6)] 
 	{
 		var st := st';
-		stackLemma7(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,caller,0x00,0x03,callVal,(0xb7||0x3d2),callSig|
 		st := AndU160(st);
 		assert st.Peek(0) == st.evm.context.sender as u256;
 		//|fp=0x0060|caller,0x00,0x03,callVal,(0xb7||0x3d2),callSig|
 		st := Dup(st,2);
 		//|fp=0x0060|0x00,caller,0x00,0x03,callVal,(0xb7||0x3d2),callSig|
-		stackLemma7(st);
+		stackLemma(st,st.Operands());
 		st := block_1_0x0474(st);
 		return st;
 	}
@@ -541,9 +541,9 @@ module util {
 								|| st'.evm.stack.contents == [0x0,st'.evm.context.sender as u256,0x0,0x03,st'.evm.context.callValue,0x0b7,st'.Peek(6)] 
 	{
 		var st := st';
-		stackLemma7(st);
+		stackLemma(st,st.Operands());
 		st := MStore(st);
-		stackLemma5(st);
+		stackLemma(st,st.Operands());
 		st := block_1_0x0475(st);
 		return st;
 	}
@@ -559,7 +559,7 @@ module util {
 								|| st'.evm.stack.contents == [0x0,0x03,st'.evm.context.callValue,0x0b7,st'.Peek(4)] 
 	{
 		var st := st';
-		stackLemma5(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x00,0x03,callVal,(0xb7||0x3d2),callSig| i.e. st.Read(0x00) == caller
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x00,0x03,callVal,(0xb7||0x3d2),callSig|
@@ -570,7 +570,7 @@ module util {
 		//|fp=0x0060|0x03,0x20,callVal,(0xb7||0x3d2),callSig|
 		st := Dup(st,2);
 		//|fp=0x0060|0x20,0x03,0x20,callVal,(0xb7||0x3d2),callSig|
-		stackLemma6(st);
+		stackLemma(st,st.Operands());
 		st := block_1_0x047a(st);
 		return st;
 	}
@@ -586,10 +586,10 @@ module util {
 						|| st'.evm.stack.contents == [0x20,0x03,0x20,st'.evm.context.callValue,0x0b7,st'.Peek(5)] 
 	{
 		var st := st';	
-		stackLemma6(st);
+		stackLemma(st,st.Operands());
 		st := MStore(st);
 		//|fp=0x0060|0x20,callVal,(0xb7||0x3d2),callSig|
-		stackLemma4(st);
+		stackLemma(st,st.Operands());
 		assert st.Read(0x20) == 0x03;
 		st := block_1_0x047b(st);
 		return st;
@@ -607,7 +607,7 @@ module util {
 								|| st'.evm.stack.contents == [0x20,st'.evm.context.callValue,0x0b7,st'.Peek(3)] 
 	{
 		var st := st';
-		stackLemma4(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x20,callVal,(0xb7||0x3d2),callSig|
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x20,callVal,(0xb7||0x3d2),callSig|
@@ -630,7 +630,7 @@ module util {
 		//|fp=0x0060|bal,callVal,0x00,hash,callVal,(0xb7||0x3d2),callSig|
 		var bal := st.Peek(0);
 		assert bal == st.Load(Hash(st.evm.context.sender as u256,0x03));
-		stackLemma7(st);
+		stackLemma(st,st.Operands());
 		st := block_1_0x0486(bal,st);
 		return st;
 	}
@@ -649,7 +649,7 @@ module util {
 	requires st'.Load(Hash(st'.evm.context.sender as u256,0x03)) == bal
 	{
 		var st := st';
-		stackLemma7(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|bal,callVal,0x00,hash,callVal,(0xb7||0x3d2),callSig|
 		TotalSupplyBoundAxiom(st.Peek(0),st.Peek(1));
 		assert (st.Peek(0) as nat + st.Peek(1) as nat) <= Int.MAX_U256 ; 
@@ -672,7 +672,7 @@ module util {
 		assert st.Load(Hash(st.evm.context.sender as u256,0x03)) == bal + st.evm.context.callValue;
 		st := Pop(st);
 		//|fp=0x0060|(0xb7||0x3d2),callSig|
-		stackLemma2(st);
+		stackLemma(st,st.Operands());
 		st := block_1_0x048e(bal,st);
 		return st;
 	}
@@ -690,7 +690,7 @@ module util {
 	requires st'.Load(Hash(st'.evm.context.sender as u256,0x03)) as nat == bal as nat +  st'.evm.context.callValue as nat
 	{
 		var st := st';
-		stackLemma2(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|(0xb7||0x3d2),callSig|
 		st := Caller(st);
 		//|fp=0x0060|caller,(0xb7||0x3d2),callSig|
@@ -709,7 +709,7 @@ module util {
 		//|fp=0x0060|0x60,callVal,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,caller,(0xb7||0x3d2),callSig|
 		st := Dup(st,1);
 		//|fp=0x0060|0x60,0x60,callVal,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,caller,(0xb7||0x3d2),callSig|
-		stackLemma7(st);
+		stackLemma(st,st.Operands());
 		st := block_1_0x04cb(bal,st);
 		return st;
 	}
@@ -728,7 +728,7 @@ module util {
 	requires st'.Load(Hash(st'.evm.context.sender as u256,0x03)) as nat == bal as nat +  st'.evm.context.callValue as nat
 	{
 		var st := st';
-		stackLemma7(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x60,0x60,callVal,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,caller,(0xb7||0x3d2),callSig|
 		st := Dup(st,3);
 		//|fp=0x0060|callVal,,0x60,0x60,callVal,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,caller,(0xb7||0x3d2),callSig|
@@ -736,7 +736,7 @@ module util {
 		//|fp=0x0060|0x60,callVal,,0x60,0x60,callVal,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,caller,(0xb7||0x3d2),callSig|
 		st := MStore(st);
 		//|fp=0x0060|0x60,0x60,callVal,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,caller,(0xb7||0x3d2),callSig|
-		stackLemma7(st);
+		stackLemma(st,st.Operands());
 		st := block_1_0x04cf(bal,st);
 		return st;
 	}
@@ -755,7 +755,7 @@ module util {
 	requires st'.Load(Hash(st'.evm.context.sender as u256,0x03)) as nat == bal as nat +  st'.evm.context.callValue as nat
 	{
 		var st := st';
-		stackLemma7(st);
+		stackLemma(st,st.Operands());
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x60,0x60,callVal,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,caller,(0xb7||0x3d2),callSig|
 		assert (st.Peek(0) + st.Peek(1)) <= (Int.MAX_U256 as u256);
@@ -767,7 +767,7 @@ module util {
 		//|fp=0x0060|0x60,0x80,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,caller,(0xb7||0x3d2),callSig|
 		st := Pop(st);
 		//|fp=0x0060|0x80,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,caller,(0xb7||0x3d2),callSig|
-		stackLemma5(st);
+		stackLemma(st,st.Operands());
 		st := block_1_0x04d4(bal,st);
 		return st;
 	}
@@ -786,7 +786,7 @@ module util {
 	requires st'.Load(Hash(st'.evm.context.sender as u256,0x03)) as nat == bal as nat +  st'.evm.context.callValue as nat
 	{
 		var st := st';
-		stackLemma5(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x80,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,caller,(0xb7||0x3d2),callSig|
 		st := Push1(st,0x40);
 		//|fp=0x0060|0x40,0x80,0xe1fffcc4923d04b559f4d29a8bfc6cda4eb5b0d3c460751c2402c5c5cc9109c,caller,(0xb7||0x3d2),callSig|
@@ -806,7 +806,7 @@ module util {
 		assume {:axiom} st.IsJumpDest(0xb7);
 		assume {:axiom} st.IsJumpDest(0x3d2);
 		st := Jump(st);
-		stackLemma1(st);
+		stackLemma(st,st.Operands());
 		match st.PC() {
 			case 0xb7 => { st := block_0_0x00b7(bal,st); }
 			case 0x3d2 => { st := block_0_0x03d2(bal,st); }
@@ -829,7 +829,7 @@ module util {
 	requires st'.evm.stack.contents == [wad,dst as u256,src as u256,0x229,st'.Peek(4)] 
 	{
 		var st := st';
-		stackLemma5(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|wad,dst*,src*,0x229,transferFrom|
 		st := JumpDest(st);
 		//|fp=0x0060|wad,dst*,src*,0x229,transferFrom|
@@ -848,7 +848,7 @@ module util {
 		st := AndU160(st);
 		//|fp=0x0060|src*,0x0,0x03,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		assert st.Peek(0) == src as u256;
-		stackLemma10(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x06ab(src,dst,wad,st);
 		return st;
 	}
@@ -864,7 +864,7 @@ module util {
 	requires st'.evm.stack.contents == [src as u256,0x0,0x03,wad,0x0,wad,dst as u256,src as u256,0x229,st'.Peek(9)] 
 	{
 		var st := st';
-		stackLemma10(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|src*,0x0,0x03,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		//|fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,src*,0x0,0x03,wad,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -875,7 +875,7 @@ module util {
 		//|fp=0x0060|0x00,src*,0x0,0x03,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := MStore(st);
 		//|fp=0x0060|0x0,0x03,wad,0x0,wad,dst*,src*,0x229,transferFrom|						
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x06c3(src,dst,wad,st);
 		return st;
 	}
@@ -891,7 +891,7 @@ module util {
 	requires st'.evm.stack.contents == [0,0x03,wad,0x0,wad,dst as u256,src as u256,0x229,st'.Peek(8)] 
 	{
 		var st := st';
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x0,0x03,wad,0x0,wad,dst*,src*,0x229,transferFrom|	
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x0,0x03,wad,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -902,7 +902,7 @@ module util {
 		//|fp=0x0060|0x03,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Dup(st,2);
 		//|fp=0x0060|0x20,0x03,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma10(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x06c8(src,dst,wad,st);
 		return st;
 	}
@@ -918,10 +918,10 @@ module util {
 	requires st'.evm.stack.contents == [0x20,0x03,0x20,wad,0x0,wad,dst as u256,src as u256,0x229,st'.Peek(9)] 
 	{
 		var st := st';
-		stackLemma10(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x20,0x03,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := MStore(st);
-		stackLemma8(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x06c9(src,dst,wad,st);
 		return st;
 	}
@@ -937,7 +937,7 @@ module util {
 	requires st'.evm.stack.contents == [0x20,wad,0x0,wad,dst as u256,src as u256,0x229,st'.Peek(7)] 
 	{
 		var st := st';
-		stackLemma8(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -950,6 +950,7 @@ module util {
 		//|fp=0x0060|hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		HashEquivalenceAxiom(st,st.Peek(0),src as u256,0x03);
 		assert st.Peek(0) == Hash(src as u256,0x03);
+		assert st.evm.stack.contents == [Hash(src as u256,0x03),wad,0x0,wad,dst as u256,src as u256,0x229,st.Peek(7)]; 
 		st := SLoad(st);
 		//|fp=0x0060|bal,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		var bal := st.Peek(0);
@@ -960,7 +961,7 @@ module util {
 		st := IsZero(st);
 		//|fp=0x0060|bal < wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		//assert (st.Peek(0) == (if bal < wad then 0 else 1) );
-		stackLemma7(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x06d2(bal,src,dst,wad,st);
 		return st;
 	}
@@ -973,14 +974,14 @@ module util {
 	// Stack height(s)
 	requires st'.Operands() == 7
 	// Stack items
-	requires st'.evm.stack.contents == [if bal < wad then 0 else 1,0x0,wad,dst as u256,src as u256,0x229,st'.Peek(6)] 
-			//|| st'.evm.stack.contents == [1,0x0,wad,dst as u256,src as u256,0x229,st'.Peek(6)] 
-	//requires st'.Peek(0) == if bal < wad then 0 else 1	
+	requires st'.Peek(0) == if bal < wad then 0 else 1	
+	requires st'.evm.stack.contents == [st'.Peek(0),0x0,wad,dst as u256,src as u256,0x229,st'.Peek(6)] 
+
 	// Storage
 	requires bal == st'.Load(Hash(src as u256,0x03))
 	{
 		var st := st';
-		stackLemma7(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|{1,0},0x0,wad,dst*,src*,0x229,transferFrom|
 		st := IsZero(st);
 		//|fp=0x0060|{0,1},0x0,wad,dst*,src*,0x229,transferFrom|
@@ -993,7 +994,7 @@ module util {
 		if st.PC() == 0x6dc { 
 			// i.e. bal >= wad
 			//|fp=0x0060|0x0,wad,dst*,src*,0x229,transferFrom|
-			stackLemma6(st);
+			stackLemma(st,st.Operands());
 			st := block_0_0x06dc(bal,src,dst,wad,st); 
 			return st;
 		} 
@@ -1020,7 +1021,7 @@ module util {
 	requires bal == st'.Load(Hash(src as u256,0x03))
 	{
 		var st := st';
-		stackLemma6(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x0,wad,dst*,src*,0x229,transferFrom|
 		st := JumpDest(st);
 		//|fp=0x0060|0x0,wad,dst*,src*,0x229,transferFrom|
@@ -1040,8 +1041,8 @@ module util {
 		assert st.Peek(0) == src as u256;
 		st := Eq(st);
 		//|fp=0x0060|src* == caller*,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma7(st);
-		assert st.Peek(0) == if src == st.evm.context.sender then 1 else 0;
+		//assert st.Peek(0) == if src == st.evm.context.sender then 1 else 0;
+		stackLemma(st,st.Operands());
 		st := block_0_0x070c(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1054,13 +1055,14 @@ module util {
 	// Stack height(s)
 	requires st'.Operands() == 7
 	// Stack items
-	requires st'.evm.stack.contents == [if src == st'.evm.context.sender then 1 else 0,0x0,wad,dst as u256,src as u256,0x229,st'.Peek(6)] 
+	requires st'.Peek(0) == if src == st'.evm.context.sender then 1 else 0
+	requires st'.evm.stack.contents == [st'.Peek(0),0x0,wad,dst as u256,src as u256,0x229,st'.Peek(6)] 
 				
 	requires bal >= wad
 	requires bal == st'.Load(Hash(src as u256,0x03))
 	{
 		var st := st';
-		stackLemma7(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|src == caller,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := IsZero(st);
 		//|fp=0x0060|src != caller,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -1074,7 +1076,7 @@ module util {
 		st := JumpI(st);
 		if st.PC() == 0x7b4 { 
 			// src == caller
-			stackLemma7(st);
+			stackLemma(st,st.Operands());
 			st := block_0_0x07b4(bal,src,dst,wad,st); 
 			return st;
 		}
@@ -1085,7 +1087,7 @@ module util {
 		//|fp=0x0060|0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Push1(st,0x04);
 		//|fp=0x0060|0x04,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma8(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0737(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1106,7 +1108,7 @@ module util {
 	requires bal == st'.Load(Hash(src as u256,0x03))
 	{
 		var st := st';
-		stackLemma8(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x04,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Push1(st,0x00);
 		//|fp=0x0060|0x0,0x04,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -1126,7 +1128,8 @@ module util {
 		//|fp=0x0060|0x0,src*,0x0,0x04,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := MStore(st); 
 		//|fp=0x0060|0x0,0x04,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom| i.e.st.Read(0x0) == src*
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
+		assert st.Read(0x0) == src as u256;
 		st := block_0_0x0768(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1146,7 +1149,7 @@ module util {
 	requires bal == st'.Load(Hash(src as u256,0x03))
 	{
 		var st := st';
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x0,0x04,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom| 
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x0,0x04,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom| 
@@ -1157,7 +1160,7 @@ module util {
 		//|fp=0x0060|0x04,0x20,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom| 
 		st := Dup(st,2);
 		//|fp=0x0060|0x20,0x04,0x20,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom| 
-		stackLemma10(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x076d(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1177,10 +1180,10 @@ module util {
 	requires bal == st'.Load(Hash(src as u256,0x03))
 	{
 		var st := st';	
-		stackLemma10(st);
+		stackLemma(st,st.Operands());
 		st := MStore(st); // i.e. st.Read(0x20) == 0x04
 		//|fp=0x0060|0x20,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom| 
-		stackLemma8(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x076e(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1200,7 +1203,7 @@ module util {
 	requires bal == st'.Load(Hash(src as u256,0x03))
 	{
 		var st := st';	
-		stackLemma8(st);
+		stackLemma(st,st.Operands());
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x20,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom| 
 		assert (st.Peek(0) + st.Peek(1)) <= (Int.MAX_U256 as u256);
@@ -1208,7 +1211,7 @@ module util {
 		//|fp=0x0060|0x40,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom| 
 		st := Push1(st,0x00);
 		//|fp=0x0060|0x0,0x40,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom| 
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0773(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1228,7 +1231,7 @@ module util {
 	requires bal == st'.Load(Hash(src as u256,0x03))
 	{
 		var st := st';
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x0,0x40,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom| 
 		st := Keccak256(st);
 		//|fp=0x0060|hash,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -1250,7 +1253,7 @@ module util {
 		//|fp=0x0060|caller*,0x0,hash,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Dup(st,2);
 		//|fp=0x0060|0x0,caller*,0x0,hash,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma11(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x07a4(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1270,11 +1273,11 @@ module util {
 	requires bal == st'.Load(Hash(src as u256,0x03))
 	{
 		var st := st';
-		stackLemma11(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x0,caller*,0x0,hash,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := MStore(st);
 		//|fp=0x0060|0x0,hash,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x07a5(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1294,7 +1297,7 @@ module util {
 	requires bal == st'.Load(Hash(src as u256,0x03))
 	{
 		var st := st';
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x0,hash,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom|
 		assert (st.Peek(0) + st.Peek(1)) <= (Int.MAX_U256 as u256);
@@ -1323,11 +1326,11 @@ module util {
 	requires bal == st'.Load(Hash(src as u256,0x03))
 	{
 		var st := st';
-		stackLemma10(st);	
+		stackLemma(st,st.Operands());	
 		//|fp=0x0060|0x20,hash,0x20,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := MStore(st); // st.Read(0x20) == hash(0x00,0x40)
 		//|fp=0x0060|0x20,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma8(st);
+		stackLemma(st,st.Operands());
 		//assert st.Read(0x20) == Hash(src as u256,0x04);
 		st := block_0_0x07ab(bal,src,dst,wad,st);
 		return st;
@@ -1348,7 +1351,7 @@ module util {
 	requires bal == st'.Load(Hash(src as u256,0x03))
 	{
 		var st := st';
-		stackLemma8(st);
+		stackLemma(st,st.Operands());
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x20,0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom|
 		assert (st.Peek(0) + st.Peek(1)) <= (Int.MAX_U256 as u256);
@@ -1366,12 +1369,12 @@ module util {
 		assert allowance == st.Load(Hash(st.evm.context.sender as u256,Hash(src as u256,0x04)));
 		st := Eq(st); // i.e. solidity .... allowance[src][msg.sender] != uint(-1)
 		//|fp=0x0060|allowance == 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom|
-		assert st.Peek(0) == if allowance == 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff then 1 else 0;
+		//assert st.Peek(0) == if allowance == 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff then 1 else 0;
 		st := IsZero(st);
 		//|fp=0x0060|allowance != 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff,0x0,wad,dst*,src*,0x229,transferFrom|
 		//assert st.Peek(0) == if allowance == 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff then 0 else 1;
-		stackLemma7(st);
 		assert st.evm.stack.contents == [st.Peek(0),0x0,wad,dst as u256,src as u256,0x229,st.Peek(6)] ;
+		stackLemma(st,st.Operands());
 		st := block_0_0x07b4(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1403,7 +1406,7 @@ module util {
 		var flag := if allowance == 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff then 0 else 1;
 		var flag' := if flag == 0 then 1 else 0;
 		var st := st';
-		stackLemma7(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|{0,1},0x0,wad,dst*,src*,0x229,transferFrom|
 		st := JumpDest(st);
 		//|fp=0x0060|{0,1},0x0,wad,dst*,src*,0x229,transferFrom|
@@ -1418,7 +1421,7 @@ module util {
 		if st.PC() == 0x8cf { 
 			// allowance[src][msg.sender] == uint(-1)
 			//assert src == st.evm.context.sender || (src != st.evm.context.sender && allowance == 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
-			stackLemma6(st);
+			stackLemma(st,st.Operands());
 			st := block_0_0x08cf(bal,src,dst,wad,st); 
 			return st;
 		} 
@@ -1432,7 +1435,7 @@ module util {
 		//|fp=0x0060|0x0,0x04,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Dup(st,7);
 		//|fp=0x0060|src*,0x0,0x04,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma10(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x07c0(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1454,7 +1457,7 @@ module util {
 			allowance != 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 	{
 		var st := st';
-		stackLemma10(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|src*,0x0,0x04,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		//|fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,src*,0x0,0x04,wad,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -1470,7 +1473,7 @@ module util {
 		//|fp=0x0060|0x0,src*,0x0,0x04,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := MStore(st);
 		//|fp=0x0060|0x0,0x04,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x07ee(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1492,14 +1495,14 @@ module util {
 			allowance != 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 	{
 		var st := st';
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x0,0x04,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x0,0x04,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		assert (st.Peek(0) + st.Peek(1)) <= (Int.MAX_U256 as u256);
 		st := Add(st);
 		//|fp=0x0060|0x20,0x04,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x07f1(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1521,7 +1524,7 @@ module util {
 			allowance != 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 	{
 		var st := st';
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x20,0x04,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Swap(st,1);
 		//|fp=0x0060|0x04,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -1529,7 +1532,7 @@ module util {
 		//|fp=0x0060|0x20,0x04,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := MStore(st);
 		//|fp=0x0060|0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma8(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x07f4(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1551,7 +1554,7 @@ module util {
 			allowance != 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 	{
 		var st := st';
-		stackLemma8(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -1567,7 +1570,7 @@ module util {
 		assert st.Peek(0) == Hash(src as u256,0x04);
 		st := Push1(st,0x00);
 		//|fp=0x0060|0x0,hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x07fc(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1589,7 +1592,7 @@ module util {
 			allowance != 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 	{
 		var st := st';
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x0,hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Caller(st);
 		//|fp=0x0060|caller,0x0,hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -1605,7 +1608,7 @@ module util {
 		assert st.Peek(0) == st.evm.context.sender as u256;
 		st := Dup(st,2);
 		//|fp=0x0060|0x00,caller*,0x0,hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma11(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x082a(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1627,10 +1630,10 @@ module util {
 			allowance != 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 	{
 		var st := st';
-		stackLemma11(st);
+		stackLemma(st,st.Operands());
 		st := MStore(st);
 		//|fp=0x0060|0x0,hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x082b(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1652,7 +1655,7 @@ module util {
 			allowance != 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 	{
 		var st := st';
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x0,hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x0,hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -1663,7 +1666,7 @@ module util {
 		//|fp=0x0060|hash,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Dup(st,2);
 		//|fp=0x0060|0x20,hash,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma10(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0830(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1684,10 +1687,10 @@ module util {
 			allowance != 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 	{
 		var st := st';
-		stackLemma10(st);
+		stackLemma(st,st.Operands());
 		st := MStore(st);
 		//|fp=0x0060|0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma8(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0831(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1708,7 +1711,7 @@ module util {
 			allowance != 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 	{
 		var st := st';
-		stackLemma8(st);
+		stackLemma(st,st.Operands());
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		assert (st.Peek(0) + st.Peek(1)) <= (Int.MAX_U256 as u256);
@@ -1720,7 +1723,7 @@ module util {
 		//|fp=0x0060|hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		HashEquivalenceAxiom(st,st.Peek(0),st.evm.context.sender as u256,Hash(src as u256,0x04));
 		assert st.Peek(0) == Hash(st.evm.context.sender as u256,Hash(src as u256,0x04));
-		stackLemma8(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0837(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1741,7 +1744,7 @@ module util {
 			allowance != 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
 	{
 		var st := st';
-		stackLemma8(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := SLoad(st);
 		//|fp=0x0060|Load(hash),wad,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -1760,14 +1763,14 @@ module util {
 		if st.PC() == 0x844 { 
 			// i.e. Load(hash) >=  wad
 			//assert (st.Peek(0) == 0x0 && st.Peek(1) == wad && st.Peek(2) == dst as u256 && st.Peek(3) == src as u256);
-			stackLemma6(st);
+			stackLemma(st,st.Operands());
 			st := block_0_0x0844(bal,src,dst,wad,st); 
 			return st;
 		} 
 		//|fp=0x0060|0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Push1(st,0x00);
 		//|fp=0x0060|0x0,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma7(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0842(src,dst,wad,st);
 		return st;
 	}
@@ -1784,7 +1787,7 @@ module util {
 			&& allowance < wad
 	{
 		var st := st';
-		stackLemma7(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x0,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Dup(st,1);
 		//|fp=0x0060|0x0,0x0,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -1810,7 +1813,7 @@ module util {
 			&& allowance >= wad
 	{
 		var st := st';
-		stackLemma6(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x0,wad,dst*,src*,0x229,transferFrom|
 		st := JumpDest(st);
 		//|fp=0x0060|0x0,wad,dst*,src*,0x229,transferFrom|
@@ -1829,7 +1832,7 @@ module util {
 		assert st.Peek(0) == src as u256;
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		//|fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,src*,0x0,0x04,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma11(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0876(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1853,7 +1856,7 @@ module util {
 			&& allowance >= wad
 	{
 		var st := st';
-		stackLemma11(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,src*,0x0,0x04,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := AndU160(st);
 		//|fp=0x0060|src*,0x0,0x04,wad,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -1862,7 +1865,7 @@ module util {
 		//|fp=0x0060|0x00,src*,0x0,0x04,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := MStore(st);
 		//|fp=0x0060|0x0,0x04,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0879(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1886,7 +1889,7 @@ module util {
 			&& allowance >= wad
 	{
 		var st := st';
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x0,0x04,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		assert (st.Peek(0) + st.Peek(1)) <= (Int.MAX_U256 as u256);
@@ -1896,7 +1899,7 @@ module util {
 		//|fp=0x0060|0x04,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Dup(st,2);
 		//|fp=0x0060|0x20,0x04,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma10(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x087e(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1920,10 +1923,10 @@ module util {
 			&& allowance >= wad
 	{
 		var st := st';
-		stackLemma10(st);	
+		stackLemma(st,st.Operands());	
 		st := MStore(st);
 		//|fp=0x0060|0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma8(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x087f(bal,src,dst,wad,st);
 		return st;
 	}
@@ -1947,7 +1950,7 @@ module util {
 			&& allowance >= wad
 	{
 		var st := st';
-		stackLemma8(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -1978,7 +1981,7 @@ module util {
 		assert st.Peek(0) == st.evm.context.sender as u256 ;
 		st := Dup(st,2);
 		//|fp=0x0060|0x00,caller*,0x00,hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma11(st);
+		stackLemma(st,st.Operands());
 		//assert st.evm.stack.contents == [0x0,st.evm.context.sender as u256,0x0,Hash(src as u256,0x04),wad,0x0,wad,dst as u256,src as u256,0x229,st.Peek(10)]; 
 		st := block_0_0x08b5(bal,src,dst,wad,st);
 		return st;
@@ -2003,11 +2006,11 @@ module util {
 			&& allowance >= wad
 	{
 		var st := st';
-		stackLemma11(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x0,caller*,0x00,hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := MStore(st);
 		//|fp=0x0060|0x00,hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x08b6(bal,src,dst,wad,st);
 		return st;
 	}
@@ -2031,7 +2034,7 @@ module util {
 			&& allowance >= wad
 	{
 		var st := st';
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x00,hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x00,hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -2042,7 +2045,7 @@ module util {
 		//|fp=0x0060|hash,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Dup(st,2);
 		//|fp=0x0060|0x20,hash,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma10(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x08bb(bal,src,dst,wad,st);
 		return st;
 	}
@@ -2066,11 +2069,11 @@ module util {
 			&& allowance >= wad
 	{
 		var st := st';
-		stackLemma10(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x20,hash,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := MStore(st);
 		//|fp=0x0060|0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma8(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x08bc(bal,src,dst,wad,st);
 		return st;
 	}
@@ -2094,7 +2097,7 @@ module util {
 			&& allowance >= wad
 	{
 		var st := st';
-		stackLemma8(st);
+		stackLemma(st,st.Operands());
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		assert (st.Peek(0) + st.Peek(1)) <= (Int.MAX_U256 as u256);
@@ -2112,7 +2115,7 @@ module util {
 		//|fp=0x0060|wad,0x0,hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Dup(st,3);
 		//|fp=0x0060|hash,wad,0x0,hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma11(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x08c6(bal,src,dst,wad,st);
 		return st;
 	}
@@ -2136,7 +2139,7 @@ module util {
 			&& allowance >= wad
 	{
 		var st := st';
-		stackLemma11(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|hash,wad,0x0,hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := SLoad(st);
 		//|fp=0x0060|Load(hash),wad,0x0,hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -2160,7 +2163,7 @@ module util {
 		st := SStore(st); // i.e. update balance (or allowance??)
 		//|fp=0x0060|Load(hash)-wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		NoCollisionsAxiom(Hash(st.evm.context.sender as u256,Hash(src as u256,0x04)),Hash(src as u256,0x03));
-		stackLemma7(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x08ce(allowance,bal,src,dst,wad,st);
 		return st;
 	}
@@ -2182,11 +2185,11 @@ module util {
 	//  i.e this won't be tracked going forward, mostly due to block 8cf also being for when src == caller
 	{
 		var st := st';
-		stackLemma7(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|Load(hash)-wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Pop(st);
 		//|fp=0x0060|0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma6(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x08cf(bal,src,dst,wad,st);
 		return st;
 	}
@@ -2204,7 +2207,7 @@ module util {
 	requires bal == st'.Load(Hash(src as u256,0x03))
 	{
 		var st := st';
-		stackLemma6(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x0,wad,dst*,src*,0x229,transferFrom|
 		st := JumpDest(st);
 		//|fp=0x0060|0x0,wad,dst*,src*,0x229,transferFrom|
@@ -2223,7 +2226,7 @@ module util {
 		assert st.Peek(0) == src as u256;
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		//|fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,src*,0x0,0x03,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma11(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0901(bal,src,dst,wad,st);
 		return st;
 	}
@@ -2242,7 +2245,7 @@ module util {
 	requires bal == st'.Load(Hash(src as u256,0x03))
 	{
 		var st := st';
-		stackLemma11(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,src*,0x0,0x03,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := AndU160(st);
 		assert st.Peek(0) == src as u256;
@@ -2251,7 +2254,7 @@ module util {
 		//|fp=0x0060|0x00,src*,0x0,0x03,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := MStore(st);
 		//|fp=0x0060|0x0,0x03,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0904(bal,src,dst,wad,st);
 		return st;
 	}
@@ -2270,7 +2273,7 @@ module util {
 	requires bal == st'.Load(Hash(src as u256,0x03))
 	{
 		var st := st';
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x0,0x03,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		assert (st.Peek(0) + st.Peek(1)) <= (Int.MAX_U256 as u256);
@@ -2280,7 +2283,7 @@ module util {
 		//|fp=0x0060|0x03,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Dup(st,2);
 		//|fp=0x0060|0x20,0x03,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma10(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0909(bal,src,dst,wad,st);
 		return st;
 	}
@@ -2299,10 +2302,10 @@ module util {
 	requires bal == st'.Load(Hash(src as u256,0x03))
 	{
 		var st := st';
-		stackLemma10(st);
+		stackLemma(st,st.Operands());
 		st := MStore(st);
 		//|fp=0x0060|0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma8(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x090a(bal,src,dst,wad,st);
 		return st;
 	}
@@ -2321,7 +2324,7 @@ module util {
 	requires bal == st'.Load(Hash(src as u256,0x03))
 	{
 		var st := st';
-		stackLemma8(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -2342,7 +2345,7 @@ module util {
 		//|fp=0x0060|hash,wad,0x00,hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := SLoad(st);
 		//|fp=0x0060|Load(hash),wad,0x00,hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma11(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0915(bal,src,dst,wad,st);
 		return st;
 	}
@@ -2360,7 +2363,7 @@ module util {
 	requires bal == st'.Load(Hash(src as u256,0x03))
 	{
 		var st := st';
-		stackLemma11(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|Load(hash),wad,0x00,hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		assert st.Peek(1) <= st.Peek(0);
 		st := Sub(st);
@@ -2380,7 +2383,7 @@ module util {
 		assert st.Load(Hash(src as u256,0x03)) == bal - wad;
 		st := Pop(st);
 		//|fp=0x0060|0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma6(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x091d(bal,src,dst,wad,st);
 		return st;
 	}
@@ -2398,7 +2401,7 @@ module util {
 	requires st'.Load(Hash(src as u256,0x03)) == bal-wad
 	{
 		var st := st';
-		stackLemma6(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Dup(st,2);
 		//|fp=0x0060|wad,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -2420,7 +2423,7 @@ module util {
 		assert st.Peek(0) == dst as u256;
 		st := Dup(st,2);
 		//|fp=0x0060|0x0,dst*,0x00,0x03,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma11(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0950(bal,src,dst,wad,st);
 		return st;
 	}
@@ -2439,11 +2442,11 @@ module util {
 	requires st'.Load(Hash(src as u256,0x03)) == bal-wad
 	{
 		var st := st';
-		stackLemma11(st);
+		stackLemma(st,st.Operands());
 		
 		st := MStore(st);
 		//|fp=0x0060|0x00,0x03,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0951(bal,src,dst,wad,st);
 		return st;
 	}
@@ -2462,7 +2465,7 @@ module util {
 	requires st'.Load(Hash(src as u256,0x03)) == bal-wad
 	{
 		var st := st';
-		stackLemma9(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x00,0x03,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x00,0x03,wad,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -2473,7 +2476,7 @@ module util {
 		//|fp=0x0060|0x03,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Dup(st,2);
 		//|fp=0x0060|0x20,0x03,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma10(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0956(bal,src,dst,wad,st);
 		return st;
 	}
@@ -2492,10 +2495,10 @@ module util {
 	requires st'.Load(Hash(src as u256,0x03)) == bal-wad
 	{
 		var st := st';
-		stackLemma10(st);
+		stackLemma(st,st.Operands());
 		st := MStore(st);
 		//|fp=0x0060|0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma8(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0957(bal,src,dst,wad,st);
 		return st;
 	}
@@ -2514,7 +2517,7 @@ module util {
 	requires st'.Load(Hash(src as u256,0x03)) == bal-wad
 	{
 		var st := st';
-		stackLemma8(st);
+		stackLemma(st,st.Operands());
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x20,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		assert (st.Peek(0) + st.Peek(1)) <= (Int.MAX_U256 as u256);
@@ -2543,7 +2546,7 @@ module util {
 		assert (st.Peek(0) as nat + st.Peek(1) as nat) <= (Int.MAX_U256 ); 
 		st := Add(st);
 		//|fp=0x0060|Load(hash)+wad,0x0,hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma10(st);
+		stackLemma(st,st.Operands());
 		//assert st.evm.stack.contents == [st.Peek(0),0x0,Hash(dst as u256,0x03),wad,0x0,wad,dst as u256,src as u256,0x229,st.Peek(9)] ;
 		st := block_0_0x0963(dBal,bal,src,dst,wad,st);
 		return st;
@@ -2565,7 +2568,7 @@ module util {
 	requires st'.evm.stack.contents == [st'.Peek(0),0x0,Hash(dst as u256,0x03),wad,0x0,wad,dst as u256,src as u256,0x229,st'.Peek(9)] 
 	{
 		var st := st';
-		stackLemma10(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|Load(hash)+wad,0x0,hash,wad,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Swap(st,3);
 		//|fp=0x0060|wad,0x0,hash,Load(hash)+wad,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -2584,7 +2587,7 @@ module util {
 		st := Dup(st,3);
 		//|fp=0x0060|dst*,0x0,wad,dst*,src*,0x229,transferFrom|
 		NoCollisionsAxiom(Hash(dst as u256,0x03),Hash(src as u256,0x03));
-		stackLemma7(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x096b(dBal,bal,src,dst,wad,st);
 		return st;
 	}
@@ -2603,7 +2606,7 @@ module util {
 	requires st'.Load(Hash(dst as u256,0x03)) as nat == dBal as nat + wad as nat
 	{
 		var st := st';
-		stackLemma7(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|dst*,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		//|fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,dst*,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -2623,7 +2626,7 @@ module util {
 		//|fp=0x0060|wad,0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef,src*,dst*,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Push1(st,0x40);
 		//|fp=0x0060|0x40,wad,0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef,src*,dst*,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma11(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x09bc(dBal,bal,src,dst,wad,st);
 		return st;
 	}
@@ -2642,7 +2645,7 @@ module util {
 	requires st'.Load(Hash(dst as u256,0x03)) as nat == dBal as nat + wad as nat
 	{
 		var st := st';
-		stackLemma11(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x40,wad,0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef,src*,dst*,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := MLoad(st);
 		//|fp=0x0060|0x60,wad,0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef,src*,dst*,0x0,wad,dst*,src*,0x229,transferFrom|
@@ -2654,7 +2657,7 @@ module util {
 		//|fp=0x0060|0x60,wad,0x60,0x60,wad,0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef,src*,dst*,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := MStore(st);
 		//|fp=0x0060|0x60,0x60,wad,0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef,src*,dst*,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma12(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x09c1(dBal,bal,src,dst,wad,st);
 		return st;
 	}
@@ -2674,7 +2677,7 @@ module util {
 	requires st'.Load(Hash(dst as u256,0x03)) as nat == dBal as nat + wad as nat 
 	{
 		var st := st';
-		stackLemma12(st);
+		stackLemma(st,st.Operands());
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x60,0x60,wad,0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef,src*,dst*,0x0,wad,dst*,src*,0x229,transferFrom|
 		assert (st.Peek(0) + st.Peek(1)) <= (Int.MAX_U256 as u256);
@@ -2699,7 +2702,7 @@ module util {
 		//|fp=0x0060|0x20,0x60,0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef,src*,dst*,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := Swap(st,1);
 		//|fp=0x0060|0x60,0x20,0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef,src*,dst*,0x0,wad,dst*,src*,0x229,transferFrom|
-		stackLemma11(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x09ce(dBal,bal,src,dst,wad,st);
 		return st;
 	}
@@ -2718,7 +2721,7 @@ module util {
 	requires st'.Load(Hash(dst as u256,0x03)) as nat == dBal as nat + wad as nat 
 	{
 		var st := st';
-		stackLemma11(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x60,0x20,0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef,src*,dst*,0x0,wad,dst*,src*,0x229,transferFrom|
 		st := LogN(st,3);
 		//|fp=0x0060|0x00,wad,dst*,src*,0x229,transferFrom|
@@ -2736,7 +2739,7 @@ module util {
 		//|fp=0x0060|wad,dst*,0x229,0x01,transferFrom|
 		st := Pop(st);
 		//|fp=0x0060|dst*,0x229,0x01,transferFrom|
-		stackLemma4(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x09d7(dBal,bal,src,dst,wad,st);
 		return st;
 	}
@@ -2755,7 +2758,7 @@ module util {
 	requires st'.Load(Hash(dst as u256,0x03)) as nat == dBal as nat + wad as nat 
 	{
 		var st := st';
-		stackLemma4(st);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|dst*,0x229,0x01,transferFrom|
 		st := Pop(st);
 		//|fp=0x0060|0x229,0x01,transferFrom|
