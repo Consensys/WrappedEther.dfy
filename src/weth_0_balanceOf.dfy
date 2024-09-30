@@ -17,8 +17,10 @@ module balanceOf {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 1
+	requires st'.evm.stack.contents == [st'.Peek(0)]
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|_|
 		st := JumpDest(st);
 		//|fp=0x0060|_|
@@ -30,7 +32,11 @@ module balanceOf {
 		//|fp=0x0060|0x2a0,_,_|
 		assume {:axiom} st.IsJumpDest(0x2a0);
 		st := JumpI(st);
-		if st.PC() == 0x2a0 { st := block_0_0x02a0(st); return st;}
+		if st.PC() == 0x2a0 { 
+			stackLemma(st,st.Operands());
+			st := block_0_0x02a0(st); 
+			return st;
+		}
 		//|fp=0x0060|_|
 		st := Push1(st,0x00);
 		//|fp=0x0060|0x00,_|
@@ -47,8 +53,10 @@ module balanceOf {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 1
+	requires st'.evm.stack.contents == [st'.Peek(0)]
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|_|
 		st := JumpDest(st);
 		//|fp=0x0060|_|
@@ -65,9 +73,9 @@ module balanceOf {
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		//|fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,_,0x04,0x04,0x2cc,_|
 		st := AndU160(st);
-
 		var addr := st.Peek(0) as u160;
 		assert addr as u256 == st.evm.context.CallDataRead(0x04) % (Int.TWO_160 as u256) ;
+		stackLemma(st,st.Operands());
 		st := block_0_0x02bf(addr,st);
 		return st;
 	}
@@ -80,9 +88,10 @@ module balanceOf {
 	// Stack height(s)
 	requires st'.Operands() == 5
 	// Static stack items
-	requires (st'.Peek(0) == addr as u256 && st'.Peek(1) == 0x4 && st'.Peek(3) == 0x2cc)
+	requires st'.evm.stack.contents == [addr as u256,0x4,st'.Peek(2),0x2cc,st'.Peek(4)]
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|addr,0x04,0x04,0x2cc,_|
 		st := Swap(st,1);
 		//|fp=0x0060|0x04,addr,0x04,0x2cc,_|
@@ -101,6 +110,7 @@ module balanceOf {
 		st := Pop(st);
 		//|fp=0x0060|0x04,addr,0x2cc,_|
 		st := Pop(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x02c8(addr, st);
 		return st;
 	}
@@ -113,14 +123,16 @@ module balanceOf {
 	// Stack height(s)
 	requires st'.Operands() == 3
 	// Static stack items
-	requires (st'.Peek(0) == addr as u256 && st'.Peek(1) == 0x2cc)
+	requires st'.evm.stack.contents == [addr as u256,0x2cc,st'.Peek(2)]
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|addr,0x2cc,_|
 		st := Push2(st,0x0b18);
 		//|fp=0x0060|0xb18,addr,0x2cc,_|
 		assume {:axiom} st.IsJumpDest(0xb18);
 		st := Jump(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0b18(addr, st);
 		return st;
 	}
@@ -133,9 +145,10 @@ module balanceOf {
 	// Stack height(s)
 	requires st'.Operands() == 3
 	// Static stack items
-	requires (st'.Peek(0) == st'.Load(Hash(addr as u256,0x03)) && st'.Peek(1) == 0x2cc)
+	requires st'.evm.stack.contents == [st'.Load(Hash(addr as u256,0x03)),0x2cc,st'.Peek(2)]
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|balanceOf[addr],0x2cc,_|
 		st := JumpDest(st);
 		//|fp=0x0060|balanceOf[addr],0x2cc,_|
@@ -153,6 +166,7 @@ module balanceOf {
 		//|fp=0x0060|0x60,0x60,balanceOf[addr],0x2cc,_| i.e. st.Read(0x60) == balanceOf[addr]
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x60,0x60,balanceOf[addr],0x2cc,_|
+		stackLemma(st,st.Operands());
 		st := block_0_0x02d6(addr, st);
 		return st;
 	}
@@ -165,9 +179,10 @@ module balanceOf {
 	// Stack height(s)
 	requires st'.Operands() == 6
 	// Static stack items
-	requires (st'.Peek(0) == 0x20 && st'.Peek(1) == 0x60)
+	requires st'.evm.stack.contents == [0x20,0x60,st'.Peek(2),st'.Peek(3),st'.Peek(4),st'.Peek(5)]
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x20,0x60,0x60,balanceOf[addr],0x2cc,_|
 		assert (st.Peek(0) + st.Peek(1)) <= (Int.MAX_U256 as u256);
 		st := Add(st);
@@ -185,6 +200,7 @@ module balanceOf {
 		st := Dup(st,1);
 		//|fp=0x0060|fmp==0x60,fmp==0x60,0x80,0x2cc,_|
 		st := Swap(st,2);
+		stackLemma(st,st.Operands());
 		st := block_0_0x02df(addr, st);
 		return st;
 	}
@@ -197,11 +213,12 @@ module balanceOf {
 	// Stack height(s)
 	requires st'.Operands() == 5
 	// Static stack items
-	requires (st'.Peek(0) == 0x80 && st'.Peek(1) == 0x60 && st'.Peek(2) == 0x60) // == balanceOf[addr]
+	requires st'.evm.stack.contents == [0x80,0x60,0x60,st'.Peek(3),st'.Peek(4)]
 	
 	ensures st''.RETURNS? && st''.data == Int.ToBytes(st'.Load(Hash(addr as u256,0x03)) as nat) 
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x80,fmp==0x60,fmp==0x60,0x2cc,_|
 		assert st.Peek(1) <= st.Peek(0);
 		//|fp=0x0060|0x80,fmp==0x60,fmp==0x60,0x2cc,_|
@@ -223,9 +240,10 @@ module balanceOf {
 	// Stack height(s)
 	requires st'.Operands() == 3
 	// Static stack items
-	requires (st'.Peek(0) == addr as u256 && st'.Peek(1) == 0x2cc)
+	requires st'.evm.stack.contents == [addr as u256,0x2cc,st'.Peek(2)]
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|addr,0x2cc,_|
 		st := JumpDest(st);
 		//|fp=0x0060|addr,0x2cc,_|
@@ -233,20 +251,18 @@ module balanceOf {
 		//|fp=0x0060|0x03,addr,0x2cc,_|
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x03,addr,0x2cc,_|
-		assert st.Peek(1) == 0x03;
 		st := MStore(st);
-		assert {:split_here} true;
-		assert st.Peek(0) == addr as u256 && st.Peek(1) == 0x2cc;
 		//|fp=0x0060|addr,0x2cc,_| i.e. st.Read(0x20) == 0x03
+		assert st.Read(0x20) == 0x03;
 		st := Dup(st,1);
 		//|fp=0x0060|addr,addr,0x2cc,_|
 		st := Push1(st,0x00);
 		//|fp=0x0060|0x00,addr,addr,0x2cc,_| 
 		st := MStore(st);
-		assert {:split_here} true;
-		assert st.Peek(0) == addr as u256 && st.Peek(1) == 0x2cc;
 		//|fp=0x0060|addr,0x2cc,_| i.e. st.Read(0x00) == addr
+		assert st.Read(0x00) == addr as u256;
 		st := Push1(st,0x40);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0b24(addr,st);
 		return st;
 	}
@@ -259,9 +275,10 @@ module balanceOf {
 	// Stack height(s)
 	requires st'.Operands() == 4
 	// Static stack items
-	requires (st'.Peek(0) == 0x40 && st'.Peek(1) == addr as u256 && st'.Peek(2) == 0x2cc)
+	requires st'.evm.stack.contents == [0x40,addr as u256,0x2cc,st'.Peek(3)]
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x40,addr,0x2cc,_|
 		st := Push1(st,0x00);
 		//|fp=0x0060|0x00,0x40,addr,0x2cc,_|
@@ -269,7 +286,6 @@ module balanceOf {
 		//|fp=0x0060|hash,addr,0x2cc,_|
 		HashEquivalenceAxiom(st,st.Peek(0),addr as u256,0x03);
 		assert st.Peek(0) == Hash(addr as u256,0x03);
-
 		st := Push1(st,0x00);
 		//|fp=0x0060|0x00,hash,addr,0x2cc,_|
 		st := Swap(st,2);
@@ -282,9 +298,8 @@ module balanceOf {
 		//|fp=0x0060|hash,0x2cc,_|
 		st := SLoad(st);
 		//|fp=0x0060|balanceOf[addr],0x2cc,_|
-		
-		assert st.Peek(0) == st.Load(Hash(addr as u256,0x03));
-		
+		//assert st.Peek(0) == st.Load(Hash(addr as u256,0x03));
+		stackLemma(st,st.Operands());
 		st := block_0_0x0b2e(addr,st);
 		return st;
 	}
@@ -297,14 +312,16 @@ module balanceOf {
 	// Stack height(s)
 	requires st'.Operands() == 3
 	// Static stack items
-	requires (st'.Peek(0) == st'.Load(Hash(addr as u256,0x03)) && st'.Peek(1) == 0x2cc)
+	requires st'.evm.stack.contents == [st'.Load(Hash(addr as u256,0x03)),0x2cc,st'.Peek(2)]
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|balanceOf[addr],0x2cc,_|
 		st := Dup(st,2);
 		//|fp=0x0060|0x2cc,balanceOf[addr],0x2cc,_|
 		assume {:axiom} st.IsJumpDest(0x2cc);
 		st := Jump(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x02cc(addr,st);
 		return st;
 	}
