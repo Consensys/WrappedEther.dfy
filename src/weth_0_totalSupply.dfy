@@ -98,9 +98,10 @@ module totalSupply {
 	// Stack height(s)
 	requires st'.Operands() == 5
 	// Static stack items
-	requires (st'.Peek(0) == 0x20 && st'.Peek(1) == 0x60)
+	requires st'.evm.stack.contents == [0x20,0x60,st'.Peek(2),st'.Peek(3),st'.Peek(4)]
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x20,0x60,0x60,_,_|
 		assert (st.Peek(0) + st.Peek(1)) <= (MAX_U256 as u256);
 		//|fp=0x0060|0x20,0x60,0x60,_,_|
@@ -119,6 +120,7 @@ module totalSupply {
 		st := Dup(st,1);
 		//|fp=0x0060|0x60,0x60,0x80,_|
 		st := Swap(st,2);
+		stackLemma(st,st.Operands());
 		st := block_0_0x01c7(st);
 		return st;
 	}
@@ -131,9 +133,10 @@ module totalSupply {
 	// Stack height(s)
 	requires st'.Operands() == 4
 	// Static stack items
-	requires (st'.Peek(0) == 0x80 && st'.Peek(1) == 0x60)
+	requires st'.evm.stack.contents == [0x80,0x60,st'.Peek(2),st'.Peek(3)]
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x80,0x60,0x60,_|
 		assert st.Peek(1) <= st.Peek(0);
 		//|fp=0x0060|0x80,0x60,0x60,_|
@@ -153,9 +156,10 @@ module totalSupply {
 	// Stack height(s)
 	requires st'.Operands() == 2
 	// Static stack items
-	requires (st'.Peek(0) == 0x1b4)
+	requires st'.evm.stack.contents == [0x1b4,st'.Peek(1)]
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x1b4,_|
 		st := JumpDest(st);
 		//|fp=0x0060|0x1b4,_|
@@ -172,6 +176,7 @@ module totalSupply {
 		st := Swap(st,1);
 		//|fp=0x0060|0x00,_,0x1b4,_|
 		st := Pop(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x068a(st);
 		return st;
 	}
@@ -184,14 +189,16 @@ module totalSupply {
 	// Stack height(s)
 	requires st'.Operands() == 3
 	// Static stack items
-	requires (st'.Peek(1) == 0x1b4)
+	requires st'.evm.stack.contents == [st'.Peek(0),0x1b4,st'.Peek(2)]
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|_,0x1b4,_|
 		st := Swap(st,1);
 		//|fp=0x0060|0x1b4,_,_|
 		assume {:axiom} st.IsJumpDest(0x1b4);
 		st := Jump(st);
+		stackLemma(st,st.Operands());
 		st := block_0_0x01b4(st);
 		return st;
 	}

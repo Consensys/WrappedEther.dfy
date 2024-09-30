@@ -142,9 +142,9 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 3
-	// Static stack items
-	requires (st'.Peek(0) == 0x147)
-	// Termination
+	// Stack items
+	requires st'.evm.stack.contents[0] == 0x147
+	// Storage
   	requires st'.Load(0x01) == 0x5745544800000000000000000000000000000000000000000000000000000008 // "WETH" ... 0s ... len*2  
 	requires st'.Load(0x02) == 18 // uint8  public decimals = 18.
 	{
@@ -181,7 +181,7 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 3
-	// Termination
+	// Storage
   	requires st'.Load(0x01) == 0x5745544800000000000000000000000000000000000000000000000000000008 // "WETH" ... 0s ... len*2  
 	requires st'.Load(0x02) == 18 // uint8  public decimals = 18.
 	{
@@ -218,7 +218,7 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 1
-	// Termination
+	// Storage
   	requires st'.Load(0x01) == 0x5745544800000000000000000000000000000000000000000000000000000008 // "WETH" ... 0s ... len*2  
 	requires st'.Load(0x02) == 18 // uint8  public decimals = 18.
 	{
@@ -253,7 +253,7 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 2
-	// Termination
+	// Storage
   	requires st'.Load(0x01) == 0x5745544800000000000000000000000000000000000000000000000000000008 // "WETH" ... 0s ... len*2  
 	{
 		var st := st';
@@ -321,8 +321,8 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 3
-	// Static stack items
-	requires (st'.Peek(0) == 0x3ca)
+	// Stack items
+	requires st'.evm.stack.contents[0] == 0x3ca
 	{
 		var st := st';
 		//|fp=0x0060|0x03ca,0xd0e30db0==callSig,callSig|
@@ -370,7 +370,8 @@ module main {
 		st := Jump(st);
 		// from a3: |fp=0x0060|0x00b7,callSig|
 		// from 00: |fp=0x0060|0x00b7|
-		st := block_0_0x0440(st);
+		if st.Operands() == 2 {st := block_1_0x0440(st);}
+		else {st := block_0_0x0440(st);}
 		return st;
 	}
 
@@ -449,10 +450,11 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 5
-	// Static stack items
-	requires (st'.Peek(0) == src as u256 && st'.Peek(1) == 0x4 && st'.Peek(3) == 0x229)
+	// Stack items
+	requires st'.evm.stack.contents == [src as u256,0x4,0x4,0x229,st'.Peek(4)]
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|src,0x04,0x04,0x229,transferFrom|  
 		st := Swap(st,1);
 		//|fp=0x0060|0x04,src,0x04,0x229,transferFrom|
@@ -471,6 +473,8 @@ module main {
 		//|fp=0x0060|0x24,0x24,0x04,src,0x229,transferFrom|
 		st := CallDataLoad(st);
 		//|fp=0x0060|callData[0x24],0x24,0x04,src,0x229,transferFrom| i.e. address from callData[0x24] == parm1 == dst addr
+		stackLemma(st,st.Operands());
+		//assert st.evm.stack.contents[0..5] == [st.evm.context.CallDataRead(0x24),0x24,0x04,src as u256,0x229];
 		st := block_0_0x01fd(src,st);
 		return st;
 	}
@@ -482,24 +486,25 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 6
-	// Static stack items
-	requires (st'.Peek(0) == st'.evm.context.CallDataRead(0x24) && st'.Peek(1) == 0x24 && st'.Peek(3) == src as u256 && st'.Peek(4) == 0x229)
+	// Stack items
+	requires st'.evm.stack.contents == [st'.evm.context.CallDataRead(0x24),0x24,0x04,src as u256,0x229,st'.Peek(5)]
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|callData[0x24],0x24,0x04,src,0x229,transferFrom|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		//|fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,dst,0x24,0x04,src,0x229,transferFrom|
+		//stackLemma(st,st.Operands());
 		st := AndU160(st);
 		//|fp=0x0060|dst,0x24,0x04,src,0x229,transferFrom| 
 		var dst := st.Peek(0) as u160;
 		assert dst as u256 == st.evm.context.CallDataRead(0x24) % (Int.TWO_160 as u256);
-
+		assert st.Peek(4) == 0x229;
 		st := Swap(st,1);
 		//|fp=0x0060|0x24,dst,0x04,src,0x229,transferFrom|
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x24,dst,0x04,src,0x229,transferFrom|
 		assert (st.Peek(0) + st.Peek(1)) <= (Int.MAX_U256 as u256);
-		assert st.Peek(5) == 0x229;
 		st := Add(st);
 		//|fp=0x0060|0x44,dst,0x04,src,0x229,transferFrom|
 		st := Swap(st,1);
@@ -508,6 +513,7 @@ module main {
 		//|fp=0x0060|0x04,0x44,dst,src,0x229,transferFrom|
 		st := Swap(st,1);
 		//|fp=0x0060|0x44,0x04,dst,src,0x229,transferFrom|
+		stackLemma(st,st.Operands());
 		st := block_0_0x021a(src,dst,st);
 		return st;
 	}
@@ -519,10 +525,11 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 6
-	// Static stack items
-	requires (st'.Peek(0) == 0x44 && st'.Peek(2) == dst as u256 && st'.Peek(3) == src as u256 && st'.Peek(4) == 0x229)
+	// Stack items
+	requires st'.evm.stack.contents == [0x44,0x04,dst as u256,src as u256,0x229,st'.Peek(5)]
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x44,0x04,dst,src,0x229,transferFrom|
 		st := Dup(st,1);
 		//|fp=0x0060|0x44,0x44,0x04,dst,src,0x229,transferFrom|
@@ -530,7 +537,6 @@ module main {
 		//|fp=0x0060|wad,0x44,0x04,dst,src,0x229,transferFrom| i.e. address from callData[0x44] == parm2 == wad uint256
 		var wad := st.Peek(0);
 		assert wad == st.evm.context.CallDataRead(0x44) ;
-
 		st := Swap(st,1);
 		//|fp=0x0060|0x44,wad,0x04,dst,src,0x229,transferFrom|
 		st := Push1(st,0x20);
@@ -544,6 +550,8 @@ module main {
 		//|fp=0x0060|0x04,0x64,wad,dst,src,0x229,transferFrom|
 		st := Swap(st,1);
 		//|fp=0x0060|0x64,0x04,wad,dst,src,0x229,transferFrom|
+		stackLemma(st,st.Operands());
+		//assert st.evm.stack.contents[0..6] == [0x64,0x04,wad,dst as u256,src as u256,0x229];
 		st := block_0_0x0223(src,dst,wad,st);
 		return st;
 	}
@@ -555,8 +563,8 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 7
-	// Static stack items
-	requires (st'.Peek(2) == wad && st'.Peek(3) == dst as u256 && st'.Peek(4) == src as u256 && st'.Peek(5) == 0x229)
+	// Stack items
+	requires st'.evm.stack.contents == [0x64,0x04,wad,dst as u256,src as u256,0x229,st'.Peek(6)]
 	{
 		var st := st';
 		//|fp=0x0060|0x64,0x04,wad,dst,src,0x229,transferFrom|
@@ -648,11 +656,12 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 6
-	// Static stack items
-	requires (st'.Peek(0) == 0x20 && st'.Peek(1) == 0x4 && st'.Peek(2) == wad && st'.Peek(4) == 0x264)
+	// Stack items
+	requires st'.evm.stack.contents == [0x20,0x04,wad,0x04,0x264,st'.Peek(5)]
 	{
 		var st := st';
 		//|fp=0x0060|0x20,0x04,wad,0x04,0x264,callSig|
+		stackLemma(st,st.Operands());
 		assert (st.Peek(0) + st.Peek(1)) <= (Int.MAX_U256 as u256);
 		st := Add(st);
 		//|fp=0x0060|0x24,wad,0x04,0x264,callSig|
@@ -671,6 +680,8 @@ module main {
 		assume {:axiom} st.IsJumpDest(0x9d9);
 		st := Jump(st);
 		//|fp=0x0060|wad,0x264,callSig|
+		stackLemma(st,st.Operands());
+		//assert st.evm.stack.contents[0..2] == [wad,0x264];
 		st := block_0_0x09d9(wad,st);
 		return st;
 	}
@@ -682,6 +693,7 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 1
+	// Storage
 	requires bal >= wad
 	requires st'.Load(Hash(st'.evm.context.sender as u256,0x03)) == bal-wad
 	
@@ -703,10 +715,11 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 3
-	// Static stack items
-	requires (st'.Peek(0) == wad && st'.Peek(1) == 0x264)
+	// Stack items
+	requires st'.evm.stack.contents == [wad,0x264,st'.Peek(2)]
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|wad,0x264,callSig|
 		st := JumpDest(st);
 		//|fp=0x0060|wad,0x264,callSig|
@@ -722,9 +735,10 @@ module main {
 		//|fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,caller,0x00,0x03,wad,wad,0x264,_|
 		st := AndU160(st);
 		//|fp=0x0060|caller,0x00,0x03,wad,wad,0x264,callSig|
-		
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		//|fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,caller,0x00,0x03,wad,wad,0x264,callSig|
+		stackLemma(st,st.Operands());
+		//assert st.evm.stack.contents[0..7] == [0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffff,st.evm.context.sender as u256,0x0,0x03,wad,wad,0x264];
 		st := block_0_0x0a0b(wad,st);
 		return st;
 	}
@@ -736,27 +750,43 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 8
-	// Static stack items
-	requires (st'.Peek(0) == 0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffff && st'.Peek(2) == 0x0 
-			&& st'.Peek(1) == st'.evm.context.sender as u256 && st'.Peek(3) == 0x03 && st'.Peek(4) == st'.Peek(5) == wad && st'.Peek(6) == 0x264)
+	// Stack items
+	requires st'.evm.stack.contents == [0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffff,
+												st'.evm.context.sender as u256,0x0,0x03,wad,wad,0x264,st'.Peek(7)]
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,caller,0x00,0x03,wad,wad,0x264,callSig|
 		st := AndU160(st);
 		//|fp=0x0060|caller,0x00,0x03,wad,wad,0x264,callSig|
 		st := Dup(st,2);
 		//|fp=0x0060|0x00,caller,0x00,0x03,wad,wad,0x264,callSig|
 		st := MStore(st);
-		assert {:split_here} true;
-		assert (st.Peek(0) == 0x0 && st.Peek(1) == 0x03 && st.Peek(2) == st.Peek(3) && st.Peek(4) == 0x264);
+		stackLemma(st,st.Operands());
+		st := block_0_0x0a0e(wad,st);
+		return st;
+	}
+
+	method block_0_0x0a0e(wad: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	requires st'.evm.code == Code.Create(BYTECODE_0)
+	requires st'.WritesPermitted() && st'.PC() == 0x0a0e
+	// Free memory pointer
+	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60 && st'.Read(0x00) == st'.evm.context.sender as u256
+	// Stack height(s)
+	requires st'.Operands() == 6
+	// Stack items
+	requires st'.evm.stack.contents == [0x0,0x03,wad,wad,0x264,st'.Peek(5)]
+	{
+		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x00,0x03,wad,wad,0x264,callSig| // st.Read(0x00) == caller
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x00,0x03,wad,wad,0x264,callSig|
 		assert (st.Peek(0) + st.Peek(1)) <= (Int.MAX_U256 as u256);
 		st := Add(st);
-		//assert {:split_here} true;
 		//|fp=0x0060|0x20,0x03,wad,wad,0x264,callSig|
-		assert (st.Peek(0) == 0x20 && st.Peek(1) == 0x03 && st.Peek(2) == st.Peek(3) == wad && st.Peek(4) == 0x264);
+		stackLemma(st,st.Operands());
+		//assert st.evm.stack.contents[0..5] == [0x20,0x03,wad,wad,0x264];
 		st := block_0_0x0a11(wad,st);
 		return st;
 	}
@@ -768,10 +798,11 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60 && st'.Read(0x00) == st'.evm.context.sender as u256
 	// Stack height(s)
 	requires st'.Operands() == 6
-	// Static stack items
-	requires (st'.Peek(0) == 0x20 && st'.Peek(1) == 0x03 && st'.Peek(2) == st'.Peek(3) == wad && st'.Peek(4) == 0x264)
+	// Stack items
+	requires st'.evm.stack.contents == [0x20,0x03,wad,wad,0x264,st'.Peek(5)]
 	{
 		var st := st';	
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x20,0x03,wad,wad,0x264,callSig|
 		st := Swap(st,1);
 		//|fp=0x0060|0x03,0x20,wad,wad,0x264,callSig|
@@ -779,8 +810,7 @@ module main {
 		//|fp=0x0060|0x20,0x03,0x20,wad,wad,0x264,callSig|
 		st := MStore(st);
 		//|fp=0x0060|0x20,wad,wad,0x264,callSig| // st.Read(0x20) == 0x03
-		assert st.Read(0x20) == 0x03;
-		assert (st.Peek(0) == 0x20 && st.Peek(1) == st.Peek(2) == wad && st.Peek(3) == 0x264);
+		stackLemma(st,st.Operands());
 		st := block_0_0x0a14(wad,st);
 		return st;
 	}
@@ -792,12 +822,14 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60 && st'.Read(0x20) == 0x03 && st'.Read(0x00) == st'.evm.context.sender as u256
 	// Stack height(s)
 	requires st'.Operands() == 5
-	// Static stack items
-	requires (st'.Peek(0) == 0x20 && st'.Peek(1) == st'.Peek(2) == wad && st'.Peek(3) == 0x264)
+	// Stack items
+	requires st'.evm.stack.contents == [0x20,wad,wad,0x264,st'.Peek(4)]
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x20,wad,wad,0x264,callSig|
 		st := Push1(st,0x20);
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x20,0x20,wad,wad,0x264,callSig|
 		assert (st.Peek(0) + st.Peek(1)) <= (Int.MAX_U256 as u256);
 		st := Add(st);
@@ -807,26 +839,23 @@ module main {
 		st := Keccak256(st);
 		HashEquivalenceAxiom(st,st.Peek(0),st.evm.context.sender as u256,0x03);
 		assert st.Peek(0) == Hash(st.evm.context.sender as u256,0x03);
-
-		
-		assert st.Peek(3) == 0x264;    
 		//|fp=0x0060|hash,wad,wad,0x264,callSig|
+		//stackLemma(st,st.Operands());
 		st := SLoad(st);
 		//|fp=0x0060|bal,wad,wad,0x264,callSig|
 		var bal := st.Peek(0);
 		assert bal == st.Load(Hash(st.evm.context.sender as u256,0x03));
-		
-		assert st.Peek(1) == st.Peek(2);
 		st := Lt(st);
 		//|fp=0x0060|bal<wad,wad,0x264,callSig|
-		assert if bal < st.Peek(1) then st.Peek(0) == 1 else st.Peek(0) == 0 ;
+		//assert if bal < wad then st.Peek(0) == 1 else st.Peek(0) == 0 ;
 		st := IsZero(st);
-		assert st.Peek(2) == 0x264;    
+		//assert st.Peek(2) == 0x264;    
 		//|fp=0x0060|{0,1},wad,0x264,callSig|
 		st := IsZero(st);
 		//|fp=0x0060|{1,0},wad,0x264,callSig|
-		assert if bal < st.Peek(1) then st.Peek(0) == 1 else st.Peek(0) == 0;
-		//assert st.Peek(2) == 0x264;
+		//assert if bal < wad then st.Peek(0) == 1 else st.Peek(0) == 0;
+		stackLemma(st,st.Operands());
+		//assert if bal < wad then st.evm.stack.contents[0..3] == [1,wad,0x264] else st.evm.stack.contents[0..3] == [0,wad,0x264];
 		st := block_0_0x0a1e(bal,wad,st);
 		return st;
 	}
@@ -838,13 +867,13 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60 //&& st'.Read(0x20) == 0x03 && st'.Read(0x00) == st'.evm.context.sender as u256
 	// Stack height(s)
 	requires st'.Operands() == 4
-	// Static stack items
-	requires (st'.Peek(1)  == wad && st'.Peek(2) == 0x264)
-
+	// Stack items
+	requires if bal < wad then st'.evm.stack.contents == [1,wad,0x264,st'.Peek(3)] else st'.evm.stack.contents == [0,wad,0x264,st'.Peek(3)]
+	// Storage
 	requires bal == st'.Load(Hash(st'.evm.context.sender as u256,0x03))
-	requires if bal < wad then st'.Peek(0) == 1 else st'.Peek(0) == 0
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|{1,0},wad,0x264,callSig|
 		st := IsZero(st);
 		//|fp=0x0060|{0,1},wad,0x264,callSig|
@@ -853,8 +882,8 @@ module main {
 		assume {:axiom} st.IsJumpDest(0xa27);
 		st := JumpI(st);
 		if st.PC() == 0xa27 {  // i.e. bal>=wad
-			assert st.Peek(0) == st'.Peek(1);
-			assert bal >= wad;
+			//assert bal >= wad;
+			stackLemma(st,st.Operands());
 			st := block_0_0x0a27(bal,wad,st); 
 			return st;
 		} 
@@ -874,13 +903,14 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60 //&& st'.Read(0x20) == 0x03 && st'.Read(0x00) == st'.evm.context.sender as u256
 	// Stack height(s)
 	requires st'.Operands() == 3
-	// Static stack items
-	requires (st'.Peek(0) == wad && st'.Peek(1) == 0x264)
-
+	// Stack items
+	requires st'.evm.stack.contents == [wad,0x264,st'.Peek(2)]
+	// Storage
 	requires bal == st'.Load(Hash(st'.evm.context.sender as u256,0x03))
 	requires bal >= wad
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|wad,0x264,callSig|
 		st := JumpDest(st);
 		//|fp=0x0060|wad,0x264,callSig|
@@ -898,6 +928,7 @@ module main {
 		//|fp=0x0060|caller,0x00,0x03,wad,wad,0x264,callSig|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		//|fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,caller,0x00,0x03,wad,wad,0x264,callSig|
+		stackLemma(st,st.Operands());
 		st := block_0_0x0a59(bal,wad,st);
 		return st;
 	}
@@ -909,39 +940,33 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60 //&& st'.Read(0x20) == 0x03 && st'.Read(0x00) == st'.evm.context.sender as u256
 	// Stack height(s)
 	requires st'.Operands() == 8
-	// Static stack items
-	requires (st'.Peek(0) == 0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffff && st'.Peek(1) == st'.evm.context.sender as u256 && 
-			st'.Peek(2) == 0x0 && st'.Peek(3) == 0x03 && st'.Peek(4) == st'.Peek(5) == wad && st'.Peek(6) == 0x264)
-	
+	// Stack items
+	requires st'.evm.stack.contents == [0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffff,st'.evm.context.sender as u256,0x0,0x03,wad,wad,0x264,st'.Peek(7)]
+	// Storage
 	requires bal == st'.Load(Hash(st'.evm.context.sender as u256,0x03))
 	requires bal >= wad
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,caller,0x00,0x03,wad,wad,0x264,callSig|
 		st := AndU160(st);
 		//|fp=0x0060|caller,0x00,0x03,wad,wad,0x264,callSig|
-		assert st.Peek(0) == st.evm.context.sender as u256;
 		st := Dup(st,2);
 		//|fp=0x0060|0x00,caller,0x00,0x03,wad,wad,0x264,callSig|
-		assert st.Peek(0) == 0x00;
+		//assert st.Peek(0) == 0x00;
 		st := MStore(st);
-		assert {:split_here} true;
-		assert st.Read(0x00) == st.evm.context.sender as u256;
-		assert (st.Peek(0) == 0x00 && st.Peek(1) == 0x03 && st.Peek(4) == 0x264);
 		//|fp=0x0060|0x00,0x03,wad,wad,0x264,callSig| // st.Read(0x00) == caller
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x00,0x03,wad,wad,0x264,callSig|
 		assert (st.Peek(0) + st.Peek(1)) <= (Int.MAX_U256 as u256);
 		st := Add(st);
-		assert {:split_here} true;
-		assert st.Read(0x00) == st.evm.context.sender as u256;
-		assert (st.Peek(0) == 0x20 && st.Peek(1) == 0x03 && st.Peek(4) == 0x264);
 		//|fp=0x0060|0x20,0x03,wad,wad,0x264,callSig|
 		st := Swap(st,1);
 		//|fp=0x0060|0x03,0x20,wad,wad,0x264,callSig|
 		st := Dup(st,2);
 		//|fp=0x0060|0x20,0x03,0x20,wad,wad,0x264,callSig|
-		assert (st.Peek(0) == 0x20 && st.Peek(1) == 0x03 && st.Peek(2) == 0x20 && st.Peek(3) == st.Peek(4) == wad  && st.Peek(5) == 0x264);
+		stackLemma(st,st.Operands());
+		//assert st.evm.stack.contents[0..6] == [0x20,0x03,0x20,wad,wad,0x264];
 		st := block_0_0x0a61(bal,wad,st);
 		return st;
 	}
@@ -953,18 +978,18 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60  && st'.Read(0x00) == st'.evm.context.sender as u256 //&& st'.Read(0x20) == 0x03 
 	// Stack height(s)
 	requires st'.Operands() == 7
-	// Static stack items
-	requires (st'.Peek(0) == 0x20 && st'.Peek(1) == 0x03 && st'.Peek(2) == 0x20 && st'.Peek(3) == st'.Peek(4) == wad && st'.Peek(5) == 0x264)
-
+	// Sttack items
+	requires st'.evm.stack.contents == [0x20,0x03,0x20,wad,wad,0x264,st'.Peek(6)]
+	// Storage
 	requires bal == st'.Load(Hash(st'.evm.context.sender as u256,0x03))
 	requires bal >= wad
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x20,0x03,0x20,wad,wad,0x264,callSig|
 		st := MStore(st);
-		//|fp=0x0060|0x20,wad,wad,0x264,callSig| // st.Read(0x20) == 0x03
-		assert st.Read(0x00) == st.evm.context.sender as u256 && st.Read(0x20) == 0x03;
-		assert st.Peek(1) == st.Peek(2) == wad;
+		//|fp=0x0060|0x20,wad,wad,0x264,callSig| // assert st.Read(0x20) == 0x03;
+		stackLemma(st,st.Operands());
 		st := block_0_0x0a62(bal,wad,st);
 		return st;
 	}
@@ -976,13 +1001,14 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60 && st'.Read(0x00) == st'.evm.context.sender as u256 && st'.Read(0x20) == 0x03 
 	// Stack height(s)
 	requires st'.Operands() == 5
-	// Static stack items
-	requires (st'.Peek(0) == 0x20 && st'.Peek(1) == st'.Peek(2) == wad && st'.Peek(3) == 0x264)
-	
+	// Stack items
+	requires st'.evm.stack.contents == [0x20,wad,wad,0x264,st'.Peek(4)]
+	// Storage
 	requires bal == st'.Load(Hash(st'.evm.context.sender as u256,0x03))
 	requires bal >= wad
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x20,wad,wad,0x264,callSig| 
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x20,wad,wad,0x264,callSig|
@@ -1003,7 +1029,9 @@ module main {
 		//|fp=0x0060|hash,wad,0x00,hash,wad,wad,0x264,callSig|
 		st := SLoad(st);
 		//|fp=0x0060|bal,wad,0x00,hash,wad,wad,0x264,callSig|
-		assert bal == st.Peek(0);
+		//assert bal == st.Peek(0);
+		stackLemma(st,st.Operands());
+		//assert st.evm.stack.contents[0..7] == [bal,wad,0x0,Hash(st.evm.context.sender as u256,0x03),wad,wad,0x264];
 		st := block_0_0x0a6d(bal,wad,st);
 		return st;
 	}
@@ -1015,19 +1043,16 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60 //&& st'.Read(0x20) == 0x03 && st'.Read(0x00) == st'.evm.context.sender as u256
 	// Stack height(s)
 	requires st'.Operands() == 8
-	// Static stack items
-	requires (st'.Peek(0) == bal && st'.Peek(1) == st'.Peek(4) == st'.Peek(5) == wad && st'.Peek(3) == Hash(st'.evm.context.sender as u256,0x03)  && st'.Peek(6) == 0x264)
-	
+	// Stack items
+	requires st'.evm.stack.contents == [bal,wad,0x0,Hash(st'.evm.context.sender as u256,0x03),wad,wad,0x264,st'.Peek(7)]
 	requires bal >= wad
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|bal,wad,0x00,hash,wad,wad,0x264,callSig|
 		assert st.Peek(1) <= st.Peek(0);
 		st := Sub(st);
 		//|fp=0x0060|bal-wad,0x00,hash,wad,wad,0x264,callSig|
-		assert {:split_here} true;
-		assert (st.Peek(4) == wad && st.Peek(5) == 0x264);
-
 		st := Swap(st,3);
 		//|fp=0x0060|wad,0x00,hash,bal-wad,wad,0x264,callSig|
 		st := Pop(st);
@@ -1040,11 +1065,9 @@ module main {
 		//|fp=0x0060|hash,bal-wad,bal-wad,wad,,0x264,callSig|
 		st := SStore(st);
 		//|fp=0x0060|bal-wad,wad,0x264,callSig| // bal' == bal-wad
-		assert {:split_here} true;
-		assert st.Load(Hash(st.evm.context.sender as u256,0x03)) == bal - wad;
-		assert (st.Peek(1) == wad && st.Peek(2) == 0x264);
 		st := Pop(st);
 		//|fp=0x0060|wad,0x264,callSig|
+		stackLemma(st,st.Operands());
 		st := block_0_0x0a75(bal,wad,st);
 		return st;
 	}
@@ -1056,12 +1079,14 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 3
-	// Static stack items
-	requires (st'.Peek(0) == wad && st'.Peek(1) == 0x264)
+	// Stack items
+	requires st'.evm.stack.contents == [wad,0x264,st'.Peek(2)]
+	// Storage
 	requires bal >= wad
 	requires st'.Load(Hash(st'.evm.context.sender as u256,0x03)) == bal-wad
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|wad,0x264,callSig|
 		st := Caller(st);
 		//|fp=0x0060|caller,wad,0x264,callSig|
@@ -1079,6 +1104,7 @@ module main {
 		//|fp=0x0060|wad,0x8fc,wad,caller,wad,0x264,callSig|
 		st := IsZero(st);
 		//|fp=0x0060|wad==0,0x8fc,wad,caller,wad,0x264,callSig|
+		stackLemma(st,st.Operands());
 		st := block_0_0x0a93(bal,wad,st);
 		return st;
 	}
@@ -1090,12 +1116,15 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 7
-	// Static stack items
-	requires ((st'.Peek(0) == 0 || st'.Peek(0) == 1) && st'.Peek(1) == 0x8fc && st'.Peek(5) == 0x264)
+	// Stack items
+	requires st'.evm.stack.contents == [0,0x8fc,st'.Peek(2),st'.evm.context.sender as u256,st'.Peek(4),0x264,st'.Peek(6)]
+		|| st'.evm.stack.contents == [1,0x8fc,st'.Peek(2),st'.evm.context.sender as u256,st'.Peek(4),0x264,st'.Peek(6)]
+	// Storage
 	requires bal >= wad
 	requires st'.Load(Hash(st'.evm.context.sender as u256,0x03)) == bal-wad
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|wad==0,0x8fc,data[4],caller,data[4],0x264,callSig|
 		assert (st.Peek(0) * st.Peek(1)) <= (Int.MAX_U256 as u256);
 		st := Mul(st);
@@ -1114,6 +1143,7 @@ module main {
 		//|fp=0x0060|0x60,0x00,0x60,data[4],{0,0x8fc},caller,data[4],0x264,callSig|
 		st := Dup(st,1);
 		//|fp=0x0060|0x60,0x60,0x00,0x60,data[4],{0,0x8fc},caller,data[4],0x264,callSig|
+		stackLemma(st,st.Operands());
 		st := block_0_0x0a9e(bal,wad,st);
 		return st;
 	}
@@ -1125,9 +1155,10 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 10
-	// Static stack items
-	requires (st'.Peek(0) == 0x60 && st'.Peek(2) == 0x0 && st'.Peek(3) == 0x60 && st'.Peek(8) == 0x264) 
-	requires st'.Peek(5) == 0 || st'.Peek(5) == 0x8fc
+	// Stack items
+	requires st'.evm.stack.contents == [0x60,st'.Peek(1),0x0,0x60,st'.Peek(4),0x8fc,st'.Peek(6),st'.Peek(7),0x264,st'.Peek(9)]
+		|| st'.evm.stack.contents == [0x60,st'.Peek(1),0x0,0x60,st'.Peek(4),0,st'.Peek(6),st'.Peek(7),0x264,st'.Peek(9)]
+	// Storage
 	requires bal >= wad
 	requires st'.Load(Hash(st'.evm.context.sender as u256,0x03)) == bal-wad
 	{
@@ -1173,13 +1204,14 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 8
-	// Static stack items
-	requires (st'.Peek(6) == 0x264)
-	
+	// Stack items
+	requires st'.evm.stack.contents == [st'.Peek(0),st'.Peek(1),st'.Peek(2),st'.Peek(3),st'.Peek(4),st'.Peek(5),0x264,st'.Peek(7)]
+	// Storage
 	requires bal >= wad
 	requires st'.Load(Hash(st'.evm.context.sender as u256,0x03)) == bal-wad
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|caller,0x60,wad,{0,0x8fc},exitCode,wad,0x264,_|
 		st := Pop(st);
 		//|fp=0x0060|0x60,wad,{0,0x8fc},exitCode,wad,0x264,_|
@@ -1199,6 +1231,7 @@ module main {
 		st := JumpI(st);
 		if st.PC() == 0xab4 {  // i.e. exitCode!=0, call RETURNS without error
 			//|fp=0x0060|wad,0x264,_|
+			stackLemma(st,st.Operands());
 			st := block_0_0x0ab4(bal,wad,st); 
 			return st;
 		}
@@ -1234,13 +1267,14 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 3
-	// Static stack items
-	requires (st'.Peek(1) == 0x264)
-
+	// Stack items
+	requires st'.evm.stack.contents == [st'.Peek(0),0x264,st'.Peek(2)]
+	// Storage 
 	requires bal >= wad
 	requires st'.Load(Hash(st'.evm.context.sender as u256,0x03)) == bal-wad
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|wad,0x264,_|
 		st := JumpDest(st);
 		//|fp=0x0060|wad,0x264,_|
@@ -1258,6 +1292,7 @@ module main {
 		//|fp=0x0060|0x40,wad,0x7fcf532c15f0a6dbbd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65,caller,wad,0x264,_|
 		st := MLoad(st);
 		//|fp=0x0060|0x60,wad,0x7fcf532c15f0a6dbbd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65,caller,wad,0x264,_|
+		stackLemma(st,st.Operands());
 		st := block_0_0x0af1(bal,wad,st);
 		return st;
 	}
@@ -1269,13 +1304,14 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 7
-	// Static stack items
-	requires (st'.Peek(0) == 0x60 && st'.Peek(5) == 0x264)
-
+	// Stack items
+	requires st'.evm.stack.contents == [0x60,st'.Peek(1),st'.Peek(2),st'.Peek(3),st'.Peek(4),0x264,st'.Peek(6)]
+	// Storage
 	requires bal >= wad
 	requires st'.Load(Hash(st'.evm.context.sender as u256,0x03)) == bal-wad
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x60,wad,0x7fcf532c15f0a6dbbd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65,caller,wad,0x264,_|
 		st := Dup(st,1);
 		//|fp=0x0060|0x60,0x60,wad,0x7fcf532c15f0a6dbbd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65,caller,wad,0x264,_|
@@ -1284,6 +1320,26 @@ module main {
 		st := Dup(st,2);
 		//|fp=0x0060|0x60,wad,0x60,0x60,wad,0x7fcf532c15f0a6dbbd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65,caller,wad,0x264,_|
 		st := MStore(st);
+		stackLemma(st,st.Operands());
+		st := block_0_0x0af5(bal,wad,st);
+		return st;
+	}
+		
+	method block_0_0x0af5(bal: u256, wad: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	requires st'.evm.code == Code.Create(BYTECODE_0)
+	requires st'.WritesPermitted() && st'.PC() == 0x0af5
+	// Free memory pointer
+	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
+	// Stack height(s)
+	requires st'.Operands() == 8
+	// Stack items
+	requires st'.evm.stack.contents == [0x60,st'.Peek(1),st'.Peek(2),st'.Peek(3),st'.Peek(4),st'.Peek(5),0x264,st'.Peek(7)]
+	// Storage
+	requires bal >= wad
+	requires st'.Load(Hash(st'.evm.context.sender as u256,0x03)) == bal-wad
+	{
+		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x60,0x60,wad,0x7fcf532c15f0a6dbbd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65,caller,wad,0x264,_|
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x60,0x60,wad,0x7fcf532c15f0a6dbbd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65,caller,wad,0x264,_|
@@ -1294,6 +1350,8 @@ module main {
 		//|fp=0x0060|wad,0x60,0x80,0x7fcf532c15f0a6dbbd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65,caller,wad,0x264,_|
 		st := Pop(st);
 		//|fp=0x0060|0x60,0x80,0x7fcf532c15f0a6dbbd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65,caller,wad,0x264,_|
+		stackLemma(st,st.Operands());
+		//assert st.evm.stack.contents[0..6] == [st.Peek(0),0x80,st.Peek(2),st.Peek(3),st.Peek(4),0x264];
 		st := block_0_0x0afa(bal,wad,st);
 		return st;
 	}
@@ -1305,13 +1363,15 @@ module main {
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 7
-	// Static stack items
-	requires (st'.Peek(1) == 0x80 && st'.Peek(5) == 0x264)
+	// Stack items
+	requires st'.evm.stack.contents == [st'.Peek(0),0x80,st'.Peek(2),st'.Peek(3),st'.Peek(4),0x264,st'.Peek(6)]
+	// Storage
 	requires bal >= wad
 	requires st'.Load(Hash(st'.evm.context.sender as u256,0x03)) == bal-wad
 	{
 		var st := st';
-		//|fp=0x0060|0x60,0x80,0x7fcf532c15f0a6dbbd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65,caller,wad],0x264,_|
+		stackLemma(st,st.Operands());
+		//|fp=0x0060|0x60,0x80,0x7fcf532c15f0a6dbbd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65,caller,wad,0x264,_|
 		st := Pop(st);
 		//|fp=0x0060|0x80,0x7fcf532c15f0a6dbbd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65,caller,wad,0x264,_|
 		st := Push1(st,0x40);
@@ -1329,6 +1389,7 @@ module main {
 		//|fp=0x0060|0x60,0x20,0x7fcf532c15f0a6dbbd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65,caller,wad,0x264,_|
 		st := LogN(st,2);
 		//|fp=0x0060|wad,0x264,_| i.e. append to log (0x60,0x20,0x7fcf532c15f0a6dbbd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65,caller)
+		stackLemma(st,st.Operands());
 		st := block_0_0x0b03(bal,wad,st);
 		return st;
 	}
@@ -1341,7 +1402,8 @@ module main {
 	// Stack height(s)
 	requires st'.Operands() == 3
 	// Static stack items
-	requires (st'.Peek(1) == 0x264)
+	requires st'.evm.stack.contents == [st'.Peek(0),0x264,st'.Peek(2)]
+	// Storage
 	requires bal >= wad
 	requires st'.Load(Hash(st'.evm.context.sender as u256,0x03)) == bal-wad
 	{
