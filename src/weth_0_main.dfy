@@ -1163,6 +1163,7 @@ module main {
 	requires st'.Load(Hash(st'.evm.context.sender as u256,0x03)) == bal-wad
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0x60,0x60,0x00,0x60,wad,{0,0x8fc},caller,wad,0x264,_|
 		st := Dup(st,4);
 		//|fp=0x0060|0x60,0x60,0x60,0x00,0x60,wad,{0,0x8fc},caller,wad,0x264,_|
@@ -1178,21 +1179,22 @@ module main {
 		//|fp=0x0060|caller,wad,0x60,0x00,0x60,0x00,0x60,wad,{0,0x8fc},caller,wad,0x264,_|
 		st := Dup(st,9);
 		//|fp=0x0060|{0,0x8fc},caller,wad,0x60,0x00,0x60,0x00,0x60,wad,{0,0x8fc},caller,wad,0x264,_|
-		//i.e wad != 0 ==> st.Peek(0) == 0 , wad == 0 ==> st.Peek(0) == 0x8fc
-		assert st.Peek(12) == 0x264;
+		var temp := st;
 		var CONTINUING(cc) := Call(st);
 		{
 			var inner := cc.CallEnter(1);
 			if inner.EXECUTING? { inner := external_call(cc.sender,inner); }
 			st := cc.CallReturn(inner);
 		}
+		MemoryPreserved(st,temp); 
+		//assume st.Read(0x40) == 0x60;
+		StoragePreserved(st,temp,Hash(st.evm.context.sender as u256,0x03)); 
+		//assume st.Load(Hash(st.evm.context.sender as u256,0x03)) == bal - wad; 
+		
 		//|fp=0x0060|exitcode,0x60,wad,{0,0x8fc},caller,wad,0x264,_|
-		assert st.Operands() == 8 && st.Peek(6) == 0x264;
 		st := Swap(st,4);
 		//|fp=0x0060|caller,0x60,wad,{0,0x8fc},exitCode,wad,0x264,_|
-		assume st.Read(0x40) == 0x60;
-		assume st.Load(Hash(st.evm.context.sender as u256,0x03)) == bal - wad; 
-		
+		stackLemma(st,st.Operands());
 		st := block_0_0x0aa6(bal,wad,st);
 		return st;
 	}
