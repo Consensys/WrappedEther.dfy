@@ -302,9 +302,9 @@ module symbol {
 		st := Lt(st);
 		// |i*0x20<len,i*0x20,0x80,0xe0,len,len,0x80,0xe0,0xa0,0xa0,*ptr(len),0x2f5,symbol|
 		st := IsZero(st);
-		// |i*0x20<len,i*0x20,0x80,0xe0,len,len,0x80,0xe0,0xa0,0xa0,*ptr(len),0x2f5,symbol| i.e. for small string cond now true
+		// |i*0x20>=len,i*0x20,0x80,0xe0,len,len,0x80,0xe0,0xa0,0xa0,*ptr(len),0x2f5,symbol| i.e. for small string cond now true
 		st := Push2(st,0x0335);
-		// |0x335,i*0x20<len,i*0x20,0x80,0xe0,len,len,0x80,0xe0,0xa0,0xa0,*ptr(len),0x2f5,symbol|
+		// |0x335,i*0x20>=len,i*0x20,0x80,0xe0,len,len,0x80,0xe0,0xa0,0xa0,*ptr(len),0x2f5,symbol|
 		assume {:axiom} st.IsJumpDest(0x335);
 		st := JumpI(st);
 		if st.PC() == 0x335 { 
@@ -334,7 +334,7 @@ module symbol {
 	// Static stack items
 	requires st'.evm.stack.contents == [0x0,0x0,0x80,0xe0,0x04,0x04,0x80,0xe0,0xa0,0xa0,0x60,0x2f5,st'.Peek(12)]
 	requires i == 0
-	decreases 0x04 - i,3
+	decreases 0x04 - i,4
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -361,14 +361,14 @@ module symbol {
 	requires st'.evm.stack.contents == [0x80,0x0,0x80,0xe0,0x04,0x04,0x80,0xe0,0xa0,0xa0,0x60,0x2f5,st'.Peek(12)]
 	// Storage
 	requires i == 0
-	decreases 0x04 - i,2
+	decreases 0x04 - i,3
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
 		// |0x80+(i*0x20),i*0x20,0x80,0xe0,len,len,0x80,0xe0,0xa0,0xa0,*ptr(len),0x2f5,symbol|
 		st := MLoad(st);
 		// |st.Read(0x80+(i*0x20)),i*0x20,0x80,0xe0,len,len,0x80,0xe0,0xa0,0xa0,*ptr(len),0x2f5,symbol|
-		assert st.Peek(0) == 0x5745544800000000000000000000000000000000000000000000000000000000;
+		//assert st.Peek(0) == 0x5745544800000000000000000000000000000000000000000000000000000000;
 		st := Dup(st,2);
 		// |i,st.Read(0x80+(i*0x20)),i*0x20,0x80,0xe0,len,len,0x80,0xe0,0xa0,0xa0,*ptr(len),0x2f5,symbol|
     	st := Dup(st,5);
@@ -377,7 +377,6 @@ module symbol {
 		st := Add(st);
 		// |0xe0+i,st.Read(0x80+(i*0x20)),i*0x20,0x80,0xe0,len,len,0x80,0xe0,0xa0,0xa0,*ptr(len),0x2f5,symbol|
 		stackLemma(st,st.Operands());
-		assert st.evm.stack.contents == [0xe0,st.Peek(1),0x0,0x80,0xe0,0x04,0x04,0x80,0xe0,0xa0,0xa0,0x60,0x2f5,st.Peek(13)];
 		st := block_0_0x032a(i,st);
 		return st;
 	}
@@ -386,41 +385,44 @@ module symbol {
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x032a
 	// Free memory pointer
-	requires st'.MemSize() >= 0xe0 && st'.Read(0x40) == 0xa0 && st'.Read(0xa0) == 0x20 && st'.Read(0xc0) == 0x04
-	requires st'.Read(0x60) == 0x04  && st'.Read(0x80) == 0x5745544800000000000000000000000000000000000000000000000000000000
+	requires st'.MemSize() >= 0xe0 && st'.Read(0x40) == 0xa0 
+									&& st'.Read(0x60) == 0x04  
+									&& st'.Read(0x80) == 0x5745544800000000000000000000000000000000000000000000000000000000
+									&& st'.Read(0xa0) == 0x20 
+									&& st'.Read(0xc0) == 0x04
 	// Stack height(s)
 	requires st'.Operands() == 14
 	// Static stack items
-	requires st'.Peek(1) == 0x5745544800000000000000000000000000000000000000000000000000000000 
-	requires st'.evm.stack.contents == [0xe0,st'.Peek(1),0x0,0x80,0xe0,0x04,0x04,0x80,0xe0,0xa0,0xa0,0x60,0x2f5,st'.Peek(13)]
-	// Storage
 	requires i == 0
-	decreases 0x04 - i,1
+	requires st'.evm.stack.contents == [0xe0,st'.Read(0x80),0x0,0x80,0xe0,0x04,0x04,0x80,0xe0,0xa0,0xa0,0x60,0x2f5,st'.Peek(13)]
+	// Storage
+	decreases 0x04 - i,2
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
 		st := MStore(st);
-		assert st.MemSize() >= 0x100 && st.Read(0xe0) == 0x5745544800000000000000000000000000000000000000000000000000000000 ;
-		// |i*0x20,0x80,0xe0,len,len,0x80,0xe0,0xa0,0xa0,*ptr(len),0x2f5,symbol|  i.e. Read(0xe0)==Read(0x80),
 		stackLemma(st,st.Operands());
-		//st := block_0_0x032c(i,st);
+		st := block_0_0x032b(i,st);
 		return st;
 	}
 
-	method block_0_0x032c(i: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x032b(i: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
-	requires st'.WritesPermitted() && st'.PC() == 0x032c
+	requires st'.WritesPermitted() && st'.PC() == 0x032b
 	// Free memory pointer
-	requires st'.MemSize() >= 0x100 && st'.Read(0x40) == 0xa0 && st'.Read(0xa0) == 0x20 && st'.Read(0xc0) == 0x04
-	requires st'.Read(0x60) == 0x04  && st'.Read(0x80) == 0x5745544800000000000000000000000000000000000000000000000000000000
-	requires st'.Read(0xe0) == 0x5745544800000000000000000000000000000000000000000000000000000000 
+	requires st'.MemSize() >= 0x100 && st'.Read(0x40) == 0xa0 
+									&& st'.Read(0x60) == 0x04  
+									&& st'.Read(0x80) == 0x5745544800000000000000000000000000000000000000000000000000000000
+									&& st'.Read(0xa0) == 0x20 
+									&& st'.Read(0xc0) == 0x04
+									&& st'.Read(0xe0) == 0x5745544800000000000000000000000000000000000000000000000000000000 
 	// Stack height(s)
 	requires st'.Operands() == 12
 	// Static stack items
+	requires i == 0
 	requires st'.evm.stack.contents == [0x0,0x80,0xe0,0x04,0x04,0x80,0xe0,0xa0,0xa0,0x60,0x2f5,st'.Peek(11)]
 	// Storage
-	requires i == 0
-	decreases 0x04 - i
+	decreases 0x04 - i,1
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -1323,7 +1325,6 @@ module symbol {
 	// 	st := Sub(st);
 	// 	st := Push1(st,0x1f);
 	// 	st := AndU5(st);
-	// 	assert st.Peek(0) <= 0x1f;
 	// 	st := Dup(st,3);
 	// 	st := block_0_0x0bc4(st);
 	// 	return st;
@@ -1357,8 +1358,6 @@ module symbol {
 	// Free memory pointer
 	requires st'.MemSize() >= 0xa0 && st'.Read(0x40) == 0xa0 
 	requires st'.Read(0x60) == 0x04  && st'.Read(0x80) == 0x5745544800000000000000000000000000000000000000000000000000000000
-	//requires st'.Read(0x60) > 0x1f ==> st'.Read(0x80) == st'.Load(Hash(0x1))
-
 	// Stack height(s)
 	requires st'.Operands() == 8
 	// Static stack items
