@@ -413,7 +413,7 @@ requires st.Operands() >= 2 && st.Peek(0) == 1 {
  * Alternative to Bytecode.And for masking u256 into a u5
  */
 function AndU5(st: EvmState.ExecutingState): (st': EvmState.State)
-requires st.Operands() >= 2 && st.Peek(0) == 31 {
+requires st.Operands() >= 2 && st.Peek(0) == 0x1f {
     var rhs := st.Peek(1);
     var res := rhs % 32;
     st.Pop(2).Push(res).Next()
