@@ -507,6 +507,12 @@ lemma {:axiom} MemoryReadAxiom(st: EvmState.ExecutingState, i:nat)
 lemma {:axiom} NoCollisionsAxiom(h1: u256, h2: u256)
 	ensures h1 != h2
 
+lemma {:axiom} MemoryPreserved(st: EvmState.ExecutingState, st': EvmState.ExecutingState)
+	ensures st.evm.memory == st.evm.memory
+
+lemma {:axiom} StoragePreserved(st: EvmState.ExecutingState, st': EvmState.ExecutingState, address: u256)
+	ensures st.evm.world.Read(st.evm.context.address,address) == st'.evm.world.Read(st'.evm.context.address,address) 
+
 lemma stackLemma(st: EvmState.ExecutingState, n: nat)
 	requires 1 <= n <= 16 && st.Operands() == n
 	ensures n == 1 ==> st.evm.stack.contents == [st.Peek(0)]
