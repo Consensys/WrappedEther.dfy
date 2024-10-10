@@ -10,14 +10,17 @@ module approve {
 	import opened Header
 	import opened Int
 
-	method block_0_0x0147(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0147( callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0147
 	// Free memory pointer
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 1
-	requires st'.evm.stack.contents == [st'.Peek(0)]
+	requires callSig == 0x95ea7b3
+	requires st'.evm.stack.contents == [callSig]
+
+	ensures st'.evm.context.callValue != 0 ==> st''.IsRevert()
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -34,7 +37,7 @@ module approve {
 		st := JumpI(st);
 		if st.PC() == 0x152 { 
 			stackLemma(st,st.Operands());
-			st := block_0_0x0152(st); 
+			st := block_0_0x0152(callSig,st); 
 			return st;
 		}
 		//|fp=0x0060|_|
@@ -46,14 +49,15 @@ module approve {
 		return st;
 	}
 
-	method block_0_0x0152(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0152( callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0152
 	// Free memory pointer
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 1
-	requires st'.evm.stack.contents == [st'.Peek(0)]
+	requires callSig == 0x95ea7b3
+	requires st'.evm.stack.contents == [callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -77,11 +81,11 @@ module approve {
 		assert guy as u256 == st.evm.context.CallDataRead(0x04) % (Int.TWO_160 as u256) ;
 		//|fp=0x0060|guy,0x04,0x04,0x187,_|
 		stackLemma(st,st.Operands());
-		st := block_0_0x0171(guy,st);
+		st := block_0_0x0171(guy,callSig,st);
 		return st;
 	}
 
-	method block_0_0x0171(guy: u160, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0171(guy: u160,  callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0171
 	// Free memory pointer
@@ -89,7 +93,8 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 5
 	// Static stack items
-	requires st'.evm.stack.contents == [guy as u256,0x4,0x04,0x187,st'.Peek(4)]
+	requires callSig == 0x95ea7b3
+	requires st'.evm.stack.contents == [guy as u256,0x4,0x04,0x187,callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -115,11 +120,11 @@ module approve {
 		var wad := st.Peek(0);
 		assert wad == st.evm.context.CallDataRead(0x24) ;
 		stackLemma(st,st.Operands());
-		st := block_0_0x017a(guy,wad,st);
+		st := block_0_0x017a(guy,wad,callSig,st);
 		return st;
 	}
 
-	method block_0_0x017a(guy: u160, wad: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x017a(guy: u160, wad: u256,  callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x017a
 	// Free memory pointer
@@ -127,7 +132,8 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 6
 	// Static stack items
-	requires st'.evm.stack.contents == [wad,0x24,0x04,guy as u256,0x187,st'.Peek(5)]
+	requires callSig == 0x95ea7b3
+	requires st'.evm.stack.contents == [wad,0x24,0x04,guy as u256,0x187,callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -150,11 +156,11 @@ module approve {
 		st := Pop(st);
 		//|fp=0x0060|wad,guy,0x187,_|
 		stackLemma(st,st.Operands());
-		st := block_0_0x0183(guy,wad,st);
+		st := block_0_0x0183(guy,wad,callSig,st);
 		return st;
 	}
 
-	method block_0_0x0183(guy: u160, wad: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0183(guy: u160, wad: u256,  callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0183
 	// Free memory pointer
@@ -162,7 +168,8 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 4
 	// Static stack items
-	requires st'.evm.stack.contents == [wad,guy as u256,0x187,st'.Peek(3)]
+	requires callSig == 0x95ea7b3
+	requires st'.evm.stack.contents == [wad,guy as u256,0x187,callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -172,11 +179,11 @@ module approve {
 		assume {:axiom} st.IsJumpDest(0x57b);
 		st := Jump(st);
 		stackLemma(st,st.Operands());
-		st := block_0_0x057b(guy,wad,st);
+		st := block_0_0x057b(guy,wad,callSig,st);
 		return st;
 	}
 
-	method 	block_0_0x0187(guy: u160, wad: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method 	block_0_0x0187(guy: u160, wad: u256,  callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0187
 	// Free memory pointer
@@ -184,8 +191,9 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 2
 	// Static stack items
-	requires st'.evm.stack.contents == [0x1,st'.Peek(1)]
+	requires st'.evm.stack.contents == [0x1,callSig]
 	// Storage
+	requires callSig == 0x95ea7b3
 	requires st'.Load(Hash(guy as u256,Hash(st'.evm.context.sender as u256,0x04))) == wad
 	{
 		var st := st';
@@ -207,11 +215,11 @@ module approve {
 		//|fp=0x0060|0x01,0x60,0x60,0x01,_|
 		st := IsZero(st);
 		stackLemma(st,st.Operands());
-		st := block_0_0x0190(guy,wad,st);
+		st := block_0_0x0190(guy,wad,callSig,st);
 		return st;
 	}
 
-	method block_0_0x0190(guy: u160, wad: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0190(guy: u160, wad: u256,  callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0190
 	// Free memory pointer
@@ -219,8 +227,9 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 5
 	// Static stack items
-	requires st'.evm.stack.contents == [0x0,0x60,0x60,0x1,st'.Peek(4)]
+	requires st'.evm.stack.contents == [0x0,0x60,0x60,0x1,callSig]
 	// Storage
+	requires callSig == 0x95ea7b3
 	requires st'.Load(Hash(guy as u256,Hash(st'.evm.context.sender as u256,0x04))) == wad
 	{
 		var st := st';
@@ -232,11 +241,11 @@ module approve {
 		//|fp=0x0060|0x60,0x01,0x60,0x60,0x01,_|
 		st := MStore(st);
 		stackLemma(st,st.Operands());
-		st := block_0_0x0193(guy,wad,st);
+		st := block_0_0x0193(guy,wad,callSig,st);
 		return st;
 	}
 
-	method block_0_0x0193(guy: u160, wad: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0193(guy: u160, wad: u256,  callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0193
 	// Free memory pointer
@@ -244,8 +253,9 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 4
 	// Static stack items
-	requires st'.evm.stack.contents == [0x60,0x60,0x01,st'.Peek(3)]
+	requires st'.evm.stack.contents == [0x60,0x60,0x01,callSig]
 	// Storage
+	requires callSig == 0x95ea7b3
 	requires st'.Load(Hash(guy as u256,Hash(st'.evm.context.sender as u256,0x04))) == wad
 	{
 		var st := st';
@@ -263,11 +273,11 @@ module approve {
 		//|fp=0x0060|0x60,0x80,_|
 		st := Pop(st);
 		stackLemma(st,st.Operands());
-		st := block_0_0x0199(guy,wad,st);
+		st := block_0_0x0199(guy,wad,callSig,st);
 		return st;
 	}
 
-	method block_0_0x0199(guy: u160, wad: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0199(guy: u160, wad: u256,  callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0199
 	// Free memory pointer
@@ -275,8 +285,9 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 2
 	// Static stack items
-	requires st'.evm.stack.contents == [0x80,st'.Peek(1)]
+	requires st'.evm.stack.contents == [0x80,callSig]
 	// Storage
+	requires callSig == 0x95ea7b3
 	requires st'.Load(Hash(guy as u256,Hash(st'.evm.context.sender as u256,0x04))) == wad
 
 	ensures st''.RETURNS? 
@@ -309,7 +320,7 @@ module approve {
 		return st;
 	}
 
-	method block_0_0x057b(guy: u160, wad: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x057b(guy: u160, wad: u256,  callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x057b
 	// Free memory pointer
@@ -317,7 +328,8 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 4
 	// Static stack items
-	requires st'.evm.stack.contents == [wad,guy as u256,0x187,st'.Peek(3)]
+	requires callSig == 0x95ea7b3
+	requires st'.evm.stack.contents == [wad,guy as u256,0x187,callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -339,11 +351,11 @@ module approve {
 		st := AndU160(st);
 		//assert st.Peek(0) as u160 == st.evm.context.sender;
 		stackLemma(st,st.Operands());
-		st := block_0_0x059a(guy,wad,st);
+		st := block_0_0x059a(guy,wad,callSig,st);
 		return st;
 	}
 
-	method block_0_0x059a(guy: u160, wad: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x059a(guy: u160, wad: u256,  callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x059a
 	// Free memory pointer
@@ -351,7 +363,8 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 9
 	// Static stack items
-	requires st'.evm.stack.contents == [st'.evm.context.sender as u256,0x0,0x4,wad,0x0,wad,guy as u256,0x187,st'.Peek(8)]
+	requires callSig == 0x95ea7b3
+	requires st'.evm.stack.contents == [st'.evm.context.sender as u256,0x0,0x4,wad,0x0,wad,guy as u256,0x187,callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -365,11 +378,11 @@ module approve {
 		st := MStore(st);
 		//|fp=0x0060|0x00,0x04,wad,0x00,wad,guy,0x187,_| i.e. st.Read(0x00) == caller
 		stackLemma(st,st.Operands());
-		st := block_0_0x05b2(guy,wad,st);
+		st := block_0_0x05b2(guy,wad,callSig,st);
 		return st;
 	}
 
-	method block_0_0x05b2(guy: u160, wad: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x05b2(guy: u160, wad: u256,  callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x05b2
 	// Free memory pointer
@@ -377,7 +390,8 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 8
 	// Static stack items
-	requires st'.evm.stack.contents == [0x0,0x4,wad,0x0,wad,guy as u256,0x187,st'.Peek(7)]
+	requires callSig == 0x95ea7b3
+	requires st'.evm.stack.contents == [0x0,0x4,wad,0x0,wad,guy as u256,0x187,callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -391,11 +405,11 @@ module approve {
 		st := Dup(st,2);
 		//|fp=0x0060|0x20,0x04,0x20,wad,0x00,wad,guy,0x187,_|
 		stackLemma(st,st.Operands());
-		st := block_0_0x05b7(guy,wad,st);
+		st := block_0_0x05b7(guy,wad,callSig,st);
 		return st;
 	}
 
-	method block_0_0x05b7(guy: u160, wad: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x05b7(guy: u160, wad: u256,  callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x05b7
 	// Free memory pointer
@@ -403,7 +417,8 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 9
 	// Static stack items
-	requires st'.evm.stack.contents == [0x20,0x4,0x20,wad,0x0,wad,guy as u256,0x187,st'.Peek(8)]
+	requires callSig == 0x95ea7b3
+	requires st'.evm.stack.contents == [0x20,0x4,0x20,wad,0x0,wad,guy as u256,0x187,callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -411,11 +426,11 @@ module approve {
 		st := MStore(st);
 		//|fp=0x0060|0x20,wad,0x00,wad,guy,0x187,_| i.e. st.Read(0x20) == 0x04
 		stackLemma(st,st.Operands());
-		st := block_0_0x05b8(guy,wad,st);
+		st := block_0_0x05b8(guy,wad,callSig,st);
 		return st;
 	}
 		
-	method block_0_0x05b8(guy: u160, wad: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x05b8(guy: u160, wad: u256,  callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x05b8
 	// Free memory pointer
@@ -423,7 +438,8 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 7
 	// Static stack items
-	requires st'.evm.stack.contents == [0x20,wad,0x0,wad,guy as u256,0x187,st'.Peek(6)]
+	requires callSig == 0x95ea7b3
+	requires st'.evm.stack.contents == [0x20,wad,0x0,wad,guy as u256,0x187,callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -446,11 +462,11 @@ module approve {
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		//|fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,guy,0x00,hash[caller,0x04],wad,0x00,wad,guy,0x187,_|
 		stackLemma(st,st.Operands());
-		st := block_0_0x05d6(guy,wad,st);
+		st := block_0_0x05d6(guy,wad,callSig,st);
 		return st;
 	}
 
-	method block_0_0x05d6(guy: u160, wad: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x05d6(guy: u160, wad: u256,  callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x05d6
 	// Free memory pointer
@@ -458,27 +474,30 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 10
 	// Static stack items
-	requires st'.evm.stack.contents == [0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffff,guy as u256,0x0,Hash(st'.evm.context.sender as u256,0x04),wad,0x00,wad,guy as u256,0x187,st'.Peek(9)]
+	requires callSig == 0x95ea7b3
+	requires st'.evm.stack.contents == [0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffff,guy as u256,0x0,Hash(st'.evm.context.sender as u256,0x04),wad,0x00,wad,guy as u256,0x187,callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
 		//|fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,guy,0x00,hash[caller,0x04],wad,0x00,wad,guy,0x187,_|
 		st := AndU160(st);
+		assert st.Peek(0) == guy as u256;
 		//|fp=0x0060|guy,0x00,hash[caller,0x04],wad,0x00,wad,guy,0x187,_|
 		st := PushN(st,20,0xffffffffffffffffffffffffffffffffffffffff);
 		//|fp=0x0060|0xffffffffffffffffffffffffffffffffffffffff,guy,0x00,hash[caller,0x04],wad,0x00,wad,guy,0x187,_|
 		st := AndU160(st);
+		assert st.Peek(0) == guy as u256;
 		//|fp=0x0060|guy,0x00,hash[caller,0x04],wad,0x00,wad,guy,0x187,_|
 		st := Dup(st,2);
 		//|fp=0x0060|0x00,guy,0x00,hash[caller,0x04],wad,0x00,wad,guy,0x187,_|
 		st := MStore(st);
 		//|fp=0x0060|0x00,hash[caller,0x04],wad,0x00,wad,guy,0x187,_| i.e. st.Read(0x00) == guy
 		stackLemma(st,st.Operands());
-		st := block_0_0x05ef(guy,wad,st);
+		st := block_0_0x05ef(guy,wad,callSig,st);
 		return st;
 	}
 
-	method block_0_0x05ef(guy: u160, wad: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x05ef(guy: u160, wad: u256,  callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x05ef
 	// Free memory pointer
@@ -486,7 +505,8 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 8
 	// Static stack items
-	requires st'.evm.stack.contents == [0x0,Hash(st'.evm.context.sender as u256,0x04),wad,0x00,wad,guy as u256,0x187,st'.Peek(7)]
+	requires callSig == 0x95ea7b3
+	requires st'.evm.stack.contents == [0x0,Hash(st'.evm.context.sender as u256,0x04),wad,0x00,wad,guy as u256,0x187,callSig]
 	{
 		var st := st';	
 		stackLemma(st,st.Operands());
@@ -498,11 +518,11 @@ module approve {
 		st := Swap(st,1);
 		//|fp=0x0060|hash[caller,0x04],0x20,wad,0x00,wad,guy,0x187,_|
 		stackLemma(st,st.Operands());
-		st := block_0_0x05f3(guy,wad,st);
+		st := block_0_0x05f3(guy,wad,callSig,st);
 		return st;
 	}
 
-	method block_0_0x05f3(guy: u160, wad: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x05f3(guy: u160, wad: u256,  callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x05f3
 	// Free memory pointer
@@ -510,7 +530,8 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 8
 	// Static stack items
-	requires st'.evm.stack.contents == [Hash(st'.evm.context.sender as u256,0x04),0x20,wad,0x00,wad,guy as u256,0x187,st'.Peek(7)]
+	requires callSig == 0x95ea7b3
+	requires st'.evm.stack.contents == [Hash(st'.evm.context.sender as u256,0x04),0x20,wad,0x00,wad,guy as u256,0x187,callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -519,11 +540,11 @@ module approve {
 		//|fp=0x0060|0x20,hash[caller,0x04],0x20,wad,0x00,wad,guy,0x187,_|
 		st := MStore(st);
 		stackLemma(st,st.Operands());
-		st := block_0_0x05f5(guy,wad,st);
+		st := block_0_0x05f5(guy,wad,callSig,st);
 		return st;
 	}	
 
-	method block_0_0x05f5(guy: u160, wad: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x05f5(guy: u160, wad: u256,  callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x05f5
 	// Free memory pointer
@@ -531,7 +552,8 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 7
 	// Static stack items
-	requires st'.evm.stack.contents == [0x20,wad,0x00,wad,guy as u256,0x187,st'.Peek(6)]
+	requires callSig == 0x95ea7b3
+	requires st'.evm.stack.contents == [0x20,wad,0x00,wad,guy as u256,0x187,callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());	
@@ -552,11 +574,11 @@ module approve {
 		st := Swap(st,1);
 		//|fp=0x0060|hash[guy,hash[caller,0x04]],wad,wad,0x00,wad,guy,0x187,_|
 		stackLemma(st,st.Operands());
-		st := block_0_0x05fd(guy,wad,st);
+		st := block_0_0x05fd(guy,wad,callSig,st);
 		return st;
 	}
 
-	method block_0_0x05fd(guy: u160, wad: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x05fd(guy: u160, wad: u256,  callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x05fd
 	// Free memory pointer
@@ -564,7 +586,8 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 8
 	// Static stack items
-	requires st'.evm.stack.contents == [Hash(guy as u256,Hash(st'.evm.context.sender as u256,0x04)),wad,st'.Peek(2),st'.Peek(3),st'.Peek(4),st'.Peek(5),0x187,st'.Peek(7)]
+	requires callSig == 0x95ea7b3
+	requires st'.evm.stack.contents == [Hash(guy as u256,Hash(st'.evm.context.sender as u256,0x04)),wad,st'.Peek(2),st'.Peek(3),st'.Peek(4),st'.Peek(5),0x187,callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -586,11 +609,11 @@ module approve {
 		st := AndU160(st);
 		//|fp=0x0060|caller,guy,0x00,wad,guy,0x187,_|
 		stackLemma(st,st.Operands());
-		st := block_0_0x062d(guy,wad,st);
+		st := block_0_0x062d(guy,wad,callSig,st);
 		return st;
 	}
 
-	method block_0_0x062d(guy: u160, wad: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x062d(guy: u160, wad: u256,  callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x062d
 	// Free memory pointer
@@ -598,7 +621,8 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 7
 	// Static stack items
-	requires st'.evm.stack.contents == [st'.Peek(0),st'.Peek(1),st'.Peek(2),st'.Peek(3),st'.Peek(4),0x187,st'.Peek(6)]
+	requires callSig == 0x95ea7b3
+	requires st'.evm.stack.contents == [st'.Peek(0),st'.Peek(1),st'.Peek(2),st'.Peek(3),st'.Peek(4),0x187,callSig]
 	
 	// Storage
 	requires st'.Load(Hash(guy as u256,Hash(st'.evm.context.sender as u256,0x04))) == wad
@@ -624,11 +648,11 @@ module approve {
 		//|fp=0x0060|0x60,0x60,wad,0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925,caller,guy,0x00,wad,guy,0x187,_|
 		// i.e. st.Read(0x60) == wad
 		stackLemma(st,st.Operands());
-		st := block_0_0x0656(guy,wad,st);
+		st := block_0_0x0656(guy,wad,callSig,st);
 		return st;
 	}
 
-	method block_0_0x0656(guy: u160, wad: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0656(guy: u160, wad: u256,  callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0656
 	// Free memory pointer
@@ -636,7 +660,8 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 11
 	// Static stack items
-	requires st'.evm.stack.contents == [0x60,st'.Peek(1),st'.Peek(2),st'.Peek(3),st'.Peek(4),st'.Peek(5),st'.Peek(6),st'.Peek(7),st'.Peek(8),0x187,st'.Peek(10)]
+	requires callSig == 0x95ea7b3
+	requires st'.evm.stack.contents == [0x60,st'.Peek(1),st'.Peek(2),st'.Peek(3),st'.Peek(4),st'.Peek(5),st'.Peek(6),st'.Peek(7),st'.Peek(8),0x187,callSig]
 	// Storage
 	requires st'.Load(Hash(guy as u256,Hash(st'.evm.context.sender as u256,0x04))) == wad
 	{
@@ -661,11 +686,11 @@ module approve {
 		st := Dup(st,1);
 		//|fp=0x0060|0x60,0x60,0x80,0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925,caller,guy,0x00,wad,guy,0x187,_|
 		stackLemma(st,st.Operands());
-		st := block_0_0x0660(guy,wad,st);
+		st := block_0_0x0660(guy,wad,callSig,st);
 		return st;
 	}
 
-	method block_0_0x0660(guy: u160, wad: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0660(guy: u160, wad: u256,  callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0660
 	// Free memory pointer
@@ -673,7 +698,8 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 11
 	// Static stack items
-	requires st'.evm.stack.contents == [st'.Peek(0),0x60,0x80,st'.Peek(3),st'.Peek(4),st'.Peek(5),st'.Peek(6),st'.Peek(7),st'.Peek(8),0x187,st'.Peek(10)]
+	requires callSig == 0x95ea7b3
+	requires st'.evm.stack.contents == [st'.Peek(0),0x60,0x80,st'.Peek(3),st'.Peek(4),st'.Peek(5),st'.Peek(6),st'.Peek(7),st'.Peek(8),0x187,callSig]
 	// Storage
 	requires st'.Load(Hash(guy as u256,Hash(st'.evm.context.sender as u256,0x04))) == wad
 	{
@@ -698,11 +724,11 @@ module approve {
 		st := Swap(st,3);
 		//|fp=0x0060|0x187,wad,guy,0x01,_|
 		stackLemma(st,st.Operands());
-		st := block_0_0x0669(guy,wad,st);
+		st := block_0_0x0669(guy,wad,callSig,st);
 		return st;
 	}
 
-	method block_0_0x0669(guy: u160, wad: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0669(guy: u160, wad: u256,  callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0669
 	// Free memory pointer
@@ -710,7 +736,8 @@ module approve {
 	// Stack height(s)
 	requires st'.Operands() == 5
 	// Static stack items
-	requires st'.evm.stack.contents == [0x187,st'.Peek(1),st'.Peek(2),0x1,st'.Peek(4)]
+	requires callSig == 0x95ea7b3
+	requires st'.evm.stack.contents == [0x187,st'.Peek(1),st'.Peek(2),0x1,callSig]
 	// Storage
 	requires st'.Load(Hash(guy as u256,Hash(st'.evm.context.sender as u256,0x04))) == wad
 	{
@@ -726,7 +753,7 @@ module approve {
 		assume {:axiom} st.IsJumpDest(0x187);
 		st := Jump(st);
 		stackLemma(st,st.Operands());
-		st := block_0_0x0187(guy,wad,st);
+		st := block_0_0x0187(guy,wad,callSig,st);
 		return st;
 	}
 

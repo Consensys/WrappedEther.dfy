@@ -11,14 +11,18 @@ module allowance {
 	import opened Int
 
 	// from block_0_0x00a3 in main
-	method block_0_0x03d4(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x03d4(callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x03d4
 	// Free memory pointer
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 1
-	requires st'.evm.stack.contents == [st'.Peek(0)]
+	requires 0xdd62ed3e == callSig
+	requires st'.evm.stack.contents == [callSig]
+
+	ensures st'.evm.context.callValue != 0 ==> st''.IsRevert()
+	
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -34,8 +38,9 @@ module allowance {
 		assume {:axiom} st.IsJumpDest(0x3df);
 		st := JumpI(st);
 		if st.PC() == 0x3df { 
+			// call value is zero
 			stackLemma(st,st.Operands());
-			st := block_0_0x03df(st); 
+			st := block_0_0x03df(callSig,st); 
 			return st;
 		}
 		//|fp=0x0060|_|
@@ -47,14 +52,15 @@ module allowance {
 		return st;
 	}
 
-	method block_0_0x03df(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x03df(callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x03df
 	// Free memory pointer
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 1
-	requires st'.evm.stack.contents == [st'.Peek(0)]
+	requires 0xdd62ed3e == callSig
+	requires st'.evm.stack.contents == [callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -77,19 +83,20 @@ module allowance {
 		var addr1 := st.Peek(0) as u160;
 		assert addr1 as u256 == st.evm.context.CallDataRead(0x04) % (Int.TWO_160 as u256);
 		stackLemma(st,st.Operands());
-		st := block_0_0x03fe(addr1,st);
+		st := block_0_0x03fe(addr1,callSig,st);
 		return st;
 	}
 
-	method block_0_0x03fe(addr1: u160, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x03fe(addr1: u160, callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x03fe
 	// Free memory pointer
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 5
+	requires 0xdd62ed3e == callSig
 	// Static stack items
-	requires st'.evm.stack.contents == [addr1 as u256,0x4,0x4,0x42a,st'.Peek(4)]
+	requires st'.evm.stack.contents == [addr1 as u256,0x4,0x4,0x42a,callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -113,19 +120,20 @@ module allowance {
 		st := CallDataLoad(st);
 		//|fp=0x0060|callData(0x24),0x24,0x04,addr1,0x42a,_|
 		stackLemma(st,st.Operands());
-		st := block_0_0x0407(addr1,st);
+		st := block_0_0x0407(addr1,callSig,st);
 		return st;
 	}
 
-	method block_0_0x0407(addr1: u160, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0407(addr1: u160, callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0407
 	// Free memory pointer
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 6
+	requires 0xdd62ed3e == callSig
 	// Static stack items
-	requires st'.evm.stack.contents == [st'.evm.context.CallDataRead(0x24),0x24,0x04,addr1 as u256,0x42a,st'.Peek(5)]
+	requires st'.evm.stack.contents == [st'.evm.context.CallDataRead(0x24),0x24,0x04,addr1 as u256,0x42a,callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -152,19 +160,20 @@ module allowance {
 		st := Swap(st,1);
 		//|fp=0x0060|0x44,0x04,addr2,addr1,0x42a,_|
 		stackLemma(st,st.Operands());
-		st := block_0_0x0424(addr1,addr2,st);
+		st := block_0_0x0424(addr1,addr2,callSig,st);
 		return st;
 	}
 
-	method block_0_0x0424(addr1: u160, addr2: u160, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0424(addr1: u160, addr2: u160, callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0424
 	// Free memory pointer
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 6
+	requires 0xdd62ed3e == callSig
 	// Static stack items
-	requires st'.evm.stack.contents == [st'.Peek(0),st'.Peek(1),addr2 as u256,addr1 as u256,0x42a,st'.Peek(5)]
+	requires st'.evm.stack.contents == [st'.Peek(0),st'.Peek(1),addr2 as u256,addr1 as u256,0x42a,callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -178,19 +187,20 @@ module allowance {
 		assume {:axiom} st.IsJumpDest(0xbe3);
 		st := Jump(st);
 		stackLemma(st,st.Operands());
-		st := block_0_0x0be3(addr1,addr2,st);
+		st := block_0_0x0be3(addr1,addr2,callSig,st);
 		return st;
 	}
 
-	method block_0_0x042a(allowance: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x042a(allowance: u256, callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x042a
 	// Free memory pointer
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 3
+	requires 0xdd62ed3e == callSig
 	// Static stack items
-	requires st'.evm.stack.contents == [allowance,st'.Peek(1),st'.Peek(2)]
+	requires st'.evm.stack.contents == [allowance,st'.Peek(1),callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -212,19 +222,20 @@ module allowance {
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,0x60,0x60,allowance,0x42a,_| 
 		stackLemma(st,st.Operands());
-		st := block_0_0x0434(allowance,st);
+		st := block_0_0x0434(allowance,callSig,st);
 		return st;
 	}
 
-	method block_0_0x0434(allowance: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0434(allowance: u256, callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0434
 	// Free memory pointer
 	requires st'.MemSize() >= 0x80 && st'.Read(0x40) == 0x60 && st'.Read(0x60) == allowance
 	// Stack height(s)
 	requires st'.Operands() == 6
+	requires 0xdd62ed3e == callSig
 	// Static stack items
-	requires st'.evm.stack.contents == [0x20,0x60,0x60,allowance,st'.Peek(4),st'.Peek(5)]
+	requires st'.evm.stack.contents == [0x20,0x60,0x60,allowance,st'.Peek(4),callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -247,19 +258,20 @@ module allowance {
 		st := Swap(st,2);
 		//|fp=0x0060|0x80,0x60,0x60,0x42a,_|
 		stackLemma(st,st.Operands());
-		st := block_0_0x043d(allowance,st);
+		st := block_0_0x043d(allowance,callSig,st);
 		return st;
 	}
 
-	method block_0_0x043d(allowance: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x043d(allowance: u256, callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x043d
 	// Free memory pointer
 	requires st'.MemSize() >= 0x80 && st'.Read(0x40) == 0x60  && st'.Read(0x60) == allowance
 	// Stack height(s)
 	requires st'.Operands() == 5
+	requires 0xdd62ed3e == callSig
 	// Static stack items
-	requires st'.evm.stack.contents == [0x80,0x60,0x60,st'.Peek(3),st'.Peek(4)]
+	requires st'.evm.stack.contents == [0x80,0x60,0x60,st'.Peek(3),callSig]
 	
 	ensures st''.RETURNS? && st''.data == Int.ToBytes(allowance as nat) // Memory.Slice(st'.evm.memory, 0x60, 0x20)
 	
@@ -279,15 +291,16 @@ module allowance {
 		return st;
 	}
 
-	method block_0_0x0be3(addr1: u160, addr2: u160, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0be3(addr1: u160, addr2: u160, callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0be3
 	// Free memory pointer
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 4
+	requires 0xdd62ed3e == callSig
 	// Static stack items
-	requires st'.evm.stack.contents == [addr2 as u256,addr1 as u256,0x42a,st'.Peek(3)]
+	requires st'.evm.stack.contents == [addr2 as u256,addr1 as u256,0x42a,callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -300,6 +313,24 @@ module allowance {
 		//|fp=0x0060|0x20,0x04,addr2,addr1,0x42a,_|
 		st := MStore(st);
 		//|fp=0x0060|addr2,addr1,0x42a,_| i.e. st.Read(0x20) == 0x04
+		stackLemma(st,st.Operands());
+		st := block_0_0x0be9(addr1,addr2,callSig,st);
+		return st;
+	}
+
+	method block_0_0x0be9(addr1: u160, addr2: u160, callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	requires st'.evm.code == Code.Create(BYTECODE_0)
+	requires st'.WritesPermitted() && st'.PC() == 0x0be9
+	// Free memory pointer
+	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60 && st'.Read(0x20) == 0x04 
+	// Stack height(s)
+	requires st'.Operands() == 4
+	requires 0xdd62ed3e == callSig
+	// Static stack items
+	requires st'.evm.stack.contents == [addr2 as u256,addr1 as u256,0x42a,callSig]
+	{
+		var st := st';
+		stackLemma(st,st.Operands());
 		st := Dup(st,2);
 		//|fp=0x0060|addr1,addr2,addr1,0x42a,_|
 		st := Push1(st,0x00);
@@ -307,19 +338,20 @@ module allowance {
 		st := MStore(st);
 		//|fp=0x0060|addr2,addr1,0x42a,_| i.e. st.Read(0x00) == addr1
 		stackLemma(st,st.Operands());
-		st := block_0_0x0bed(addr1,addr2,st);
+		st := block_0_0x0bed(addr1,addr2,callSig,st);
 		return st;
 	}
 
-	method block_0_0x0bed(addr1: u160, addr2: u160, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0bed(addr1: u160, addr2: u160, callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0bed
 	// Free memory pointer
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60 && st'.Read(0x00) == addr1 as u256 && st'.Read(0x20) == 0x04
 	// Stack height(s)
 	requires st'.Operands() == 4
+	requires 0xdd62ed3e == callSig
 	// Static stack items
-	requires st'.evm.stack.contents == [addr2 as u256,addr1 as u256,0x42a,st'.Peek(3)]
+	requires st'.evm.stack.contents == [addr2 as u256,addr1 as u256,0x42a,callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -335,19 +367,20 @@ module allowance {
 		st := Push1(st,0x20);
 		//|fp=0x0060|0x20,hash[addr1,0x04],addr2,addr1,0x42a,_|
 		stackLemma(st,st.Operands());
-		st := block_0_0x0bf4(addr1,addr2,st);
+		st := block_0_0x0bf4(addr1,addr2,callSig,st);
 		return st;
 	}
 
-	method block_0_0x0bf4(addr1: u160, addr2: u160, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0bf4(addr1: u160, addr2: u160, callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0bf4
 	// Free memory pointer
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60 
 	// Stack height(s)
 	requires st'.Operands() == 6
+	requires 0xdd62ed3e == callSig
 	// Static stack items
-	requires st'.evm.stack.contents == [0x20,Hash(addr1 as u256,0x04),addr2 as u256,st'.Peek(3),0x42a,st'.Peek(5)]
+	requires st'.evm.stack.contents == [0x20,Hash(addr1 as u256,0x04),addr2 as u256,st'.Peek(3),0x42a,callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -355,20 +388,21 @@ module allowance {
 		st := MStore(st);
 		//|fp=0x0060|addr2,addr1,0x42a,_| i.e. st.Read(0x20) == hash[addr1,0x04]
 		stackLemma(st,st.Operands());
-		st := block_0_0x0bf5(addr1,addr2,st);
+		st := block_0_0x0bf5(addr1,addr2,callSig,st);
 		return st;
 	}
 
 
-	method block_0_0x0bf5(addr1: u160, addr2: u160, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0bf5(addr1: u160, addr2: u160, callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0bf5
 	// Free memory pointer
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60 && st'.Read(0x20) == Hash(addr1 as u256,0x04)
 	// Stack height(s)
 	requires st'.Operands() == 4
+	requires 0xdd62ed3e == callSig
 	// Static stack items
-	requires st'.evm.stack.contents == [addr2 as u256,st'.Peek(1),0x42a,st'.Peek(3)]
+	requires st'.evm.stack.contents == [addr2 as u256,st'.Peek(1),0x42a,callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -377,19 +411,20 @@ module allowance {
 		st := Push1(st,0x00);
 		//|fp=0x0060|0x00,addr2,addr2,addr1,0x42a,_|
 		stackLemma(st,st.Operands());
-		st := block_0_0x0bf8(addr1,addr2,st);
+		st := block_0_0x0bf8(addr1,addr2,callSig,st);
 		return st;
 	}
 
-	method block_0_0x0bf8(addr1: u160, addr2: u160, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0bf8(addr1: u160, addr2: u160, callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0bf8
 	// Free memory pointer
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60 && st'.Read(0x20) == Hash(addr1 as u256,0x04)
 	// Stack height(s)
 	requires st'.Operands() == 6
+	requires 0xdd62ed3e == callSig
 	// Static stack items
-	requires st'.evm.stack.contents == [0x0,addr2 as u256,addr2 as u256,st'.Peek(3),0x42a,st'.Peek(5)]
+	requires st'.evm.stack.contents == [0x0,addr2 as u256,addr2 as u256,st'.Peek(3),0x42a,callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -400,19 +435,20 @@ module allowance {
 		st := Push1(st,0x40);
 		//|fp=0x0060|0x40,addr2,addr1,0x42a,_|
 		stackLemma(st,st.Operands());
-		st := block_0_0x0bfb(addr1,addr2,st);
+		st := block_0_0x0bfb(addr1,addr2,callSig,st);
 		return st;
 	}
 
-	method block_0_0x0bfb(addr1: u160, addr2: u160, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0bfb(addr1: u160, addr2: u160, callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0bfb
 	// Free memory pointer
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60 && st'.Read(0x00) == addr2 as u256 && st'.Read(0x20) == Hash(addr1 as u256,0x04)
 	// Stack height(s)
 	requires st'.Operands() == 5
+	requires 0xdd62ed3e == callSig
 	// Static stack items
-	requires st'.evm.stack.contents == [0x40,addr2 as u256,st'.Peek(2),0x42a,st'.Peek(4)]
+	requires st'.evm.stack.contents == [0x40,addr2 as u256,st'.Peek(2),0x42a,callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -436,19 +472,20 @@ module allowance {
 		st := Pop(st);
 		//|fp=0x0060|hash[addr2,hash1],0x42a,_|
 		stackLemma(st,st.Operands());
-		st := block_0_0x0c05(addr1,addr2,st);
+		st := block_0_0x0c05(addr1,addr2,callSig,st);
 		return st;
 	}
 
-	method block_0_0x0c05(addr1: u160, addr2: u160, st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x0c05(addr1: u160, addr2: u160, callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x0c05
 	// Free memory pointer
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 3
+	requires 0xdd62ed3e == callSig
 	// Static stack items
-	requires st'.evm.stack.contents == [Hash(addr2 as u256,Hash(addr1 as u256,0x04)),0x42a,st'.Peek(2)]
+	requires st'.evm.stack.contents == [Hash(addr2 as u256,Hash(addr1 as u256,0x04)),0x42a,callSig]
 	{
 		var st := st';
 		stackLemma(st,st.Operands());
@@ -462,7 +499,7 @@ module allowance {
 		assume {:axiom} st.IsJumpDest(0x42a);
 		st := Jump(st);
 		stackLemma(st,st.Operands());
-		st := block_0_0x042a(allowance,st);
+		st := block_0_0x042a(allowance,callSig,st);
 		return st;
 	}
 
