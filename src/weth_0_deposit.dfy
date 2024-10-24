@@ -11,15 +11,18 @@ module deposit {
 	import opened Header
 	import opened util
 
-	method block_0_0x03ca(st': EvmState.ExecutingState) returns (st'': EvmState.State)
+	method block_0_0x03ca(callSig: u256, st': EvmState.ExecutingState) returns (st'': EvmState.State)
 	requires st'.evm.code == Code.Create(BYTECODE_0)
 	requires st'.WritesPermitted() && st'.PC() == 0x03ca
 	// Free memory pointer
 	requires st'.MemSize() >= 0x60 && st'.Read(0x40) == 0x60
 	// Stack height(s)
 	requires st'.Operands() == 1
+	requires callSig == 0xd0e30db0 
+	requires st'.evm.stack.contents == [callSig]
 	{
 		var st := st';
+		stackLemma(st,st.Operands());
 		//|fp=0x0060|0xd0e30db0|
 		st := JumpDest(st);
 		//|fp=0x0060|0xd0e30db0|
@@ -30,7 +33,8 @@ module deposit {
 		assume {:axiom} st.IsJumpDest(0x440);
 		st := Jump(st);
 		//|fp=0x0060|0x3d2,0xd0e30db0|
-		st := block_0_0x0440(st);
+		stackLemma(st,st.Operands());
+		st := block_1_0x0440(callSig,st);
 		return st;
 	}
 
